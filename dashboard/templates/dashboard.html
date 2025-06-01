@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html>
+
 <head>
     <title>Weather Dashboard</title>
 </head>
@@ -10,6 +11,15 @@
         <p>Last update: <br><span id="last-update-span">-</span></p>
         <p>Temperature: <br><span id="temperature-span">-</span></p>
         <p>Humidity: <br><span id="humidity-span">-</span></p>
+
+        <div class="seven-seg-display" id="display">
+            <div class="digit left" id="digit-0"></div>
+            <div class="digit" id="digit-1"></div>
+            <div class="digit" id="digit-2"></div>
+            <div class="segment dp-between on" id="dp-between"></div>
+            <div class="digit right" id="digit-3"></div>
+        </div>
+
     </body>
 </html>
 
@@ -23,12 +33,119 @@
         font-size: 2em;
         font-weight: bold;
     }
+
+    .seven-seg-display {
+        display: flex;
+        gap: 10px;
+        background-color: #daed02;
+    }
+
+    .digit {
+        position: relative;
+        width: 40px;
+        height: 70px;
+        margin-top: 30px;
+        margin-bottom: 30px;
+    }
+
+    .left {
+        margin-left: 30px;
+    }
+
+    .right {
+        margin-right: 30px;
+    }
+
+    .segment {
+        position: absolute;
+        background: #222;
+        transition: 0.2s;
+        background: #f4f5f0;
+    }
+
+    .segment.on {
+        background: black;
+    }
+
+    .segment.dp-between {
+        position: relative;
+        width: 6px;
+        height: 6px;
+        background: #222;
+        border-radius: 50%;
+        align-self: flex-end;
+        margin-bottom: 30px;
+        margin-top: 30px;
+        background: #f4f5f0;
+    }
+
+    .segment.dp-between.on {
+        background: black;
+    }
+
+    /* Define segment shapes */
+    .segment.a { top: 0; left: 10px; width: 23px; height: 5px; }
+    .segment.b { top: 5px; right: 0; width: 5px; height: 27px; }
+    .segment.c { bottom: 5px; right: 0; width: 5px; height: 27px; }
+    .segment.d { bottom: 0; left: 10px; width: 23px; height: 5px; }
+    .segment.e { bottom: 5px; left: 0; width: 5px; height: 27px; }
+    .segment.f { top: 5px; left: 0; width: 5px; height: 27px; }
+    .segment.g { top: 32px; left: 10px; width: 23px; height: 5px; }
 </style>
 
 <script>
     const temperatureIndicator = document.getElementById("temperature-span");
     const humidityIndicator = document.getElementById("humidity-span");
     const lastUpdateIndicator = document.getElementById("last-update-span");
+
+    // segment mapping for digits 0-9
+    const segments = {
+        "0": ["a", "b", "c", "d", "e", "f"],
+        "1": ["b", "c"],
+        "2": ["a", "b", "g", "e", "d"],
+        "3": ["a", "b", "g", "c", "d"],
+        "4": ["f", "g", "b", "c"],
+        "5": ["a", "f", "g", "c", "d"],
+        "6": ["a", "f", "g", "e", "c", "d"],
+        "7": ["a", "b", "c"],
+        "8": ["a", "b", "c", "d", "e", "f", "g"],
+        "9": ["a", "b", "c", "d", "f", "g"],
+        "-": ["g"]
+    };
+
+    // create segments in each digit
+    document.querySelectorAll('.digit').forEach(digit => {
+        ['a', 'b', 'c', 'd', 'e', 'f', 'g'].forEach(seg => {
+            const div = document.createElement('div');
+            div.classList.add('segment', seg);
+            digit.appendChild(div);
+        });
+    });
+
+    function setSevenSegmentDisplay(value) {
+        const fixedString = value.toFixed(1);
+        const valueParts = fixedString.replace('.', '').split('');
+
+        const startDigit = 3 - (valueParts.length - 1);
+
+        let valuePartsIndex = 0;
+        for (let digitIndex = startDigit; digitIndex < 4; digitIndex++) {
+
+            const digit = document.getElementById(`digit-${digitIndex}`);
+            let valuePart = valueParts[valuePartsIndex];
+            let newSegments = segments[valuePart];
+
+            digit.querySelectorAll('.segment').forEach(segment => {
+                segment.classList.remove('on');
+
+                if (newSegments.includes(segment.classList[1])) {
+                    segment.classList.add('on');
+                }
+            });
+
+            valuePartsIndex++;
+        }
+    }
 
     const updateEventSource = new EventSource("/update-events-sse");
 
@@ -38,6 +155,8 @@
         temperatureIndicator.textContent = `${data.temperature.toFixed(1)}°C`;
         humidityIndicator.textContent = `${data.humidity}%`;
         lastUpdateIndicator.textContent = `${data.last_update}`;
+
+        setSevenSegmentDisplay(data.temperature);
     }
 
     updateEventSource.onerror = function(err) {
