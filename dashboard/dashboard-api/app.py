@@ -1,6 +1,6 @@
 from fastapi import FastAPI, Request
 from fastapi.responses import HTMLResponse
-from fastapi.templating import Jinja2Templates
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from sse_starlette.sse import EventSourceResponse
 import asyncio
@@ -21,11 +21,19 @@ FROM_EMAIL = ''
 SENDGRID_API_KEY = ''
 
 app = FastAPI()
-templates = Jinja2Templates(directory="templates")
 
-@app.get("/", response_class=HTMLResponse)
-async def get_dashboard(request: Request):
-    return templates.TemplateResponse("dashboard.html", {"request": request})
+origins = [
+    "http://localhost:5173",
+    "https://6d162bf8a2fc.ngrok-free.app/"
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],      # allow these origins
+    allow_credentials=True,
+    allow_methods=["*"],        # allow all methods (GET, POST, etc)
+    allow_headers=["*"],        # allow all headers
+)
 
 
 class SensorData(BaseModel):
@@ -79,25 +87,38 @@ async def receive_data(sensor_data: SensorData):
         current_data["low_temperature"] = updated_temperature
         current_data["low_temperature_time"] = timestamp
 
-    send_alert(previous_temperature, updated_temperature)
+    #send_alert(previous_temperature, updated_temperature)
 
     return {"status": "success"}
 
 @app.get("/update-events-sse")
 async def update_events(request: Request):
     async def update_event_generator():
-        while True:
-            yield { "data": json.dumps(current_data)}
+        try:
+            while True:
+                if await request.is_disconnected():
+                    break;
 
-            await asyncio.sleep(0.1)
+                yield { "data": json.dumps(current_data)}
+                #yield f"data: {json.dumps(current_data)}\n\n"
+
+                await asyncio.sleep(0.1)
+        except asyncio.CancelledError:
+            raise
 
     return EventSourceResponse(update_event_generator())
 
 @app.get("/connection-status-sse")
 async def connection_status(request: Request):
     async def connection_status_generator():
-        while True:
+        try:
+            while True:
+                if await request.is_disconnected():
+                    break
+
             # TODO: poll sensor station
             pass
+        except asyncio.CancelledError:
+            raise
 
     return EventSourceResponse(connection_status_generator())
