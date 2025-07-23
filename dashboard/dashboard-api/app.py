@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Request, Depends
 from fastapi.responses import HTMLResponse
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
@@ -6,11 +6,13 @@ from sse_starlette.sse import EventSourceResponse
 import asyncio
 from datetime import datetime
 import json
-from CsvManager import CsvManager
 from fastapi import FastAPI, HTTPException
 from sendgrid import SendGridAPIClient
 from sendgrid.helpers.mail import Mail
 import os
+from DailyWeather import *
+from sqlalchemy.orm import Session
+from database import SessionLocal, engine
 
 
 HIGH_TEMP_THRESHOLD = 27.5
@@ -36,14 +38,17 @@ app.add_middleware(
 )
 
 
-class SensorData(BaseModel):
-    temperature: float
-    humidity: int
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
 
 
 current_data = {
     "temperature": "-",
-    "last_update": "-",
+    "last_update": "2025-07-19 12:00:00",
     "high_temperature": "-",
     "high_temperature_time": "-",
     "low_temperature": "-",
@@ -67,25 +72,26 @@ def send_alert(previous_temperature, updated_temperature):
         except Exception as e:
             print(f'Failed to send alert: {str(e)}')
 
+
+class SensorData(BaseModel):
+    temperature: float
+    humidity: int
+
 @app.post("/update-sensor-data")
-async def receive_data(sensor_data: SensorData):
-    updated_temperature = sensor_data.temperature
-    high_temperature = current_data["high_temperature"]
-    low_temperature = current_data["low_temperature"]
-    previous_temperature = current_data["temperature"]
-    timestamp = str(datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
+async def receive_data(sensor_data: SensorData, db: Session = Depends(get_db)):
 
-    current_data["temperature"] = updated_temperature
-    current_data["humidity"] = sensor_data.humidity
-    current_data["last_update"] = timestamp
+    timestamp = datetime.now()
+    current_temperature = sensor_data.temperature
+    current_humidity = sensor_data.humidity
+    todays_record = update_todays_weather(db, current_temperature, timestamp)
 
-    if high_temperature=="-" or updated_temperature > high_temperature:
-        current_data["high_temperature"] = updated_temperature
-        current_data["high_temperature_time"] = timestamp
-
-    if low_temperature=="-" or updated_temperature < low_temperature:
-        current_data["low_temperature"] = updated_temperature
-        current_data["low_temperature_time"] = timestamp
+    current_data["temperature"]=current_temperature
+    current_data["last_update"]=timestamp.strftime("%Y-%m-%d %H:%M:%S")
+    current_data["high_temperature_time"]=todays_record.max_temp_time.strftime("%H:%M:%S")
+    current_data["low_temperature_time"]=todays_record.min_temp_time.strftime("%H:%M:%S")
+    current_data["high_temperature"]=todays_record.max_temp
+    current_data["low_temperature"]=todays_record.min_temp
+    current_data["humidity"]=current_humidity
 
     #send_alert(previous_temperature, updated_temperature)
 
@@ -100,7 +106,6 @@ async def update_events(request: Request):
                     break;
 
                 yield { "data": json.dumps(current_data)}
-                #yield f"data: {json.dumps(current_data)}\n\n"
 
                 await asyncio.sleep(0.1)
         except asyncio.CancelledError:

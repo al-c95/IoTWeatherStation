@@ -8,7 +8,7 @@ function App() {
     highTemp: null,
     lowTemp: null,
     humidity: null,
-    lastUpdate: null,
+    lastUpdate: null
     
   });
 
@@ -36,7 +36,7 @@ function App() {
     <div>
       <div className='container'>
         <h1>Current Conditions</h1>
-        <div>9/13 Curzon St, Ryde (interior)</div>
+        <div>9/13 Curzon St, Ryde</div>
         <div className='last-update'>{observations.lastUpdate ?? '-'}</div>
         <div className='grid'>
           <Panel title='Temperature' value={observations.temperature ?? '-'} 
