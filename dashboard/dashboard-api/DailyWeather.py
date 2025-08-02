@@ -1,6 +1,7 @@
-from sqlalchemy import Column, Integer, Float, Date, DateTime, Time
+from sqlalchemy import Column, Integer, Float, Date, DateTime, Time, select
 from datetime import datetime, date
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.future import select
 from database import Base
 
 
@@ -17,9 +18,17 @@ class DailyWeather(Base):
     max_temp_time = Column(Time)
 
 
-def update_todays_weather(db: Session, current_temp: float, timestamp: DateTime) -> DailyWeather:
+async def update_todays_weather(db: AsyncSession, current_temp: float, timestamp: DateTime) -> DailyWeather:
     todays_record = None
-    query_record = db.query(DailyWeather).filter_by(day=timestamp.day, month=timestamp.month, year=timestamp.year).first()
+
+    statement = select(DailyWeather).where(
+        DailyWeather.day==timestamp.day,
+        DailyWeather.month==timestamp.month,
+        DailyWeather.year==timestamp.year
+    )
+    result = await db.execute(statement)
+    query_record = result.scalar_one_or_none()
+
     if query_record:
         todays_record = query_record
         if current_temp > todays_record.max_temp:
@@ -40,6 +49,6 @@ def update_todays_weather(db: Session, current_temp: float, timestamp: DateTime)
         )
         db.add(todays_record)
 
-    db.commit()
+    await db.commit()
 
     return todays_record

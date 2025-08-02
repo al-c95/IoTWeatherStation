@@ -4,34 +4,44 @@ import random
 from datetime import datetime
 
 
-API_URL = "http://localhost:8000/update-sensor-data"
+TEMP_AND_HUMIDITY_URL = "http://localhost:8000/update-temperature-and-humidity-data"
+WIND_URL = "http://localhost:8000/update-wind-data"
 
 
-def generate_fake_sensor_data():
+def generate_fake_temperature_and_humidity_data():
     """Generate random temperature (-3.4 to 47.9) and humidity (0 to 100)."""
     temperature = round(random.uniform(-3.4, 47.9), 1)
     humidity = round(random.uniform(0, 100), 1)
+    
     return {
         "temperature": temperature,
         "humidity": humidity
     }
 
 
+def generate_fake_wind_data():
+    wind_speed = random.randint(1,50)
+
+    return {
+        "speed": wind_speed
+    }
+
+
+
 def main():
-    temperature = 27.0
+
     while True:
-        data = generate_fake_sensor_data()
+        temp_and_humidity_data = generate_fake_temperature_and_humidity_data()
+        wind_data = generate_fake_wind_data()
         try:
-            #data = {
-                #"temperature": temperature,
-                #"humidity": 50
-            #}
-            response = requests.post(API_URL, json=data)
-            print(f"[{datetime.now()}] Sent: {data} | Status: {response.status_code}")
+            temp_and_humidity_response = requests.post(TEMP_AND_HUMIDITY_URL, json=temp_and_humidity_data)
+            print(f"[{datetime.now()}] Sent: {temp_and_humidity_data} | Status: {temp_and_humidity_response.status_code}")
+
+            wind_response = requests.post(WIND_URL, json=wind_data)
+            print(f"[{datetime.now()}] Sent: {wind_data} | Status: {wind_response.status_code}")
         except Exception as e:
             print(f'Error sending data: {e}')
-        
-        temperature += 0.1
+
         time.sleep(3)
 
 

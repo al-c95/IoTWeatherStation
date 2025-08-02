@@ -14,3 +14,7 @@
     font-size: 2em;
     font-weight: bold;
   }
+
+  .panel .update-time {
+    font-size: 1em;
+  }

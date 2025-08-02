@@ -10,6 +10,8 @@ from fastapi import FastAPI, HTTPException
 from sendgrid import SendGridAPIClient
 from sendgrid.helpers.mail import Mail
 import os
+from typing import AsyncGenerator
+from sqlalchemy.ext.asyncio import AsyncSession
 from DailyWeather import *
 from sqlalchemy.orm import Session
 from database import SessionLocal, engine
@@ -38,22 +40,22 @@ app.add_middleware(
 )
 
 
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
+async def get_db() -> AsyncGenerator[AsyncSession, None]:
+    async with SessionLocal() as session:
+        yield session
 
 
 current_data = {
     "temperature": "-",
-    "last_update": "2025-07-19 12:00:00",
+    "last_update": "-",
     "high_temperature": "-",
     "high_temperature_time": "-",
     "low_temperature": "-",
     "low_temperature_time": "-",
     "humidity": "-",
+    "last_update_temperature_and_humidity": "-",
+    "wind_speed": "-",
+    "last_update_wind_speed": "-"
 }
 
 
@@ -73,27 +75,50 @@ def send_alert(previous_temperature, updated_temperature):
             print(f'Failed to send alert: {str(e)}')
 
 
-class SensorData(BaseModel):
+def format_last_update_time(timestamp):
+    return timestamp.strftime("%Y-%m-%d %H:%M:%S")
+
+
+def format_minimum_maximum_time(timestamp):
+    return timestamp.strftime("%H:%M:%S")
+
+
+class TemperatureAndHumiditySensorData(BaseModel):
     temperature: float
     humidity: int
 
-@app.post("/update-sensor-data")
-async def receive_data(sensor_data: SensorData, db: Session = Depends(get_db)):
 
+class WindSensorData(BaseModel):
+    speed: int
+
+@app.post("/update-temperature-and-humidity-data")
+async def update_temperature_and_humidity_data(sensor_data: TemperatureAndHumiditySensorData, db: AsyncSession = Depends(get_db)):
     timestamp = datetime.now()
     current_temperature = sensor_data.temperature
     current_humidity = sensor_data.humidity
-    todays_record = update_todays_weather(db, current_temperature, timestamp)
 
     current_data["temperature"]=current_temperature
-    current_data["last_update"]=timestamp.strftime("%Y-%m-%d %H:%M:%S")
-    current_data["high_temperature_time"]=todays_record.max_temp_time.strftime("%H:%M:%S")
-    current_data["low_temperature_time"]=todays_record.min_temp_time.strftime("%H:%M:%S")
-    current_data["high_temperature"]=todays_record.max_temp
-    current_data["low_temperature"]=todays_record.min_temp
     current_data["humidity"]=current_humidity
 
+    todays_record = await update_todays_weather(db, current_temperature, timestamp)
+    
+    current_data["last_update_temperature_and_humidity"]=format_last_update_time(timestamp)
+    current_data["high_temperature_time"]=format_minimum_maximum_time(todays_record.max_temp_time)
+    current_data["low_temperature_time"]=format_minimum_maximum_time(todays_record.min_temp_time)
+    current_data["high_temperature"]=todays_record.max_temp
+    current_data["low_temperature"]=todays_record.min_temp
+
     #send_alert(previous_temperature, updated_temperature)
+
+    return {"status": "success"}
+
+@app.post("/update-wind-data")
+async def update_wind_data(sensor_data: WindSensorData):
+    timestamp = datetime.now()
+    current_wind_speed = sensor_data.speed
+
+    current_data["wind_speed"]=current_wind_speed
+    current_data["last_update_wind_speed"]=format_last_update_time(timestamp)
 
     return {"status": "success"}
 

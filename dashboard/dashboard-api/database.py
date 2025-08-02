@@ -1,14 +1,17 @@
-from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession, async_sessionmaker
 from sqlalchemy.orm import sessionmaker
 
-DATABASE_URL = "sqlite:///./weather.db"
+DATABASE_URL = "sqlite+aiosqlite:///./weather.db"
 
-engine = create_engine(
-    DATABASE_URL, connect_args={"check_same_thread": False}
+engine = create_async_engine(
+    DATABASE_URL, echo=True
 )
 
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+SessionLocal = async_sessionmaker(bind=engine, expire_on_commit=False, class_=AsyncSession)
+
 Base = declarative_base()
 
-Base.metadata.create_all(bind=engine)
+async def init_db():
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)
