@@ -27,7 +27,7 @@ function App() {
         highTemp: `${data.high_temperature} ${data.high_temperature_time}`,
         lowTemp: `${data.low_temperature} ${data.low_temperature_time}`,
         windSpeed: `${data.wind_speed} km/h`,
-        windDirection: `${data.wind_direction}°`,
+        windDirection: `${data.wind_direction}`,
         lastUpdateWind: `Last updated at: ${data.last_update_wind_speed}`
       });
     }

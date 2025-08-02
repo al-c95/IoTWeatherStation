@@ -12,8 +12,9 @@ from sendgrid.helpers.mail import Mail
 import os
 from typing import AsyncGenerator
 from sqlalchemy.ext.asyncio import AsyncSession
-from DailyWeather import *
 from sqlalchemy.orm import Session
+from DailyWeather import *
+from wind import *
 from database import SessionLocal, engine
 
 
@@ -121,7 +122,12 @@ async def update_wind_data(sensor_data: WindSensorData):
     current_wind_direction = sensor_data.direction
 
     current_data["wind_speed"]=current_wind_speed
-    current_data["wind_direction"]=current_wind_direction
+    current_data_wind_direction = "-"
+    try:
+        current_data_wind_direction=direction_degrees_to_compass(current_wind_direction)
+    except:
+        pass
+    current_data["wind_direction"]=current_data_wind_direction
     current_data["last_update_wind_speed"]=format_last_update_time(timestamp)
 
     return {"status": "success"}
