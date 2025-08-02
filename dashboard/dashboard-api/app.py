@@ -55,6 +55,7 @@ current_data = {
     "humidity": "-",
     "last_update_temperature_and_humidity": "-",
     "wind_speed": "-",
+    "wind_direction": "-",
     "last_update_wind_speed": "-"
 }
 
@@ -90,6 +91,7 @@ class TemperatureAndHumiditySensorData(BaseModel):
 
 class WindSensorData(BaseModel):
     speed: int
+    direction: int # degrees
 
 @app.post("/update-temperature-and-humidity-data")
 async def update_temperature_and_humidity_data(sensor_data: TemperatureAndHumiditySensorData, db: AsyncSession = Depends(get_db)):
@@ -99,10 +101,10 @@ async def update_temperature_and_humidity_data(sensor_data: TemperatureAndHumidi
 
     current_data["temperature"]=current_temperature
     current_data["humidity"]=current_humidity
+    current_data["last_update_temperature_and_humidity"]=format_last_update_time(timestamp)
 
     todays_record = await update_todays_weather(db, current_temperature, timestamp)
     
-    current_data["last_update_temperature_and_humidity"]=format_last_update_time(timestamp)
     current_data["high_temperature_time"]=format_minimum_maximum_time(todays_record.max_temp_time)
     current_data["low_temperature_time"]=format_minimum_maximum_time(todays_record.min_temp_time)
     current_data["high_temperature"]=todays_record.max_temp
@@ -116,8 +118,10 @@ async def update_temperature_and_humidity_data(sensor_data: TemperatureAndHumidi
 async def update_wind_data(sensor_data: WindSensorData):
     timestamp = datetime.now()
     current_wind_speed = sensor_data.speed
+    current_wind_direction = sensor_data.direction
 
     current_data["wind_speed"]=current_wind_speed
+    current_data["wind_direction"]=current_wind_direction
     current_data["last_update_wind_speed"]=format_last_update_time(timestamp)
 
     return {"status": "success"}

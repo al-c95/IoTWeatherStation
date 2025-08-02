@@ -21,9 +21,11 @@ def generate_fake_temperature_and_humidity_data():
 
 def generate_fake_wind_data():
     wind_speed = random.randint(1,50)
+    wind_direction = random.randint(1,360)
 
     return {
-        "speed": wind_speed
+        "speed": wind_speed,
+        "direction": wind_direction
     }
 
 

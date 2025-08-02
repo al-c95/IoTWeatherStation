@@ -27,6 +27,7 @@ function App() {
         highTemp: `${data.high_temperature} ${data.high_temperature_time}`,
         lowTemp: `${data.low_temperature} ${data.low_temperature_time}`,
         windSpeed: `${data.wind_speed} km/h`,
+        windDirection: `${data.wind_direction}°`,
         lastUpdateWind: `Last updated at: ${data.last_update_wind_speed}`
       });
     }
@@ -46,7 +47,7 @@ function App() {
           <Panel title='Temperature' value={observations.temperature ?? '-'} 
                   extras={{ "Max": observations.highTemp, "Min": observations.lowTemp }} updateTime={observations.lastUpdateTempAndHumidity}/>
           <Panel title='Humidity' value={observations.humidity ?? '-' } updateTime={observations.lastUpdateTempAndHumidity}/>
-          <Panel title='Wind' value={observations.windSpeed ?? '-' } updateTime={observations.lastUpdateWind}/>
+          <Panel title='Wind' value={`${observations.windDirection} ${observations.windSpeed}` ?? '-' } updateTime={observations.lastUpdateWind}/>
         </div>
       </div>
     </div>
