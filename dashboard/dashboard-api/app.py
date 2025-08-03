@@ -57,7 +57,7 @@ def format_last_update_time(timestamp):
     return timestamp.strftime("%Y-%m-%d %H:%M:%S")
 
 
-def format_minimum_maximum_time(timestamp):
+def format_extreme_reading_time(timestamp):
     return timestamp.strftime("%H:%M:%S")
 
 
@@ -82,8 +82,8 @@ async def update_temperature_and_humidity_data(sensor_data: TemperatureAndHumidi
 
     todays_record = await update_todays_weather(db, current_temperature, timestamp)
     
-    current_data["high_temperature_time"]=format_minimum_maximum_time(todays_record.max_temp_time)
-    current_data["low_temperature_time"]=format_minimum_maximum_time(todays_record.min_temp_time)
+    current_data["high_temperature_time"]=format_extreme_reading_time(todays_record.max_temp_time)
+    current_data["low_temperature_time"]=format_extreme_reading_time(todays_record.min_temp_time)
     current_data["high_temperature"]=todays_record.max_temp
     current_data["low_temperature"]=todays_record.min_temp
 
@@ -109,7 +109,7 @@ async def update_wind_data(sensor_data: WindSensorData):
     current_data["wind_direction"]=current_data_wind_direction
     current_data["last_update_wind_speed"]=format_last_update_time(timestamp)
     current_data["highest_wind_gust"]=wind_speed_data_store.get_highest_gust_speed()
-    current_data["highest_wind_gust_time"]=format_minimum_maximum_time(wind_speed_data_store.get_highest_gust_timestamp())
+    current_data["highest_wind_gust_time"]=format_extreme_reading_time(wind_speed_data_store.get_highest_gust_timestamp())
     current_data["highest_wind_gust_direction"]=direction_degrees_to_compass(wind_speed_data_store.get_highest_gust_direction())
     current_data["sustained_wind"]=wind_speed_data_store.calculate_10_minute_average_speed()
     current_data["wind_gusts"]=wind_speed_data_store.get_current_gusts_speed()
