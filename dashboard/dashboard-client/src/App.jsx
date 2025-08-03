@@ -2,6 +2,26 @@ import React, { useEffect, useState } from 'react';
 import Panel from './components/Panel';
 import './App.css';
 
+function formatTemperature(temperature) {
+  return `${temperature.toFixed(1)}°C`;
+}
+
+function formatWindSpeed(windSpeed) {
+  return `${windSpeed} km/h`;
+}
+
+function formatHumidity(humidity) {
+  return `${humidity}%`;
+}
+
+function formatLastUpdate(timestamp) {
+  return `Last updated at: ${timestamp}`;
+}
+
+function formatExtremeReading(data, timestamp) {
+  return `${data} at ${timestamp}`;
+}
+
 function App() {
   const [observations, setObservations] = useState({
     temperature: null,
@@ -24,17 +44,17 @@ function App() {
       const data = JSON.parse(event.data);
 
       setObservations({
-        temperature: `${data.temperature.toFixed(1)}°C`,
-        humidity: `${data.humidity}%`,
-        lastUpdateTempAndHumidity: `Last updated at: ${data.last_update_temperature_and_humidity}`,
-        highTemp: `${data.high_temperature} ${data.high_temperature_time}`,
-        lowTemp: `${data.low_temperature} ${data.low_temperature_time}`,
-        windSpeed: `${data.wind_speed} km/h`,
+        temperature: `${formatTemperature(data.temperature)}`,
+        humidity: `${formatHumidity(data.humidity)}`,
+        highTemp: `${formatExtremeReading(formatTemperature(data.high_temperature), data.high_temperature_time)}`,
+        lowTemp: `${formatExtremeReading(formatTemperature(data.low_temperature), data.low_temperature_time)}`,
+        lastUpdateTempAndHumidity: `${formatLastUpdate(data.last_update_temperature_and_humidity)}`,   
+        windSpeed: `${formatWindSpeed(data.wind_speed)}`,
         windDirection: `${data.wind_direction}`,
-        lastUpdateWind: `Last updated at: ${data.last_update_wind_speed}`,
-        highestWindGust: `${data.highest_wind_gust_direction} ${data.highest_wind_gust} km/h at ${data.highest_wind_gust_time}`,
-        sustainedWind: `${data.sustained_wind} km/h`,
-        windGusts: `${data.wind_gusts} km/h`
+        sustainedWind: `${formatWindSpeed(data.sustained_wind)}`,
+        windGusts: `${formatWindSpeed(data.wind_gusts)}`,
+        lastUpdateWind: `${formatLastUpdate(data.last_update_wind_speed)}`,
+        highestWindGust: `${data.highest_wind_gust_direction} ${formatExtremeReading(formatWindSpeed(data.highest_wind_gust), data.highest_wind_gust_time)}`,     
       });
     }
 

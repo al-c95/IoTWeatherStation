@@ -48,7 +48,6 @@ async def get_db() -> AsyncGenerator[AsyncSession, None]:
 
 current_data = {
     "temperature": "-",
-    "last_update": "-",
     "high_temperature": "-",
     "high_temperature_time": "-",
     "low_temperature": "-",
