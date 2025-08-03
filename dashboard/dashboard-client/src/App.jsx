@@ -67,7 +67,7 @@ function App() {
     <div>
       <div className='container'>
         <h1>Local Weather</h1>
-        <div>9/13 Curzon St, Ryde</div>
+        <div>My Location</div>
 
         <h2>Current Conditions</h2>
         <div className='grid'>
