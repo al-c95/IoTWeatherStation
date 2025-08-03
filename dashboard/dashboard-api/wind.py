@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta
+from utils import get_timestamp_now
 
 
 def direction_degrees_to_compass(direction: int):
@@ -55,7 +56,7 @@ class WindSpeedDataStore:
 
     
     def _get_last_10_minute_readings(self):
-        ten_minutes_ago = datetime.now() - timedelta(minutes=10)
+        ten_minutes_ago = get_timestamp_now() - timedelta(minutes=10)
         return [speed for timestamp, speed in self._wind_speed_data.items() if timestamp >= ten_minutes_ago]
 
 

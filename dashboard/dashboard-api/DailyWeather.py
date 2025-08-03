@@ -1,5 +1,4 @@
-from sqlalchemy import Column, Integer, Float, Date, DateTime, Time, select
-from datetime import datetime, date
+from sqlalchemy import Column, Integer, Float, DateTime, Time, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from database import Base

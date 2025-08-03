@@ -16,6 +16,7 @@ from sqlalchemy.orm import Session
 from DailyWeather import *
 from wind import *
 from database import SessionLocal, engine
+from utils import get_timestamp_now
 
 
 HIGH_TEMP_THRESHOLD = 27.5
@@ -100,7 +101,7 @@ class WindSensorData(BaseModel):
 
 @app.post("/update-temperature-and-humidity-data")
 async def update_temperature_and_humidity_data(sensor_data: TemperatureAndHumiditySensorData, db: AsyncSession = Depends(get_db)):
-    timestamp = datetime.now()
+    timestamp = get_timestamp_now()
     current_temperature = sensor_data.temperature
     current_humidity = sensor_data.humidity
 
@@ -124,7 +125,7 @@ wind_speed_data_store = WindSpeedDataStore()
 
 @app.post("/update-wind-data")
 async def update_wind_data(sensor_data: WindSensorData):
-    timestamp = datetime.now()
+    timestamp = get_timestamp_now()
     current_wind_speed = sensor_data.speed
     current_wind_direction = sensor_data.direction
 
