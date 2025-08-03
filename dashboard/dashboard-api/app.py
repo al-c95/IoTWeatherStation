@@ -108,9 +108,18 @@ async def update_wind_data(sensor_data: WindSensorData):
         pass
     current_data["wind_direction"]=current_data_wind_direction
     current_data["last_update_wind_speed"]=format_last_update_time(timestamp)
-    current_data["highest_wind_gust"]=wind_speed_data_store.get_highest_gust_speed()
-    current_data["highest_wind_gust_time"]=format_extreme_reading_time(wind_speed_data_store.get_highest_gust_timestamp())
-    current_data["highest_wind_gust_direction"]=direction_degrees_to_compass(wind_speed_data_store.get_highest_gust_direction())
+    highest_wind_gust = wind_speed_data_store.get_highest_gust()
+    highest_wind_gust_speed = "-"
+    highest_wind_gust_time = "-"
+    highest_wind_gust_direction = "-"
+    if highest_wind_gust is not None:
+        highest_wind_gust_speed=highest_wind_gust.speed
+        highest_wind_gust_time=format_extreme_reading_time(highest_wind_gust.timestamp)
+        highest_wind_gust_direction=direction_degrees_to_compass(highest_wind_gust.direction)
+    current_data["highest_wind_gust"]=highest_wind_gust_speed
+    current_data["highest_wind_gust_time"]=highest_wind_gust_time
+    current_data["highest_wind_gust_direction"]=highest_wind_gust_direction
+
     current_data["sustained_wind"]=wind_speed_data_store.calculate_10_minute_average_speed()
     current_data["wind_gusts"]=wind_speed_data_store.get_current_gusts_speed()
 

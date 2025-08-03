@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta
+from pydantic import BaseModel
 from utils import get_timestamp_now
 
 
@@ -30,28 +31,30 @@ def direction_degrees_to_compass(direction: int):
     return directions[index]
 
 
+class HighestWindGust(BaseModel):
+    speed: int
+    direction: int
+    timestamp: datetime
+
+
 class WindSpeedDataStore:
 
 
     def __init__(self):
         self._wind_speed_data={}
-        self._highest_gust_speed=None
-        self._highest_gust_direction=None
-        self._highest_gust_timestamp=None
+        self._highest_gust=None
 
 
     def _set_highest_gust(self, speed, direction, timestamp):
-        self._highest_gust_speed=speed
-        self._highest_gust_direction=direction
-        self._highest_gust_timestamp=timestamp
+        self._highest_gust=HighestWindGust(speed=speed,direction=direction,timestamp=timestamp)
 
 
     def add_wind_speed(self, timestamp: datetime, speed: int, direction: int):
         self._wind_speed_data[timestamp]=speed
-        if self._highest_gust_speed is None:
+        if self._highest_gust is None:
             self._set_highest_gust(speed,direction,timestamp)      
         else:
-            if speed > self._highest_gust_speed:
+            if speed > self._highest_gust.speed:
                 self._set_highest_gust(speed,direction,timestamp)
 
     
@@ -72,19 +75,5 @@ class WindSpeedDataStore:
         return max(last_10_minute_readings)
 
 
-    def get_highest_gust_speed(self):
-        if self._highest_gust_speed is None:
-            return "-"
-        return self._highest_gust_speed
-    
-
-    def get_highest_gust_direction(self):
-        if self._highest_gust_direction is None:
-            return "-"
-        return self._highest_gust_direction
-    
-
-    def get_highest_gust_timestamp(self):
-        if self._highest_gust_timestamp is None:
-            return "-"
-        return self._highest_gust_timestamp
+    def get_highest_gust(self):
+        return self._highest_gust
