@@ -1,30 +1,17 @@
 from fastapi import FastAPI, Request, Depends
-from fastapi.responses import HTMLResponse
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from sse_starlette.sse import EventSourceResponse
 import asyncio
-from datetime import datetime
 import json
 from fastapi import FastAPI, HTTPException
-from sendgrid import SendGridAPIClient
-from sendgrid.helpers.mail import Mail
-import os
 from typing import AsyncGenerator
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import Session
 from DailyWeather import *
 from wind import *
 from database import SessionLocal, engine
 from utils import get_timestamp_now
 
-
-HIGH_TEMP_THRESHOLD = 27.5
-LOW_TEMP_THRESHOLD = 12.5
-HIGH_HUMIDITY_THRESHOLD = 70
-# set these!
-FROM_EMAIL = ''
-SENDGRID_API_KEY = ''
 
 app = FastAPI()
 
@@ -66,22 +53,6 @@ current_data = {
 }
 
 
-def send_alert(previous_temperature, updated_temperature):
-    if (previous_temperature == '-' or float(previous_temperature) < HIGH_TEMP_THRESHOLD) and updated_temperature >= HIGH_TEMP_THRESHOLD:
-        alert_message = Mail(
-            from_email=FROM_EMAIL,
-            to_emails=[FROM_EMAIL],
-            subject='Weather Sensor Alert - 9/13 Curzon St, Ryde NSW 2112',
-            plain_text_content=f'Alert: Temperature has exceeded high threshold of {HIGH_TEMP_THRESHOLD}°C'
-        )
-        try:
-            sg = SendGridAPIClient(SENDGRID_API_KEY)
-            response = sg.send(alert_message)
-            print(response)
-        except Exception as e:
-            print(f'Failed to send alert: {str(e)}')
-
-
 def format_last_update_time(timestamp):
     return timestamp.strftime("%Y-%m-%d %H:%M:%S")
 
@@ -115,8 +86,6 @@ async def update_temperature_and_humidity_data(sensor_data: TemperatureAndHumidi
     current_data["low_temperature_time"]=format_minimum_maximum_time(todays_record.min_temp_time)
     current_data["high_temperature"]=todays_record.max_temp
     current_data["low_temperature"]=todays_record.min_temp
-
-    #send_alert(previous_temperature, updated_temperature)
 
     return {"status": "success"}
 
