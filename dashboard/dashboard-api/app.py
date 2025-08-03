@@ -119,7 +119,6 @@ async def update_wind_data(sensor_data: WindSensorData):
     current_data["highest_wind_gust"]=highest_wind_gust_speed
     current_data["highest_wind_gust_time"]=highest_wind_gust_time
     current_data["highest_wind_gust_direction"]=highest_wind_gust_direction
-
     current_data["sustained_wind"]=wind_speed_data_store.calculate_10_minute_average_speed()
     current_data["wind_gusts"]=wind_speed_data_store.get_current_gusts_speed()
 

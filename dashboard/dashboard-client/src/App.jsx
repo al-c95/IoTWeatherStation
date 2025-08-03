@@ -66,9 +66,10 @@ function App() {
   return (
     <div>
       <div className='container'>
-        <h1>Current Conditions</h1>
+        <h1>Local Weather</h1>
         <div>9/13 Curzon St, Ryde</div>
 
+        <h2>Current Conditions</h2>
         <div className='grid'>
           <Panel title='Temperature' value={observations.temperature ?? '-'} 
                   extras={{ "Max": observations.highTemp, "Min": observations.lowTemp }} updateTime={observations.lastUpdateTempAndHumidity}/>
@@ -80,6 +81,8 @@ function App() {
                     "Highest gust": observations.highestWindGust }} 
                   updateTime={observations.lastUpdateWind}/>
         </div>
+
+        <h2>Last 5 Days</h2>
       </div>
     </div>
   );
