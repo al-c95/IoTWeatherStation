@@ -57,7 +57,12 @@ current_data = {
     "last_update_temperature_and_humidity": "-",
     "wind_speed": "-",
     "wind_direction": "-",
-    "last_update_wind_speed": "-"
+    "last_update_wind_speed": "-",
+    "sustained_wind": "-",
+    "wind_gusts": "-",
+    "highest_wind_gust": "-",
+    "highest_wind_gust_time": "-",
+    "highest_wind_gust_direction": "-"
 }
 
 
@@ -115,11 +120,16 @@ async def update_temperature_and_humidity_data(sensor_data: TemperatureAndHumidi
 
     return {"status": "success"}
 
+
+wind_speed_data_store = WindSpeedDataStore()
+
 @app.post("/update-wind-data")
 async def update_wind_data(sensor_data: WindSensorData):
     timestamp = datetime.now()
     current_wind_speed = sensor_data.speed
     current_wind_direction = sensor_data.direction
+
+    wind_speed_data_store.add_wind_speed(timestamp, current_wind_speed, current_wind_direction)
 
     current_data["wind_speed"]=current_wind_speed
     current_data_wind_direction = "-"
@@ -129,6 +139,11 @@ async def update_wind_data(sensor_data: WindSensorData):
         pass
     current_data["wind_direction"]=current_data_wind_direction
     current_data["last_update_wind_speed"]=format_last_update_time(timestamp)
+    current_data["highest_wind_gust"]=wind_speed_data_store.get_highest_gust_speed()
+    current_data["highest_wind_gust_time"]=format_minimum_maximum_time(wind_speed_data_store.get_highest_gust_timestamp())
+    current_data["highest_wind_gust_direction"]=direction_degrees_to_compass(wind_speed_data_store.get_highest_gust_direction())
+    current_data["sustained_wind"]=wind_speed_data_store.calculate_10_minute_average_speed()
+    current_data["wind_gusts"]=wind_speed_data_store.get_current_gusts_speed()
 
     return {"status": "success"}
 

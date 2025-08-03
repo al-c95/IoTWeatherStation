@@ -11,7 +11,10 @@ function App() {
     lastUpdateTempAndHumidity: null,
     windSpeed: null,
     windDirection: null,
-    lastUpdateWind: null
+    lastUpdateWind: null,
+    sustainedWind: null,
+    windGusts: null,
+    highestWindGust: null
   });
 
   useEffect(() => {
@@ -28,7 +31,10 @@ function App() {
         lowTemp: `${data.low_temperature} ${data.low_temperature_time}`,
         windSpeed: `${data.wind_speed} km/h`,
         windDirection: `${data.wind_direction}`,
-        lastUpdateWind: `Last updated at: ${data.last_update_wind_speed}`
+        lastUpdateWind: `Last updated at: ${data.last_update_wind_speed}`,
+        highestWindGust: `${data.highest_wind_gust_direction} ${data.highest_wind_gust} km/h at ${data.highest_wind_gust_time}`,
+        sustainedWind: `${data.sustained_wind} km/h`,
+        windGusts: `${data.wind_gusts} km/h`
       });
     }
 
@@ -47,7 +53,12 @@ function App() {
           <Panel title='Temperature' value={observations.temperature ?? '-'} 
                   extras={{ "Max": observations.highTemp, "Min": observations.lowTemp }} updateTime={observations.lastUpdateTempAndHumidity}/>
           <Panel title='Humidity' value={observations.humidity ?? '-' } updateTime={observations.lastUpdateTempAndHumidity}/>
-          <Panel title='Wind' value={`${observations.windDirection} ${observations.windSpeed}` ?? '-' } updateTime={observations.lastUpdateWind}/>
+          <Panel title='Wind' value={`${observations.windDirection} ${observations.windSpeed}` ?? '-' }
+                  extras={{
+                    "Sustained": observations.sustainedWind,
+                    "Gusts": observations.windGusts,
+                    "Highest gust": observations.highestWindGust }} 
+                  updateTime={observations.lastUpdateWind}/>
         </div>
       </div>
     </div>
