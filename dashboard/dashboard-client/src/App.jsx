@@ -2,26 +2,7 @@ import React, { useEffect, useState } from 'react';
 import Panel from './components/Panel';
 import DailyWeatherTable from './components/DailyWeatherTable';
 import './App.css';
-
-function formatTemperature(temperature) {
-  return `${temperature.toFixed(1)}°C`;
-}
-
-function formatWindSpeed(windSpeed) {
-  return `${windSpeed} km/h`;
-}
-
-function formatHumidity(humidity) {
-  return `${humidity}%`;
-}
-
-function formatLastUpdate(timestamp) {
-  return `Last updated at: ${timestamp}`;
-}
-
-function formatExtremeReading(data, timestamp) {
-  return `${data} at ${timestamp}`;
-}
+import { formatTemperature, formatWindSpeed, formatHumidity, formatLastUpdate, formatExtremeReading } from './utils/formatters'
 
 function App() {
   const [observations, setObservations] = useState({
@@ -69,7 +50,7 @@ function App() {
     async function fetchDailyData() {
       const response = await fetch('http://localhost:8000/last-five-days');
       const data = await response.json();
-      console.log("API response:", data);
+
       setDailyData(data);
     }
 
