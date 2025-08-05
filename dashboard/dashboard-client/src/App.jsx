@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import Panel from './components/Panel';
+import DailyWeatherTable from './components/DailyWeatherTable';
 import './App.css';
 
 function formatTemperature(temperature) {
@@ -36,6 +37,7 @@ function App() {
     windGusts: null,
     highestWindGust: null
   });
+  const [dailyData, setDailyData] = useState([]);
 
   useEffect(() => {
     const eventSource = new EventSource('/update-events-sse');
@@ -63,6 +65,17 @@ function App() {
     };
   }, []);
 
+  useEffect(() => {
+    async function fetchDailyData() {
+      const response = await fetch('http://localhost:8000/last-five-days');
+      const data = await response.json();
+      console.log("API response:", data);
+      setDailyData(data);
+    }
+
+    fetchDailyData();
+  }, []);
+
   return (
     <div>
       <div className='container'>
@@ -83,6 +96,7 @@ function App() {
         </div>
 
         <h2>Last 5 Days</h2>
+        <DailyWeatherTable data={dailyData}></DailyWeatherTable>
       </div>
     </div>
   );

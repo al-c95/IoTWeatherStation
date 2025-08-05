@@ -124,6 +124,14 @@ async def update_wind_data(sensor_data: WindSensorData):
 
     return {"status": "success"}
 
+
+class DailyWeatherDto(BaseModel):
+    day: int
+    month: int
+    year: int
+    min_temp: float
+    max_temp: float
+
 @app.get("/update-events-sse")
 async def update_events(request: Request):
     async def update_event_generator():
@@ -139,6 +147,15 @@ async def update_events(request: Request):
             raise
 
     return EventSourceResponse(update_event_generator())
+
+@app.get("/last-five-days")
+async def get_last_five_days_weather(db: AsyncSession = Depends(get_db)):
+    data = await get_last_5_days_weather(db)
+    result = []
+    for record in data:
+        result.append(DailyWeatherDto(day=record.day, month=record.month, year=record.year, min_temp=record.min_temp, max_temp=record.max_temp))
+
+    return result
 
 @app.get("/connection-status-sse")
 async def connection_status(request: Request):

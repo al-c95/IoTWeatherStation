@@ -1,6 +1,8 @@
 from sqlalchemy import Column, Integer, Float, DateTime, Time, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
+from pydantic import BaseModel
+from typing import List
 from database import Base
 
 
@@ -51,3 +53,13 @@ async def update_todays_weather(db: AsyncSession, current_temp: float, timestamp
     await db.commit()
 
     return todays_record
+
+
+async def get_last_5_days_weather(db: AsyncSession) -> List[DailyWeather]:
+    # Stub function
+    result = []
+    result.append(DailyWeather(day=29, month=7, year=2025, min_temp=2.0, max_temp=17.0))
+    result.append(DailyWeather(day=30, month=7, year=2025, min_temp=5.0, max_temp=15.2))
+    result.append(DailyWeather(day=31, month=7, year=2025, min_temp=6.5, max_temp=18.2))
+
+    return result
