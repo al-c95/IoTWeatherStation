@@ -94,6 +94,7 @@ async def update_temperature_and_humidity_data(sensor_data: TemperatureAndHumidi
 
 
 wind_speed_data_store = WindSpeedDataStore()
+wind_speed_data_store_lock = asyncio.Lock()
 
 @app.post("/update-wind-data")
 async def update_wind_data(sensor_data: WindSensorData):
@@ -101,7 +102,9 @@ async def update_wind_data(sensor_data: WindSensorData):
     current_wind_speed = sensor_data.speed
     current_wind_direction = sensor_data.direction
 
-    wind_speed_data_store.add_wind_speed(timestamp, current_wind_speed, current_wind_direction)
+    global wind_speed_data_store
+    async with wind_speed_data_store_lock:
+        wind_speed_data_store.add_wind_speed(timestamp, current_wind_speed, current_wind_direction)
 
     global current_data
     async with current_data_lock:
