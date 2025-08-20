@@ -81,14 +81,15 @@ async def update_temperature_and_humidity_data(sensor_data: TemperatureAndHumidi
 
     global current_data
     async with current_data_lock:
-        current_data["temperature"]=current_temperature
-        current_data["humidity"]=current_humidity
-        current_data["last_update_temperature_and_humidity"]=format_last_update_time(timestamp)
-
-        current_data["high_temperature_time"]=format_extreme_reading_time(todays_record.max_temp_time)
-        current_data["low_temperature_time"]=format_extreme_reading_time(todays_record.min_temp_time)
-        current_data["high_temperature"]=todays_record.max_temp
-        current_data["low_temperature"]=todays_record.min_temp
+        current_data.update({
+            "temperature": current_temperature,
+            "humidity": current_humidity,
+            "last_update_temperature_and_humidity": format_last_update_time(timestamp),
+            "high_temperature_time": format_extreme_reading_time(todays_record.max_temp_time),
+            "low_temperature_time": format_extreme_reading_time(todays_record.min_temp_time),
+            "high_temperature": todays_record.max_temp,
+            "low_temperature": todays_record.min_temp
+        })
 
     return {"status": "success"}
 
