@@ -51,6 +51,7 @@ current_data = {
     "highest_wind_gust_time": "-",
     "highest_wind_gust_direction": "-"
 }
+current_data_lock = asyncio.Lock()
 
 
 def format_last_update_time(timestamp):
@@ -76,16 +77,18 @@ async def update_temperature_and_humidity_data(sensor_data: TemperatureAndHumidi
     current_temperature = sensor_data.temperature
     current_humidity = sensor_data.humidity
 
-    current_data["temperature"]=current_temperature
-    current_data["humidity"]=current_humidity
-    current_data["last_update_temperature_and_humidity"]=format_last_update_time(timestamp)
-
     todays_record = await update_todays_weather(db, current_temperature, timestamp)
-    
-    current_data["high_temperature_time"]=format_extreme_reading_time(todays_record.max_temp_time)
-    current_data["low_temperature_time"]=format_extreme_reading_time(todays_record.min_temp_time)
-    current_data["high_temperature"]=todays_record.max_temp
-    current_data["low_temperature"]=todays_record.min_temp
+
+    global current_data
+    async with current_data_lock:
+        current_data["temperature"]=current_temperature
+        current_data["humidity"]=current_humidity
+        current_data["last_update_temperature_and_humidity"]=format_last_update_time(timestamp)
+
+        current_data["high_temperature_time"]=format_extreme_reading_time(todays_record.max_temp_time)
+        current_data["low_temperature_time"]=format_extreme_reading_time(todays_record.min_temp_time)
+        current_data["high_temperature"]=todays_record.max_temp
+        current_data["low_temperature"]=todays_record.min_temp
 
     return {"status": "success"}
 
@@ -100,27 +103,29 @@ async def update_wind_data(sensor_data: WindSensorData):
 
     wind_speed_data_store.add_wind_speed(timestamp, current_wind_speed, current_wind_direction)
 
-    current_data["wind_speed"]=current_wind_speed
-    current_data_wind_direction = "-"
-    try:
-        current_data_wind_direction=direction_degrees_to_compass(current_wind_direction)
-    except:
-        pass
-    current_data["wind_direction"]=current_data_wind_direction
-    current_data["last_update_wind_speed"]=format_last_update_time(timestamp)
-    highest_wind_gust = wind_speed_data_store.get_highest_gust()
-    highest_wind_gust_speed = "-"
-    highest_wind_gust_time = "-"
-    highest_wind_gust_direction = "-"
-    if highest_wind_gust is not None:
-        highest_wind_gust_speed=highest_wind_gust.speed
-        highest_wind_gust_time=format_extreme_reading_time(highest_wind_gust.timestamp)
-        highest_wind_gust_direction=direction_degrees_to_compass(highest_wind_gust.direction)
-    current_data["highest_wind_gust"]=highest_wind_gust_speed
-    current_data["highest_wind_gust_time"]=highest_wind_gust_time
-    current_data["highest_wind_gust_direction"]=highest_wind_gust_direction
-    current_data["sustained_wind"]=wind_speed_data_store.calculate_10_minute_average_speed()
-    current_data["wind_gusts"]=wind_speed_data_store.get_current_gusts_speed()
+    global current_data
+    async with current_data_lock:
+        current_data["wind_speed"]=current_wind_speed
+        current_data_wind_direction = "-"
+        try:
+            current_data_wind_direction=direction_degrees_to_compass(current_wind_direction)
+        except:
+            pass
+        current_data["wind_direction"]=current_data_wind_direction
+        current_data["last_update_wind_speed"]=format_last_update_time(timestamp)
+        highest_wind_gust = wind_speed_data_store.get_highest_gust()
+        highest_wind_gust_speed = "-"
+        highest_wind_gust_time = "-"
+        highest_wind_gust_direction = "-"
+        if highest_wind_gust is not None:
+            highest_wind_gust_speed=highest_wind_gust.speed
+            highest_wind_gust_time=format_extreme_reading_time(highest_wind_gust.timestamp)
+            highest_wind_gust_direction=direction_degrees_to_compass(highest_wind_gust.direction)
+        current_data["highest_wind_gust"]=highest_wind_gust_speed
+        current_data["highest_wind_gust_time"]=highest_wind_gust_time
+        current_data["highest_wind_gust_direction"]=highest_wind_gust_direction
+        current_data["sustained_wind"]=wind_speed_data_store.calculate_10_minute_average_speed()
+        current_data["wind_gusts"]=wind_speed_data_store.get_current_gusts_speed()
 
     return {"status": "success"}
 

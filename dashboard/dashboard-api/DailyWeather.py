@@ -1,7 +1,6 @@
 from sqlalchemy import Column, Integer, Float, DateTime, Time, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
-from pydantic import BaseModel
 from typing import List
 from database import Base
 
