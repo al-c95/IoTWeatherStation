@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, Float, DateTime, Time, select
+from sqlalchemy import Column, Integer, Float, DateTime, Time, select, Index
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from typing import List
@@ -16,6 +16,10 @@ class DailyWeather(Base):
     max_temp = Column(Float)
     min_temp_time = Column(Time)
     max_temp_time = Column(Time)
+
+    __table_args__ = (
+        Index("ix_daily_weather_ymd", "year", "month", "day", unique=True),
+    )
 
 
 async def update_todays_weather(db: AsyncSession, current_temp: float, timestamp: DateTime) -> DailyWeather:
@@ -55,10 +59,13 @@ async def update_todays_weather(db: AsyncSession, current_temp: float, timestamp
 
 
 async def get_last_5_days_weather(db: AsyncSession) -> List[DailyWeather]:
-    # Stub function
-    result = []
-    result.append(DailyWeather(day=29, month=7, year=2025, min_temp=2.0, max_temp=17.0))
-    result.append(DailyWeather(day=30, month=7, year=2025, min_temp=5.0, max_temp=15.2))
-    result.append(DailyWeather(day=31, month=7, year=2025, min_temp=6.5, max_temp=18.2))
+    """
+    Returns the last 5 calendar days we have in the DailyWeather table,
+    sorted ascending by date (oldest -> newest) for display.
+    """
+    statement = (select(DailyWeather).order_by(DailyWeather.year.desc(), DailyWeather.month.desc(), DailyWeather.day.desc(),).limit(5))
+    result = await db.execute(statement)
+    rows_descending = result.scalars().all()
+    rows_ascending = list(reversed(rows_descending))
 
-    return result
+    return rows_ascending
