@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import Panel from './components/Panel';
 import DailyWeatherTable from './components/DailyWeatherTable';
+import ExportMonth from './components/ExportMonth';
 import './App.css';
 import { formatTemperature, formatWindSpeed, formatHumidity, formatLastUpdate, formatExtremeReading } from './utils/formatters'
 
@@ -75,6 +76,8 @@ function App() {
                     "Highest gust": observations.highestWindGust }} 
                   updateTime={observations.lastUpdateWind}/>
         </div>
+        
+        <ExportMonth></ExportMonth>          
 
         <h2>Last 5 Days</h2>
         <DailyWeatherTable data={dailyData}></DailyWeatherTable>
