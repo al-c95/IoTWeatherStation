@@ -16,8 +16,7 @@ from utils import get_timestamp_now
 app = FastAPI()
 
 origins = [
-    "http://localhost:5173",
-    "https://6d162bf8a2fc.ngrok-free.app/"
+    "http://localhost:5173" # add ngrok origin here
 ]
 
 app.add_middleware(
@@ -109,14 +108,13 @@ async def update_wind_data(sensor_data: WindSensorData):
 
     global current_data
     async with current_data_lock:
-        current_data["wind_speed"]=current_wind_speed
+
         current_data_wind_direction = "-"
         try:
             current_data_wind_direction=direction_degrees_to_compass(current_wind_direction)
         except:
             pass
-        current_data["wind_direction"]=current_data_wind_direction
-        current_data["last_update_wind_speed"]=format_last_update_time(timestamp)
+
         highest_wind_gust = wind_speed_data_store.get_highest_gust()
         highest_wind_gust_speed = "-"
         highest_wind_gust_time = "-"
@@ -125,11 +123,17 @@ async def update_wind_data(sensor_data: WindSensorData):
             highest_wind_gust_speed=highest_wind_gust.speed
             highest_wind_gust_time=format_extreme_reading_time(highest_wind_gust.timestamp)
             highest_wind_gust_direction=direction_degrees_to_compass(highest_wind_gust.direction)
-        current_data["highest_wind_gust"]=highest_wind_gust_speed
-        current_data["highest_wind_gust_time"]=highest_wind_gust_time
-        current_data["highest_wind_gust_direction"]=highest_wind_gust_direction
-        current_data["sustained_wind"]=wind_speed_data_store.calculate_10_minute_average_speed()
-        current_data["wind_gusts"]=wind_speed_data_store.get_current_gusts_speed()
+        
+        current_data.update({
+            "wind_speed": current_wind_speed,
+            "wind_direction": current_data_wind_direction,
+            "last_update_wind_speed": format_last_update_time(timestamp),
+            "highest_wind_gust": highest_wind_gust_speed,
+            "highest_wind_gust_time": highest_wind_gust_time,
+            "highest_wind_gust_direction": highest_wind_gust_direction,
+            "sustained_wind": wind_speed_data_store.calculate_10_minute_average_speed(),
+            "wind_gusts": wind_speed_data_store.get_current_gusts_speed()
+        })
 
     return {"status": "success"}
 
