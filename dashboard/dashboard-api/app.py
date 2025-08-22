@@ -1,16 +1,19 @@
-from fastapi import FastAPI, Request, Depends
+from fastapi import FastAPI, Request, Depends, Query
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from sse_starlette.sse import EventSourceResponse
 import asyncio
 import json
 from fastapi import FastAPI, HTTPException
+from fastapi.responses import StreamingResponse
 from typing import AsyncGenerator
 from sqlalchemy.ext.asyncio import AsyncSession
+from io import BytesIO
 from DailyWeather import *
 from wind import *
 from database import SessionLocal, engine
 from utils import get_timestamp_now
+from export import build_monthly_workbook
 
 
 app = FastAPI()
@@ -169,6 +172,21 @@ async def get_last_five_days_weather(db: AsyncSession = Depends(get_db)):
         result.append(DailyWeatherDto(day=record.day, month=record.month, year=record.year, min_temp=record.min_temp, max_temp=record.max_temp))
 
     return result
+
+@app.get("/export/month")
+async def get_monthly_export(month: int = Query(..., ge=1, le=12), year: int = Query(...), db: AsyncSession = Depends(get_db)):
+    workbook = await build_monthly_workbook(db, year, month)
+    
+    buf = BytesIO()
+    workbook.save(buf)
+    buf.seek(0)
+
+    filename = f"weather_{year:04d}-{month:02d}.xlsx"
+    return StreamingResponse(
+        buf,
+        media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        headers={"Content-Disposition": f'attachment; filename=\"{filename}\"'},
+    )
 
 @app.get("/connection-status-sse")
 async def connection_status(request: Request):

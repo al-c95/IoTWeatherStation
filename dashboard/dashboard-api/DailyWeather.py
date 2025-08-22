@@ -69,3 +69,11 @@ async def get_last_5_days_weather(db: AsyncSession) -> List[DailyWeather]:
     rows_ascending = list(reversed(rows_descending))
 
     return rows_ascending
+
+
+async def get_calendar_month_weather(db: AsyncSession, month: int, year: int) -> List[DailyWeather]:
+    # stub function
+    data = []
+    data.append(DailyWeather(day=1,month=8,year=2025,min_temp=5.2,max_temp=15.6))
+
+    return data
