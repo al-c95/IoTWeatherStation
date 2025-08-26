@@ -7,13 +7,10 @@ export default defineConfig({
     host: true,
     port: 5173,
     strictPort: true,
-    allowedHosts: 'all',  // allow all hosts including ngrok domains
+    allowedHosts: 'all',
     proxy: {
-      '/update-events-sse': {
-        target: 'http://localhost:8000',
-        changeOrigin: true,
-        ws: true,
+      '/api': { target: 'http://127.0.0.1:8000', changeOrigin: true, rewrite: (path) => path.replace(/^\/api/, ''), }
       },
     },
   },
-});
+);

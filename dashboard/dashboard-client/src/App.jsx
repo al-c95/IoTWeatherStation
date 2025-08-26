@@ -22,7 +22,7 @@ function App() {
   const [dailyData, setDailyData] = useState([]);
 
   useEffect(() => {
-    const eventSource = new EventSource('/update-events-sse');
+    const eventSource = new EventSource('/api/update-events-sse');
 
     eventSource.onmessage = function(event) {
       const data = JSON.parse(event.data);
@@ -49,7 +49,7 @@ function App() {
 
   useEffect(() => {
     async function fetchDailyData() {
-      const response = await fetch('http://localhost:8000/last-five-days');
+      const response = await fetch('/api/last-five-days');
       const data = await response.json();
 
       setDailyData(data);
