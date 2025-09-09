@@ -91,7 +91,6 @@ function App() {
         
         <ExportMonth></ExportMonth>          
 
-        <h2>Last 5 Days</h2>
         <DailyWeatherTable data={dailyData} summary={dailyDataSummary}></DailyWeatherTable>
       </div>
     </div>
