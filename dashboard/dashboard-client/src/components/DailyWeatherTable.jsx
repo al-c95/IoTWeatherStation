@@ -2,8 +2,9 @@ import React from 'react';
 import './DailyWeatherTable.css';
 import { formatTemperature } from '../utils/formatters'
 
-function DailyWeatherTable({ data }) {
+function DailyWeatherTable({ data, summary }) {
     return (
+        <div>
         <table>
             <thead>
                 <tr>
@@ -26,6 +27,9 @@ function DailyWeatherTable({ data }) {
                 ))}
             </tbody>
         </table>
+        <h3>AI Summary</h3>
+        <p>{summary}</p>
+        </div>
     )
 }
 

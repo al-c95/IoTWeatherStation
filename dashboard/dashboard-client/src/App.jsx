@@ -20,6 +20,7 @@ function App() {
     highestWindGust: null
   });
   const [dailyData, setDailyData] = useState([]);
+  const [dailyDataSummary, setDailyDataSummary] = useState([]);
 
   useEffect(() => {
     const eventSource = new EventSource('/api/update-events-sse');
@@ -49,13 +50,24 @@ function App() {
 
   useEffect(() => {
     async function fetchDailyData() {
-      const response = await fetch('/api/last-five-days');
-      const data = await response.json();
+      const dataResponse = await fetch('/api/last-five-days');
+      const data = await dataResponse.json();
 
       setDailyData(data);
     }
 
     fetchDailyData();
+  }, []);
+
+  useEffect(() => {
+    async function fetchDailyDataSummary() {
+      const summaryResponse = await fetch('/api/ai/summarise-last-five-days');
+      const summary = await summaryResponse.json();
+
+      setDailyDataSummary(summary);
+    }
+
+    fetchDailyDataSummary();
   }, []);
 
   return (
@@ -80,7 +92,7 @@ function App() {
         <ExportMonth></ExportMonth>          
 
         <h2>Last 5 Days</h2>
-        <DailyWeatherTable data={dailyData}></DailyWeatherTable>
+        <DailyWeatherTable data={dailyData} summary={dailyDataSummary}></DailyWeatherTable>
       </div>
     </div>
   );

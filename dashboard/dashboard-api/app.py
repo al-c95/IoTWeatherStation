@@ -14,6 +14,7 @@ from wind import *
 from database import SessionLocal, engine
 from utils import get_timestamp_now
 from export import build_monthly_workbook
+from llm import get_summary_response
 
 
 app = FastAPI()
@@ -187,6 +188,12 @@ async def get_monthly_export(month: int = Query(..., ge=1, le=12), year: int = Q
         media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
         headers={"Content-Disposition": f'attachment; filename=\"{filename}\"'},
     )
+
+@app.get("/ai/summarise-last-five-days")
+async def summarise_last_five_days(db: AsyncSession = Depends(get_db)):
+    response = await get_summary_response(db);
+
+    return response
 
 @app.get("/connection-status-sse")
 async def connection_status(request: Request):
