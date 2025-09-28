@@ -2,6 +2,5 @@
 
 struct SensorReading
 {
-    float temperature;
-    int humidity;
+
 };

@@ -31,7 +31,7 @@ void SensorTask::run()
     {
         ESP_LOGI("SensorTask", "Running sensor task loop...");
 
-        SensorReading sensor_reading = _sensor->read();
+        SHT30SensorReading sensor_reading = _sensor->read();
 
         bool changed = false;
 

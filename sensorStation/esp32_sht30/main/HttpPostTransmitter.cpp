@@ -11,7 +11,7 @@ HttpPostTransmitter::HttpPostTransmitter(const char* url)
 
 }
 
-bool HttpPostTransmitter::transmit(const SensorReading& sensor_reading)
+bool HttpPostTransmitter::transmit(const SHT30SensorReading& sensor_reading)
 {
     ESP_LOGI(TAG, "Transmitting sensor reading...");
 
@@ -46,7 +46,8 @@ bool HttpPostTransmitter::transmit(const SensorReading& sensor_reading)
         esp_http_client_cleanup(client);
 
         return (status >= 200 && status < 300);
-    } else
+    } 
+    else
     {
         ESP_LOGE(TAG, "POST failed: %s", esp_err_to_name(err));
         esp_http_client_cleanup(client);

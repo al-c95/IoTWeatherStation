@@ -4,7 +4,7 @@
 class DummySensor : public ISensor
 {
     public:
-        SensorReading read() override;
+        SHT30SensorReading read() override;
 
     private:
         int random_int(int a, int b);

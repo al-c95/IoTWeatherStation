@@ -7,7 +7,7 @@ static const char* TAG = "SHT30Sensor";
 SHT30Sensor::SHT30Sensor(I2CMaster& bus, uint8_t addr)
     : _bus(bus), _addr(addr) {}
 
-SensorReading SHT30Sensor::read()
+SHT30SensorReading SHT30Sensor::read()
 {
     // send measurement command
     uint8_t cmd[2] = {0x2C, 0x06};
@@ -42,7 +42,7 @@ SensorReading SHT30Sensor::read()
     float temperature = -45.0f + 175.0f * ((float)raw_temp / 65535.0f);
     float humidity = 100.0f * ((float)raw_hum / 65535.0f);
 
-    SensorReading sensor_reading;
+    SHT30SensorReading sensor_reading;
     sensor_reading.temperature = roundf(temperature * 10.0f) / 10.0f;
     sensor_reading.humidity    = (int) roundf(humidity);
 
@@ -51,7 +51,11 @@ SensorReading SHT30Sensor::read()
     return sensor_reading;
 }
 
-SensorReading SHT30Sensor::fallback()
+SHT30SensorReading SHT30Sensor::fallback()
 {
-    return {21.0f, 50};
+    SHT30SensorReading sensor_reading;
+    sensor_reading.temperature = 21.0f;
+    sensor_reading.humidity    = 50;
+    
+    return sensor_reading;
 }

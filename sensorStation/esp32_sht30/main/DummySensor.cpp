@@ -4,9 +4,9 @@
 
 static const char* TAG = "DummySensor";
 
-SensorReading DummySensor::read()
+SHT30SensorReading DummySensor::read()
 {
-    SensorReading sensor_reading;
+    SHT30SensorReading sensor_reading;
 
     //sensor_reading.temperature = 25.0f;
     //sensor_reading.humidity = 50;
