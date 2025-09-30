@@ -2,6 +2,8 @@
 #include "esp_log.h"
 #include "esp_http_client.h"
 #include <string.h>
+#include <iostream>
+#include <sstream>
 
 static const char *TAG = "HTTP_POST_TRANSMITTER";
 
@@ -11,16 +13,31 @@ HttpPostTransmitter::HttpPostTransmitter(const char* url)
 
 }
 
-bool HttpPostTransmitter::transmit(const SHT30SensorReading& sensor_reading)
+bool HttpPostTransmitter::transmit(const SensorReading& sensor_reading)
 {
     ESP_LOGI(TAG, "Transmitting sensor reading...");
 
     // build JSON payload
-    char post_data[128];
-    snprintf(post_data, sizeof(post_data),
-             "{\"temperature\": %.2f, \"humidity\": %d}",
-             sensor_reading.temperature,
-             sensor_reading.humidity);
+    std::ostringstream json;
+    json << "{";
+    std::map<std::string, SensorValue> sensor_values = sensor_reading.get_values();
+    for (auto it = sensor_values.begin(); it != sensor_values.end(); ++it)
+    {
+        json << "\"" << it->first << "\": ";
+        std::visit([&](auto&& arg)
+        {
+            json << arg; // works for int and float
+        }, it->second);
+
+        if (std::next(it) != sensor_values.end())
+        {
+            json << ", ";
+        }
+    }
+    json << "}";
+    std::string json_str = json.str();
+    char post_data[256];
+    snprintf(post_data, sizeof(post_data), "%s", json_str.c_str());
 
     // configure HTTP client
     esp_http_client_config_t config = {
