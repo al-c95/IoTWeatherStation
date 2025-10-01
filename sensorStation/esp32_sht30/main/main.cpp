@@ -26,14 +26,14 @@ static I2CMaster i2c_master(I2C_PORT, I2C_SDA_PIN, I2C_SCL_PIN, I2C_FREQ_HZ, fal
 
 const uint8_t SHT30_ADDR = 0x44;
 static SHT30Sensor sht30_sensor(i2c_master, SHT30_ADDR);
-static const char post_url[] = "http://192.168.1.100:8000/update-temperature-and-humidity-data";
-static HttpPostTransmitter data_transmitter = HttpPostTransmitter(post_url);
-static SensorTask sensor_task(&sht30_sensor, &data_transmitter);
+static const char tmperature_humidity_post_url[] = "http://192.168.1.100:8000/update-temperature-and-humidity-data";
+static HttpPostTransmitter sht30_data_transmitter = HttpPostTransmitter(temperature_humidity_post_url);
+static SensorTask sht30_sensor_task(&sht30_sensor, &sht30_data_transmitter);
 
 extern "C" void app_main(void)
 {
-    const char ssid[] = "VX220-131E";
-    const char pwd[] = "3242674C9A592";
+    const char ssid[] = "ssid";
+    const char pwd[] = "pwd";
 
     auto connected = [](const esp_ip4_addr_t* ip)
     {
