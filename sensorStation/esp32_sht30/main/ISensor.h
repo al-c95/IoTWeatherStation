@@ -1,9 +1,10 @@
 #pragma once
-#include "SHT30SensorReading.h"
+#include <memory>
+#include "SensorReading.h"
 
 class ISensor
 {
     public:
         virtual ~ISensor() = default;
-        virtual SHT30SensorReading read() = 0;
+        virtual std::unique_ptr<SensorReading> read() = 0;
 };

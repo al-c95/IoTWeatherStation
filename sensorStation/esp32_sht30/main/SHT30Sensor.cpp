@@ -1,13 +1,16 @@
 #include "SHT30Sensor.h"
+#include "SensorReading.h"
+#include "SHT30SensorReading.h"
 #include "esp_log.h"
 #include <math.h>
+#include <memory>
 
 static const char* TAG = "SHT30Sensor";
 
 SHT30Sensor::SHT30Sensor(I2CMaster& bus, uint8_t addr)
     : _bus(bus), _addr(addr) {}
 
-SHT30SensorReading SHT30Sensor::read()
+std::unique_ptr<SensorReading> SHT30Sensor::read()
 {
     // send measurement command
     uint8_t cmd[2] = {0x2C, 0x06};
@@ -42,20 +45,20 @@ SHT30SensorReading SHT30Sensor::read()
     float temperature = -45.0f + 175.0f * ((float)raw_temp / 65535.0f);
     float humidity = 100.0f * ((float)raw_hum / 65535.0f);
 
-    SHT30SensorReading sensor_reading;
-    sensor_reading.temperature = roundf(temperature * 10.0f) / 10.0f;
-    sensor_reading.humidity    = (int) roundf(humidity);
+    auto sensor_reading = std::make_unique<SHT30SensorReading>();
+    sensor_reading->temperature = roundf(temperature * 10.0f) / 10.0f;
+    sensor_reading->humidity    = (int) roundf(humidity);
 
-    ESP_LOGI(TAG, "Read -> Temp=%.1f Hum=%d", sensor_reading.temperature, sensor_reading.humidity);
+    ESP_LOGI(TAG, "Read -> Temp=%.1f Hum=%d", sensor_reading->temperature, sensor_reading->humidity);
 
     return sensor_reading;
 }
 
-SHT30SensorReading SHT30Sensor::fallback()
+std::unique_ptr<SensorReading> SHT30Sensor::fallback()
 {
-    SHT30SensorReading sensor_reading;
-    sensor_reading.temperature = 21.0f;
-    sensor_reading.humidity    = 50;
+    auto sensor_reading = std::make_unique<SHT30SensorReading>();
+    sensor_reading->temperature = 21.0f;
+    sensor_reading->humidity    = 50;
     
     return sensor_reading;
 }

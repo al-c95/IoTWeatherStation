@@ -4,6 +4,7 @@
 #include "esp_log.h"
 #include <math.h>
 #include "SensorTask.h"
+#include <memory>
 
 SensorTask::SensorTask(ISensor* sensor, ISensorDataTransmitter* sensor_data_transmitter)
     : _sensor(sensor), _sensor_data_transmitter(sensor_data_transmitter)
@@ -24,34 +25,33 @@ void SensorTask::task_entry(void* pvParameters)
 
 void SensorTask::run()
 {
-    float last_temperature = NAN;
-    int last_humidity = -1;
+    std::map<std::string, SensorValue> last_values;
 
     while (true)
     {
         ESP_LOGI("SensorTask", "Running sensor task loop...");
 
-        SHT30SensorReading sensor_reading = _sensor->read();
+        auto reading = _sensor->read();
+        auto values = reading->get_values();
 
         bool changed = false;
 
-        if (isnan(last_temperature) || fabs(sensor_reading.temperature - last_temperature) > 0.1f)
+        for (const auto& [key, value] : values)
         {
-            changed = true;
-        }
-
-        if (last_humidity == -1 || sensor_reading.humidity != last_humidity)
-        {
-            changed = true;
+            auto it = last_values.find(key);
+            if (it == last_values.end() || it->second != value)
+            {
+                changed = true;
+                break;
+            }
         }
 
         if (changed)
         {
-            bool ok = _sensor_data_transmitter->transmit(sensor_reading);
+            bool ok = _sensor_data_transmitter->transmit(*reading);
             if (ok)
             {
-                last_temperature = sensor_reading.temperature;
-                last_humidity = sensor_reading.humidity;
+                last_values = values;
             }
         }
 

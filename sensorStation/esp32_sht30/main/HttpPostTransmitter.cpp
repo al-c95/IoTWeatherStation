@@ -4,6 +4,7 @@
 #include <string.h>
 #include <iostream>
 #include <sstream>
+#include <memory>
 
 static const char *TAG = "HTTP_POST_TRANSMITTER";
 
@@ -55,6 +56,7 @@ bool HttpPostTransmitter::transmit(const SensorReading& sensor_reading)
     esp_http_client_set_header(client, "Content-Type", "application/json");
     esp_http_client_set_post_field(client, post_data, strlen(post_data));
 
+    // send HTTP POST
     esp_err_t err = esp_http_client_perform(client);
     if (err == ESP_OK)
     {
