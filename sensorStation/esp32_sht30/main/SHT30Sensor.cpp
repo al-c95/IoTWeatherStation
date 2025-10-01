@@ -7,9 +7,6 @@
 
 static const char* TAG = "SHT30Sensor";
 
-SHT30Sensor::SHT30Sensor(I2CMaster& bus, uint8_t addr)
-    : _bus(bus), _addr(addr) {}
-
 static uint8_t sht30_crc8(const uint8_t *data, size_t len)
 {
     // CRC-8 calculation for SHT30 data (polynomial 0x31, initial 0xFF)
@@ -34,7 +31,7 @@ std::unique_ptr<SensorReading> SHT30Sensor::read()
         // send measurement command
         uint8_t cmd[2] = {0x2C, 0x06};
         esp_err_t err;
-        err = _bus.write(_addr, cmd, sizeof(cmd));
+        err = i2c_write(cmd, sizeof(cmd));
         if (err != ESP_OK)
         {
             ESP_LOGW(TAG, "I2C write failed (attempt %d): %s", attempt + 1, esp_err_to_name(err));
@@ -53,7 +50,7 @@ std::unique_ptr<SensorReading> SHT30Sensor::read()
         // - Humidity LSB
         // - CRC
         uint8_t data[6];
-        err = _bus.read(_addr, data, sizeof(data));
+        err = i2c_read(data, sizeof(data));
         if (err != ESP_OK)
         {
             ESP_LOGW(TAG, "I2C write failed (attempt %d): %s", attempt + 1, esp_err_to_name(err));

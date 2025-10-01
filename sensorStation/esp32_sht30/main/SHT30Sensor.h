@@ -1,16 +1,15 @@
 #pragma once
-#include "ISensor.h"
+#include "I2CSensor.h"
 #include "I2CMaster.h"
 
-class SHT30Sensor : public ISensor
+class SHT30Sensor : public I2CSensor
 {
     public:
-        SHT30Sensor(I2CMaster& bus, uint8_t addr = 0x44);
+        SHT30Sensor(I2CMaster& bus, uint8_t addr = 0x44)
+            : I2CSensor(bus, addr) {}
+            
         std::unique_ptr<SensorReading> read() override;
 
     private:
-        I2CMaster& _bus;
-        uint8_t _addr;
-
         std::unique_ptr<SensorReading> fallback();
 };
