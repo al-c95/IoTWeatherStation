@@ -4,8 +4,8 @@ import random
 from datetime import datetime
 
 
-TEMP_AND_HUMIDITY_URL = "http://localhost:8000/update-temperature-and-humidity-data"
-WIND_URL = "http://localhost:8000/update-wind-data"
+TEMP_AND_HUMIDITY_URL = "http://192.168.1.101:8000/update-sensor-data"
+WIND_URL = "http://192.168.1.101:8000/update-wind-data"
 
 
 def generate_fake_temperature_and_humidity_data():
@@ -39,8 +39,8 @@ def main():
             temp_and_humidity_response = requests.post(TEMP_AND_HUMIDITY_URL, json=temp_and_humidity_data)
             print(f"[{datetime.now()}] Sent: {temp_and_humidity_data} | Status: {temp_and_humidity_response.status_code}")
 
-            wind_response = requests.post(WIND_URL, json=wind_data)
-            print(f"[{datetime.now()}] Sent: {wind_data} | Status: {wind_response.status_code}")
+            #wind_response = requests.post(WIND_URL, json=wind_data)
+            #print(f"[{datetime.now()}] Sent: {wind_data} | Status: {wind_response.status_code}")
         except Exception as e:
             print(f'Error sending data: {e}')
 

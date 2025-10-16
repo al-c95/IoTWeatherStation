@@ -74,7 +74,7 @@ class WindSensorData(BaseModel):
     speed: int
     direction: int # degrees
 
-@app.post("/update-temperature-and-humidity-data")
+@app.post("/update-sensor-data")
 async def update_temperature_and_humidity_data(sensor_data: TemperatureAndHumiditySensorData, db: AsyncSession = Depends(get_db)):
     timestamp = get_timestamp_now()
     current_temperature = sensor_data.temperature
