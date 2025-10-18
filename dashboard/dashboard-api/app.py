@@ -6,7 +6,7 @@ import asyncio
 import json
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import StreamingResponse
-from typing import AsyncGenerator
+from typing import AsyncGenerator, Dict, Union
 from sqlalchemy.ext.asyncio import AsyncSession
 from io import BytesIO
 from DailyWeather import *
@@ -65,20 +65,15 @@ def format_extreme_reading_time(timestamp):
     return timestamp.strftime("%H:%M:%S")
 
 
-class TemperatureAndHumiditySensorData(BaseModel):
-    temperature: float
-    humidity: int
-
-
 class WindSensorData(BaseModel):
     speed: int
     direction: int # degrees
 
 @app.post("/update-sensor-data")
-async def update_temperature_and_humidity_data(sensor_data: TemperatureAndHumiditySensorData, db: AsyncSession = Depends(get_db)):
+async def update_temperature_and_humidity_data(sensor_data: Dict[str, Union[int, float]], db: AsyncSession = Depends(get_db)):
     timestamp = get_timestamp_now()
-    current_temperature = sensor_data.temperature
-    current_humidity = sensor_data.humidity
+    current_temperature = sensor_data.get("SHT30.temperature")
+    current_humidity = sensor_data.get("SHT30.humidity")
 
     todays_record = await update_todays_weather(db, current_temperature, timestamp)
 

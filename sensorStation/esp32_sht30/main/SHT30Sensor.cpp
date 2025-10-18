@@ -25,6 +25,8 @@ static uint8_t sht30_crc8(const uint8_t *data, size_t len)
 
 std::unique_ptr<SensorReading> SHT30Sensor::read()
 {
+    //ESP_LOGI("Reading SHT30...");
+
     const int MAX_RETRIES = 3;
     for (int attempt = 0; attempt < MAX_RETRIES; ++attempt)
     {

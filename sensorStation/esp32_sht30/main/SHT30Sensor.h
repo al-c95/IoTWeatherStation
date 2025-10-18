@@ -9,6 +9,11 @@ class SHT30Sensor : public I2CSensor
             : I2CSensor(bus, addr) {}
             
         std::unique_ptr<SensorReading> read() override;
+        
+        const char* name() const override
+        {
+            return "SHT30";
+        }
 
     private:
         std::unique_ptr<SensorReading> fallback();

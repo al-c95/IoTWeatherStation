@@ -14,8 +14,8 @@ def generate_fake_temperature_and_humidity_data():
     humidity = round(random.uniform(0, 100), 1)
     
     return {
-        "temperature": temperature,
-        "humidity": humidity
+        "SHT30.temperature": temperature,
+        "SHT30.humidity": humidity
     }
 
 

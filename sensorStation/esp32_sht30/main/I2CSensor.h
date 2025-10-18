@@ -10,6 +10,8 @@ class I2CSensor : public ISensor
 
         virtual ~I2CSensor() = default;
 
+        virtual const char* name() const = 0;
+
     protected:
         I2CMaster& bus() { return _bus; }
         uint8_t address() const { return _addr; }

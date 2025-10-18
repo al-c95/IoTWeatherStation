@@ -1,4 +1,5 @@
 #include <string.h>
+#include <vector>
 #include "WiFi.h"
 #include "SHT30Sensor.h"
 #include "SensorTask.h"
@@ -27,10 +28,14 @@ static I2CMaster i2c_master(I2C_PORT, I2C_SDA_PIN, I2C_SCL_PIN, I2C_FREQ_HZ, fal
 const uint8_t SHT30_ADDR = 0x44;
 static SHT30Sensor sht30_sensor(i2c_master, SHT30_ADDR);
 
+static std::vector<ISensor*> i2c_sensors = {
+    &sht30_sensor
+};
+
 static const char post_url[] = "http://192.168.1.101:8000/update-sensor-data";
 static HttpPostTransmitter http_data_transmitter = HttpPostTransmitter(post_url);
 
-static SensorTask i2c_sensor_task(&sht30_sensor, &http_data_transmitter);
+static SensorTask i2c_sensor_task(i2c_sensors, &http_data_transmitter);
 
 extern "C" void app_main(void)
 {

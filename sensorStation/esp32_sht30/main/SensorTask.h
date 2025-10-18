@@ -1,15 +1,16 @@
 #pragma once
+#include <vector>
 #include "ISensor.h"
 #include "ISensorDataTransmitter.h"
 
 class SensorTask
 {
     public:
-        explicit SensorTask(ISensor* sensor, ISensorDataTransmitter* sensor_data_transmitter);
+        explicit SensorTask(std::vector<ISensor*> sensors, ISensorDataTransmitter* sensor_data_transmitter);
         void start();
 
     private:
-        ISensor* _sensor;
+        std::vector<ISensor*> _sensors;
         ISensorDataTransmitter* _sensor_data_transmitter;
         static void task_entry(void* pvParameters);
         void run();

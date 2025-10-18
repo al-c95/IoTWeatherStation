@@ -14,14 +14,13 @@ HttpPostTransmitter::HttpPostTransmitter(const char* url)
 
 }
 
-bool HttpPostTransmitter::transmit(const SensorReading& sensor_reading)
+bool HttpPostTransmitter::transmit(const std::map<std::string, SensorValue>& sensor_values)
 {
     ESP_LOGI(TAG, "Transmitting sensor reading...");
 
     // build JSON payload
     std::ostringstream json;
     json << "{";
-    std::map<std::string, SensorValue> sensor_values = sensor_reading.get_values();
     for (auto it = sensor_values.begin(); it != sensor_values.end(); ++it)
     {
         json << "\"" << it->first << "\": ";
