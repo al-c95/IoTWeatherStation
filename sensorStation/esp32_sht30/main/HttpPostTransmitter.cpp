@@ -5,6 +5,7 @@
 #include <iostream>
 #include <sstream>
 #include <memory>
+#include <iomanip>
 
 static const char *TAG = "HTTP_POST_TRANSMITTER";
 
@@ -20,13 +21,15 @@ bool HttpPostTransmitter::transmit(const std::map<std::string, SensorValue>& sen
 
     // build JSON payload
     std::ostringstream json;
+    json.setf(std::ios::fixed, std::ios::floatfield);
+    json.precision(1);
     json << "{";
     for (auto it = sensor_values.begin(); it != sensor_values.end(); ++it)
     {
         json << "\"" << it->first << "\": ";
         std::visit([&](auto&& arg)
         {
-            json << arg; // works for int and float
+            json << arg;
         }, it->second);
 
         if (std::next(it) != sensor_values.end())
@@ -56,6 +59,7 @@ bool HttpPostTransmitter::transmit(const std::map<std::string, SensorValue>& sen
     esp_http_client_set_post_field(client, post_data, strlen(post_data));
 
     // send HTTP POST
+    ESP_LOGI(TAG, "POST data: %s", post_data);
     esp_err_t err = esp_http_client_perform(client);
     if (err == ESP_OK)
     {

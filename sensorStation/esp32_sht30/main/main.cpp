@@ -35,7 +35,7 @@ static std::vector<ISensor*> i2c_sensors = {
 static const char post_url[] = "http://192.168.1.101:8000/update-sensor-data";
 static HttpPostTransmitter http_data_transmitter = HttpPostTransmitter(post_url);
 
-static SensorTask i2c_sensor_task(i2c_sensors, &http_data_transmitter);
+static SensorTask sensor_task(i2c_sensors, &http_data_transmitter);
 
 extern "C" void app_main(void)
 {
@@ -46,7 +46,7 @@ extern "C" void app_main(void)
     {
         ESP_LOGI(TAG, "WiFi connected!");
 
-        i2c_sensor_task.start();
+        sensor_task.start();
     };
 
     auto disconnected = []()

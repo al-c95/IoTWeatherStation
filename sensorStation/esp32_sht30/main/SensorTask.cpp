@@ -27,7 +27,7 @@ void SensorTask::task_entry(void* pvParameters)
 
 void SensorTask::run()
 {
-    auto values_equal = [](const SensorValue& a, const SensorValue& b, float tolerance = 0.1f)
+    auto values_equal = [](const SensorValue& a, const SensorValue& b, float tolerance = 0.01f)
     {
         if (a.index() != b.index())
         {
@@ -42,7 +42,6 @@ void SensorTask::run()
         return std::fabs(std::get<float>(a) - std::get<float>(b)) <= tolerance;
     };
 
-    // last values per sensor (key is sensor name)
     std::map<std::string, SensorValue> last_values;
 
     while (true)
@@ -59,10 +58,9 @@ void SensorTask::run()
 
             for (const auto& [key, value] : values)
             {
-                std::string full_key = std::string(sensor->name()) + "." + key;
-                current_values[full_key] = value;
+                current_values[key] = value;
 
-                auto it = last_values.find(full_key);
+                auto it = last_values.find(key);
                 if (it == last_values.end() || !values_equal(it->second, value))
                 {
                     changed = true;
@@ -70,7 +68,6 @@ void SensorTask::run()
             }
         }
 
-        // if values changed, store and transmit
         if (changed)
         {
             bool ok = _sensor_data_transmitter->transmit(current_values);
@@ -81,6 +78,7 @@ void SensorTask::run()
             else
             {
                 ESP_LOGW(TAG, "Transmission failed");
+                // TODO: cache
             }
         }
 

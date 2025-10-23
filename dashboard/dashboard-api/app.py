@@ -70,10 +70,14 @@ class WindSensorData(BaseModel):
     direction: int # degrees
 
 @app.post("/update-sensor-data")
-async def update_temperature_and_humidity_data(sensor_data: Dict[str, Union[int, float]], db: AsyncSession = Depends(get_db)):
+async def update_temperature_and_humidity_data(request: Request, db: AsyncSession = Depends(get_db)):
     timestamp = get_timestamp_now()
-    current_temperature = sensor_data.get("SHT30.temperature")
-    current_humidity = sensor_data.get("SHT30.humidity")
+    sensor_data = await request.json()
+    current_temperature = sensor_data.get("temperature")
+    current_humidity = sensor_data.get("humidity")
+
+    print(f"Incoming sensor data: {sensor_data}")
+    print(f"Parsed temperature={current_temperature}, humidity={current_humidity}")
 
     todays_record = await update_todays_weather(db, current_temperature, timestamp)
 
