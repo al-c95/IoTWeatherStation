@@ -109,8 +109,8 @@ std::unique_ptr<SensorReading> SHT30Sensor::read()
 std::unique_ptr<SensorReading> SHT30Sensor::fallback()
 {
     auto sensor_reading = std::make_unique<SHT30SensorReading>();
-    sensor_reading->temperature = 21.0f;
-    sensor_reading->humidity    = 50;
+    sensor_reading->temperature = 100.0f;
+    sensor_reading->humidity    = 101;
     ESP_LOGW(TAG, "Returning fallback reading: Temp=%.1f°C Hum=%d%%",
              sensor_reading->temperature, sensor_reading->humidity);
     
