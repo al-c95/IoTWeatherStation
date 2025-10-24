@@ -1,12 +1,37 @@
-# IoT Weather Station
+# 🌦️ IoT Weather Station
+
 ## Introduction
-ESP32 microcontroller-based environmental sensor node, communicating with FastAPI web server via REST API, and React frontend. SHT30 digital temperature and humidity sensor, interfaced with ESP32 via I2C, provides real-time data which is live-streamed to the web dashboard. Daily minimum and maximum temperatures are saved in an Sqlite database, and the last five days of weather are displayed in a table and summarised with LLM integration via OpenAI API.
+IoT weather station implemented using **ESP32 microcontroller–based sensor nodes**, a **FastAPI web server**, and a **React web UI frontend**.  
+Designed to operate as a **backyard hobby weather station**, collecting live temperature, humidity, and other environmental data.  
+May be integrated into a future **smart home hub**.
 
-A sensor simulator (Python script) is provided, to allow testing the web application without interfacing the real ESP32. This simulator generates random temperature and humidity values.
+## Project Approach
+This project is managed as a **hybrid systems engineering and agile software** project:
 
-### Project structure
+- **Concept Design** — describes the high-level architecture and requirements, and serves as a baseline for implementation. Changes infrequently.  
+- **Detailed Design** — describes the software implementation at a lower level. A *living* document that may evolve frequently as features are added or refined.
+
+### Development and Test Plan
+High-level system requirements in the **Concept Design** are traced to requirements in the **Detailed Design**.  
+Detailed design requirements are further traced to **test cases**, written as features are developed.
+
+#### Testing Strategy
+Before each major revision or release, the following test cycles are performed:
+
+- **Unit Tests** — Validate individual components of the firmware, backend, and UI.  
+  *Target: ≥70% code coverage.*
+- **Integration Tests** — Verify interactions between major software components (e.g., FastAPI endpoints tested using Postman or simulator scripts).
+- **End-to-End Tests** — Acceptance tests run with the full software stack, validating complete user flows.
+
+### Repo structure
 - `dashboard` directory - contains React and FastAPI servers, along with scripts to run the various components.
 - `sensorStation\esp32_sht30` directory - contains ESP-IDF project for the sensor node.
+
+## TODO
+- unit tests
+- concept design
+- detailed design
+- UI improvements
 
 ## Running
 1. Connect ESP32-S3 development board to PC via USB. Make a note of the port in Device Manager (Windows).
@@ -44,12 +69,3 @@ I (12636) SHT30Sensor: Read -> Temp=26.2 Hum=57
 ```
 start_react.bat
 ```
-
-![Dashboard screenshot](dashboard_screenshot.png)
-
-## Challenges faced
-I2C was getting timeouts and no data, so port scanning the bus was performed, as well as checking power and signal levels with a multimeter. It was found that the power wire of the SHT30 module was connected to pin 3V3.2 on the board, which wasn't powered. Pin 3V3.1 was powered and the sensor then responded.
-
-## Future features list
-- WiFi provisioning to avoid hard-coding SSID and password and web server address.
-- Integrate barometric pressure sensor.

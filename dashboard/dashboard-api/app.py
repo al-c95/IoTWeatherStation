@@ -76,9 +76,6 @@ async def update_temperature_and_humidity_data(request: Request, db: AsyncSessio
     current_temperature = sensor_data.get("temperature")
     current_humidity = sensor_data.get("humidity")
 
-    print(f"Incoming sensor data: {sensor_data}")
-    print(f"Parsed temperature={current_temperature}, humidity={current_humidity}")
-
     todays_record = await update_todays_weather(db, current_temperature, timestamp)
 
     global current_data
