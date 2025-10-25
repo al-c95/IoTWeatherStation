@@ -1,2 +1,2 @@
-cd dashboard-api
+cd web_api
 python SensorSimulator.py

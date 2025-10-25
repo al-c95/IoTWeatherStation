@@ -1,0 +1,19 @@
+table {
+    border: 1px solid;
+    border-collapse: collapse; /* merges adjacent borders */
+    text-align: center; /* centres text horizontally */
+}
+
+table td,
+table th {
+    font-family: Arial, sans-serif;
+    font-style: normal;
+    font-size: 11pt;
+    border: 1px solid; /* grid lines */
+    padding: 6px 10px; /* spacing inside cells */
+    vertical-align: middle; /* centres text vertically */
+}
+
+tfoot {
+    border-top: 1px solid;
+}
