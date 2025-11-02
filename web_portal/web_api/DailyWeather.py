@@ -22,7 +22,31 @@ class DailyWeather(Base):
     )
 
 
-async def update_todays_weather(db: AsyncSession, current_temp: float, timestamp: DateTime) -> DailyWeather:
+def sanitise_temperature(temperature):
+    if temperature > 60 or temperature < -40:
+        return "-"
+    return temperature
+
+
+def sanitise_humidity(humidity):
+    if humidity > 100 or humidity < 0:
+        return "-"
+    return humidity
+
+
+def format_last_update_time(timestamp):
+    return timestamp.strftime("%H:%M:%S")
+
+
+def format_extreme_reading_time(timestamp):
+    return timestamp.strftime("%H:%M:%S")
+
+
+async def process_temperature_observation(db: AsyncSession, current_temp, timestamp: DateTime) -> DailyWeather:
+    """
+    Adds temperature observation to today's weather record as minimum or maximum, if lower or higher than current minimum/maximum.
+    Returns the record pertaining today's minimum and maximum.
+    """
     todays_record = None
 
     statement = select(DailyWeather).where(

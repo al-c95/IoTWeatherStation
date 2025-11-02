@@ -29,7 +29,7 @@ REQ-9 - Exports - The web application will support exporting of daily weather re
 
 REQ-10 - Climatology - The web application will be able to analyse the collected weather data to produce climatological information.
 
-REQ-11 - Alerts- The web application will send email and/or SMS alerts when temperature reaches thresholds. These alerts will be configurable.
+REQ-11 - Alerts - The web application will send email and/or SMS alerts when temperature reaches thresholds. These alerts will be configurable.
 
 REQ-12 - Future extensibility - The web application and sensor node software will be extensible to easily support additional future sensors.
 

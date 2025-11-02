@@ -11,8 +11,8 @@
   }
   
   .panel .value {
-    font-size: 2em;
-    font-weight: bold;
+    font-size: 2.5em;
+    font-weight: 200;
   }
 
   .panel .update-time {

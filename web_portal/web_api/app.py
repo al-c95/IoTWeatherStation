@@ -56,27 +56,14 @@ current_data = {
 }
 current_data_lock = asyncio.Lock()
 
-
-def format_last_update_time(timestamp):
-    return timestamp.strftime("%Y-%m-%d %H:%M:%S")
-
-
-def format_extreme_reading_time(timestamp):
-    return timestamp.strftime("%H:%M:%S")
-
-
-class WindSensorData(BaseModel):
-    speed: int
-    direction: int # degrees
-
 @app.post("/sensor-data")
-async def update_temperature_and_humidity_data(request: Request, db: AsyncSession = Depends(get_db)):
+async def update_sensor_data(request: Request, db: AsyncSession = Depends(get_db)):
     timestamp = get_timestamp_now()
     sensor_data = await request.json()
-    current_temperature = sensor_data.get("temperature")
-    current_humidity = sensor_data.get("humidity")
+    current_temperature = sanitise_temperature(sensor_data.get("temperature"))
+    current_humidity = sanitise_humidity(sensor_data.get("humidity"))
 
-    todays_record = await update_todays_weather(db, current_temperature, timestamp)
+    todays_record = await process_temperature_observation(db, current_temperature, timestamp)
 
     global current_data
     async with current_data_lock:
@@ -91,6 +78,65 @@ async def update_temperature_and_humidity_data(request: Request, db: AsyncSessio
         })
 
     return {"status": "success"}
+
+
+class DailyWeatherDto(BaseModel):
+    day: int
+    month: int
+    year: int
+    min_temp: float
+    max_temp: float
+
+@app.get("/update-events-sse")
+async def update_events(request: Request):
+    async def update_event_generator():
+        try:
+            while True:
+                if await request.is_disconnected():
+                    break;
+
+                yield { "data": json.dumps(current_data)}
+
+                await asyncio.sleep(0.1)
+        except asyncio.CancelledError:
+            raise
+
+    return EventSourceResponse(update_event_generator())
+
+@app.get("/daily-observations/last-five-days")
+async def get_last_five_days_weather(db: AsyncSession = Depends(get_db)):
+    data = await get_last_5_days_weather(db)
+    result = []
+    for record in data:
+        result.append(DailyWeatherDto(day=record.day, month=record.month, year=record.year, min_temp=record.min_temp, max_temp=record.max_temp))
+
+    return result
+
+@app.get("/daily-observations/month-xlsx")
+async def get_monthly_export(month: int = Query(..., ge=1, le=12), year: int = Query(...), db: AsyncSession = Depends(get_db)):
+    workbook = await build_monthly_workbook(db, year, month)
+    
+    buf = BytesIO()
+    workbook.save(buf)
+    buf.seek(0)
+
+    filename = f"weather_{year:04d}-{month:02d}.xlsx"
+    return StreamingResponse(
+        buf,
+        media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        headers={"Content-Disposition": f'attachment; filename=\"{filename}\"'},
+    )
+
+@app.get("/ai/summarise-last-five-days")
+async def summarise_last_five_days(db: AsyncSession = Depends(get_db)):
+    response = await get_summary_response(db);
+
+    return response
+
+
+class WindSensorData(BaseModel):
+    speed: int
+    direction: int # degrees
 
 
 wind_speed_data_store = WindSpeedDataStore()
@@ -136,72 +182,3 @@ async def update_wind_data(sensor_data: WindSensorData):
         })
 
     return {"status": "success"}
-
-
-class DailyWeatherDto(BaseModel):
-    day: int
-    month: int
-    year: int
-    min_temp: float
-    max_temp: float
-
-@app.get("/update-events-sse")
-async def update_events(request: Request):
-    async def update_event_generator():
-        try:
-            while True:
-                if await request.is_disconnected():
-                    break;
-
-                yield { "data": json.dumps(current_data)}
-
-                await asyncio.sleep(0.1)
-        except asyncio.CancelledError:
-            raise
-
-    return EventSourceResponse(update_event_generator())
-
-@app.get("/last-five-days")
-async def get_last_five_days_weather(db: AsyncSession = Depends(get_db)):
-    data = await get_last_5_days_weather(db)
-    result = []
-    for record in data:
-        result.append(DailyWeatherDto(day=record.day, month=record.month, year=record.year, min_temp=record.min_temp, max_temp=record.max_temp))
-
-    return result
-
-@app.get("/export/month")
-async def get_monthly_export(month: int = Query(..., ge=1, le=12), year: int = Query(...), db: AsyncSession = Depends(get_db)):
-    workbook = await build_monthly_workbook(db, year, month)
-    
-    buf = BytesIO()
-    workbook.save(buf)
-    buf.seek(0)
-
-    filename = f"weather_{year:04d}-{month:02d}.xlsx"
-    return StreamingResponse(
-        buf,
-        media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-        headers={"Content-Disposition": f'attachment; filename=\"{filename}\"'},
-    )
-
-@app.get("/ai/summarise-last-five-days")
-async def summarise_last_five_days(db: AsyncSession = Depends(get_db)):
-    response = await get_summary_response(db);
-
-    return response
-
-@app.get("/connection-status-sse")
-async def connection_status(request: Request):
-    async def connection_status_generator():
-        try:
-            while True:
-                if await request.is_disconnected():
-                    break
-
-            # TODO: poll sensor station
-            pass
-        except asyncio.CancelledError:
-            raise
-
-    return EventSourceResponse(connection_status_generator())

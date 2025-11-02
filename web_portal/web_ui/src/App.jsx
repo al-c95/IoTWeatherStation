@@ -50,7 +50,7 @@ function App() {
 
   useEffect(() => {
     async function fetchDailyData() {
-      const dataResponse = await fetch('/api/last-five-days');
+      const dataResponse = await fetch('/api/daily-observations/last-five-days');
       const data = await dataResponse.json();
 
       setDailyData(data);
