@@ -45,6 +45,7 @@ def format_extreme_reading_time(timestamp):
 async def process_temperature_observation(db: AsyncSession, current_temp, timestamp: DateTime) -> DailyWeather:
     """
     Adds temperature observation to today's weather record as minimum or maximum, if lower or higher than current minimum/maximum.
+    Performs validation on temperature value and skips minimum/maximum logic if outside bounds.
     Returns the record pertaining today's minimum and maximum.
     """
     todays_record = None
@@ -57,27 +58,27 @@ async def process_temperature_observation(db: AsyncSession, current_temp, timest
     result = await db.execute(statement)
     query_record = result.scalar_one_or_none()
 
-    if query_record:
-        todays_record = query_record
-        if current_temp > todays_record.max_temp:
-            todays_record.max_temp = current_temp
-            todays_record.max_temp_time = timestamp.time()
-        if current_temp < todays_record.min_temp:
-            todays_record.min_temp = current_temp
-            todays_record.min_temp_time = timestamp.time()
-    else:
-        todays_record = DailyWeather(
-            day=timestamp.day,
-            month=timestamp.month,
-            year=timestamp.year,
-            min_temp=current_temp,
-            max_temp=current_temp,
-            max_temp_time = timestamp.time(),
-            min_temp_time = timestamp.time()
-        )
+    if sanitise_temperature(current_temp)!="-":
+        if query_record:
+            todays_record = query_record
+            if current_temp > todays_record.max_temp:
+                todays_record.max_temp = current_temp
+                todays_record.max_temp_time = timestamp.time()
+            if current_temp < todays_record.min_temp:
+                todays_record.min_temp = current_temp
+                todays_record.min_temp_time = timestamp.time()
+            else:
+                todays_record = DailyWeather(
+                day=timestamp.day,
+                month=timestamp.month,
+                year=timestamp.year,
+                min_temp=current_temp,
+                max_temp=current_temp,
+                max_temp_time = timestamp.time(),
+                min_temp_time = timestamp.time()
+            )
         db.add(todays_record)
-
-    await db.commit()
+        await db.commit()
 
     return todays_record
 

@@ -56,12 +56,12 @@ current_data = {
 }
 current_data_lock = asyncio.Lock()
 
-@app.post("/sensor-data")
+@app.post("/sensor-data/temperature-humidity")
 async def update_sensor_data(request: Request, db: AsyncSession = Depends(get_db)):
     timestamp = get_timestamp_now()
     sensor_data = await request.json()
-    current_temperature = sanitise_temperature(sensor_data.get("temperature"))
-    current_humidity = sanitise_humidity(sensor_data.get("humidity"))
+    current_temperature = sensor_data.get("temperature")
+    current_humidity = sensor_data.get("humidity")
 
     todays_record = await process_temperature_observation(db, current_temperature, timestamp)
 
