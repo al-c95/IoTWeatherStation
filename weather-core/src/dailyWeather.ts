@@ -85,17 +85,25 @@ export function getDailyWeatherLastNDays(days: number): DailyWeather[]
   return stmt.all(days) as DailyWeather[];
 }
 
-export async function createExportWorkbook(year: number, month: number): Promise<Buffer>
+export function getDailyWeatherForMonth(year: number, month: number): DailyWeather[]
 {
-  const records = db.prepare(`
+  const stmt = db.prepare(`
     SELECT
       day,
       min_temp AS minTemp,
-      max_temp AS maxTemp
+      max_temp AS maxTemp,
+      precipitation AS precipitation
     FROM daily_weather
     WHERE year = ? AND month = ?
     ORDER BY day ASC
-  `).all(year, month);
+  `);
+
+  return stmt.all(year,month) as DailyWeather[];
+}
+
+export async function createExportWorkbook(year: number, month: number): Promise<Buffer>
+{
+  const records = getDailyWeatherForMonth(year, month);
 
   const workbook = new ExcelJS.Workbook();
   const ws = workbook.addWorksheet(`Daily Weather - ${month}-${year}`);

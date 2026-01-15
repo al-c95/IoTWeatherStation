@@ -1,7 +1,7 @@
 import Fastify from "fastify";
 import { addSseClient, broadcastSseEvent, removeSseClient } from "./sseBroadcaster";
 import {createExportWorkbook, getDailyWeatherLastNDays, processTemperatureAndHumidityObservations} from "./dailyWeather";
-import { getCurrentObservations, getSseUpdateData } from "./currentData";
+import { getSseUpdateData } from "./currentData";
 import { getCurrentTimestamp } from "./utils";
 import "./db";
 
