@@ -1,7 +1,7 @@
 # 🌦️ IoT Weather Station
 
 ## Introduction
-IoT weather station implemented using **ESP32 microcontroller–based sensor nodes**, a **FastAPI web server**, and a **React web UI frontend**.  
+IoT weather station implemented using **ESP32 microcontroller–based sensor nodes**, a **Node.JS** web service, a **FastAPI** web service, and a **React web UI frontend**.  
 Designed to operate as a **backyard hobby weather station**, collecting live temperature, humidity, and other environmental data.  
 May be integrated into a future **smart home hub**.
 
@@ -28,10 +28,17 @@ Before each major revision or release, the following test cycles are performed:
 - `sensorStation\esp32_sht30` directory - contains ESP-IDF project for the sensor node.
 
 ## TODO
-- unit tests
+- unit tests (WIP)
 - concept design
 - detailed design
 - UI improvements
+
+## Executing tests
+### Web server
+Run the following command from `web_api` directory:
+```
+pytest tests/
+```
 
 ## Running
 1. Connect ESP32-S3 development board to PC via USB. Make a note of the port in Device Manager (Windows).

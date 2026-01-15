@@ -2,7 +2,7 @@
 ## System Overview
 The system comprises three logical layers:
 1. Sensor layer (ESP32 nodes)
-2. Backend layer (FastAPI web server)
+2. Backend layer (Node.JS and FastAPI web services)
 3. Frontend layer (React frontend)
 
 ## System Architecture
