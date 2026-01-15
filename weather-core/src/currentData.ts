@@ -1,7 +1,4 @@
-export type Temperature = number | null;
-export type Humidity = number | null;
-export type NullableDate = Date | null;
-export type Precipitation = number | null;
+import { Temperature, Humidity, NullableDate } from "./dailyWeather";
 
 export type CurrentObservations = {
   temp: Temperature;
@@ -74,19 +71,15 @@ export function updateTemperatureExtrema(temperature: number, timestamp: Date): 
 {
   let changed = false;
 
-  if (
-    temperatureExtrema.maxTemp === null ||
-    temperature > temperatureExtrema.maxTemp
-  ) {
+  if (temperatureExtrema.maxTemp === null || temperature > temperatureExtrema.maxTemp)
+  {
     temperatureExtrema.maxTemp = temperature;
     temperatureExtrema.maxTempAt = timestamp;
     changed = true;
   }
 
-  if (
-    temperatureExtrema.minTemp === null ||
-    temperature < temperatureExtrema.minTemp
-  ) {
+  if (temperatureExtrema.minTemp === null || temperature < temperatureExtrema.minTemp) 
+  {
     temperatureExtrema.minTemp = temperature;
     temperatureExtrema.minTempAt = timestamp;
     changed = true;
