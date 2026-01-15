@@ -85,11 +85,8 @@ export function getDailyWeatherLastNDays(days: number): DailyWeather[]
   return stmt.all(days) as DailyWeather[];
 }
 
-export async function createExportWorkbook(
-  year: number,
-  month: number
-): Promise<Buffer> {
-
+export async function createExportWorkbook(year: number, month: number): Promise<Buffer>
+{
   const records = db.prepare(`
     SELECT
       day,
@@ -141,7 +138,8 @@ export async function createExportWorkbook(
 
   let rowIndex = ws.rowCount + 1;
 
-  for (const record of records) {
+  for (const record of records)
+  {
     const row = ws.getRow(rowIndex);
 
     const dayCell = row.getCell(1);
@@ -171,32 +169,28 @@ export async function createExportWorkbook(
 
   const summaries = [
     ["Mean",
-      `=AVERAGE(B5:B${lastDataRow})`,
-      `=AVERAGE(C5:C${lastDataRow})`
+      { formula: `AVERAGE(B5:B${lastDataRow})` },
+      { formula: `AVERAGE(C5:C${lastDataRow})` }
     ],
     ["Min",
-      `=MIN(B5:B${lastDataRow})`,
-      `=MIN(C5:C${lastDataRow})`
+      { formula: `MIN(B5:B${lastDataRow})` },
+      { formula: `MIN(C5:C${lastDataRow})` }
     ],
     ["Max",
-      `=MAX(B5:B${lastDataRow})`,
-      `=MAX(C5:C${lastDataRow})`
+      { formula: `MAX(B5:B${lastDataRow})` },
+      { formula: `MAX(C5:C${lastDataRow})` }
     ]
   ];
 
-  for (const [label, minFormula, maxFormula] of summaries) {
+  for (const [label, minFormula, maxFormula] of summaries)
+  {
     const row = ws.getRow(rowIndex);
 
-    const labelCell = row.getCell(1);
-    labelCell.value = label;
+    row.getCell(1).value = label;
+    row.getCell(2).value = minFormula;
+    row.getCell(3).value = maxFormula;
 
-    const minCell = row.getCell(2);
-    minCell.value = minFormula;
-
-    const maxCell = row.getCell(3);
-    maxCell.value = maxFormula;
-
-    [labelCell, minCell, maxCell].forEach(c => {
+    row.eachCell(c => {
       c.border = thinBorder;
       c.numFmt = "0.0";
     });
@@ -214,5 +208,6 @@ export async function createExportWorkbook(
   ];
 
   const buffer = await workbook.xlsx.writeBuffer();
+
   return Buffer.from(buffer);
 }
