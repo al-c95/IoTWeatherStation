@@ -153,10 +153,15 @@ export async function createExportWorkbook(year: number, month: number): Promise
     maxCell.value = record.maxTemp;
     maxCell.font = maxTempFont;
 
-    [dayCell, minCell, maxCell].forEach(c => {
+    [minCell, maxCell].forEach(c => {
       c.border = thinBorder;
       c.numFmt = "0.0";
     });
+
+    [dayCell].forEach(c => {
+      c.border = thinBorder;
+      c.numFmt = "0";
+    })
 
     row.commit();
     rowIndex++;
