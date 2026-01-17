@@ -1,5 +1,7 @@
 import ExcelJS from "exceljs";
-import { Precipitation, Temperature, DailyWeather, getDailyWeatherForMonth  } from "./dailyWeather"
+import { Precipitation, Temperature, DailyWeather, } from "./dailyWeather";
+import { getDailyWeatherForMonth } from "./db";
+import config from "../../config/config.json";
 
 export interface ExcelDailyRecord
 {
@@ -66,6 +68,7 @@ function createStyles(): Styles
 
 function createHeaders(worksheet: ExcelJS.Worksheet, sheetModel: ExcelMonthSheet, styles: Styles)
 {
+  worksheet.addRow([`${config.station_name}; ${config.altitude}m; ${config.latitude} ${config.longitude}`]);
   worksheet.addRow(["Daily Weather Observations"]);
   worksheet.addRow([`${sheetModel.Month}/${sheetModel.Year}`]);
   worksheet.addRow([]);

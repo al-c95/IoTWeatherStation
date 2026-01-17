@@ -3,7 +3,8 @@ import Panel from './components/Panel';
 import DailyWeatherTable from './components/DailyWeatherTable';
 import ExportMonth from './components/ExportMonth';
 import './App.css';
-import { formatTemperature, formatWindSpeed, formatHumidity, formatLastUpdate, formatExtremeReading } from './utils/formatters'
+import { formatTemperature, formatWindSpeed, formatHumidity, formatLastUpdate, formatExtremeReading } from './utils/formatters';
+import config from "../../config/config.json";
 
 function App() {
   const [observations, setObservations] = useState({
@@ -69,7 +70,7 @@ function App() {
     <div>
       <div className='container'>
         <h1>Local Weather</h1>
-        <div>My Location</div>
+        <div>{config.station_name}</div>
 
         <h2>Current Conditions</h2>
         <div className='grid'>

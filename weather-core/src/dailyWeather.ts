@@ -6,7 +6,11 @@ export type Humidity = number | null;
 export type NullableDate = Date | null;
 export type Precipitation = number | null;
 
-export function processTemperatureAndHumidityObservations(temperature: number, humidity: number, timestamp: Date, persistFunction: (ts: Date, minT: Temperature, maxT: Temperature, minTa: NullableDate, maxTa: NullableDate ) => void = persistDailyTemperatureExtrema)
+export function processTemperatureAndHumidityObservations(
+  temperature: number, 
+  humidity: number, 
+  timestamp: Date, 
+  persistFunction: (ts: Date, minT: Temperature, maxT: Temperature, minTa: NullableDate, maxTa: NullableDate ) => void = persistDailyTemperatureExtrema)
 {
     updateCurrentObservations(temperature, humidity, timestamp);
 
