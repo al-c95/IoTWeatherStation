@@ -14,6 +14,8 @@ function App() {
     humidity: null,
     dewPoint: null,
     lastUpdateTempAndHumidity: null,
+    mslPressure: null,
+    lastUpdateMslPressure: null,
     windSpeed: null,
     windDirection: null,
     lastUpdateWind: null,
@@ -82,6 +84,7 @@ function App() {
                   extras={{ "Max": observations.highTemp, "Min": observations.lowTemp }} updateTime={observations.lastUpdateTempAndHumidity}/>
           <Panel title='Humidity' value={observations.humidity ?? '-' } updateTime={observations.lastUpdateTempAndHumidity}
                   extras={{ "Dew Point": observations.dewPoint ?? '-' }}/>
+          <Panel title="MSL Pressure" value={observations.mslPressure ?? '-'} updateTime={observations.lastUpdateMslPressure}/>
         </div>
         
         <ExportMonth></ExportMonth>          

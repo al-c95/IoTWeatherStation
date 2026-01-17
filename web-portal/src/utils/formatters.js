@@ -52,3 +52,13 @@ export function formatExtremeReading(value, timestamp)
 
   return `${value} at ${timestamp}`;
 }
+
+export function formatMslPressureReading(value)
+{
+  if (isNullish(value))
+  {
+    return '-';
+  }
+
+  return `${value} hPa`;
+}
