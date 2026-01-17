@@ -12,6 +12,7 @@ function App() {
     highTemp: null,
     lowTemp: null,
     humidity: null,
+    dewPoint: null,
     lastUpdateTempAndHumidity: null,
     windSpeed: null,
     windDirection: null,
@@ -78,7 +79,8 @@ function App() {
         <div className='grid'>
           <Panel title='Temperature' value={observations.temperature ?? '-'} 
                   extras={{ "Max": observations.highTemp, "Min": observations.lowTemp }} updateTime={observations.lastUpdateTempAndHumidity}/>
-          <Panel title='Humidity' value={observations.humidity ?? '-' } updateTime={observations.lastUpdateTempAndHumidity}/>
+          <Panel title='Humidity' value={observations.humidity ?? '-' } updateTime={observations.lastUpdateTempAndHumidity}
+                  extras={{ "Dew Point": observations.dewPoint ?? '-' }}/>
         </div>
         
         <ExportMonth></ExportMonth>          
