@@ -1,5 +1,5 @@
 import { processTemperatureAndHumidityObservations } from "../src/dailyWeather";
-import {getTemperatureExtrema, updateTemperatureExtrema, resetTemperatureExtrema, updateCurrentObservations, getCurrentObservations} from "../src/currentData";
+import {getTemperatureExtrema, resetTemperatureExtrema, getCurrentObservations} from "../src/currentData";
 
 describe("processTemperatureAndHumidityObservations", () => {
     beforeEach(() => {

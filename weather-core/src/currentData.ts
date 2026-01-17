@@ -76,16 +76,67 @@ function calculateDewPoint(temperature: number, humidity: number)
   return dewPoint;
 }
 
+function sanitiseTemperature(temperature: number)
+{
+  if (temperature >= -40 && temperature <= 60)
+  {
+    return true;
+  }
+  return false;
+}
+
+function sanitiseHumidity(humidity: number)
+{
+  if (humidity >= 0 && humidity <= 100)
+  {
+    return true;
+  }
+  return false;
+}
+
 export function updateCurrentObservations(temperature: number, humidity: number, timestamp: Date)
 {
-  currentObservations.temp = temperature;
-  currentObservations.humidity = humidity;
-  currentObservations.dewPoint = calculateDewPoint(temperature, humidity);
   currentObservations.timestamp = timestamp;
+
+  let temperatureSane: boolean = sanitiseTemperature(temperature);
+  let humiditySane: boolean = sanitiseHumidity(humidity);
+  let sane: boolean = 
+    temperatureSane && humiditySane;
+  if (sane)
+  {
+    currentObservations.dewPoint=calculateDewPoint(temperature, humidity);
+  }
+  else
+  {
+    currentObservations.dewPoint=null;
+  }
+
+  if (temperatureSane)
+  {
+    currentObservations.temp = temperature;
+  }
+  else
+  {
+    currentObservations.temp = null;
+  }
+
+  if (humiditySane)
+  {
+    currentObservations.humidity = humidity;
+  }
+  else
+  {
+    currentObservations.humidity=null;
+  }
 }
 
 export function updateTemperatureExtrema(temperature: number, timestamp: Date): boolean
 {
+  if (!sanitiseTemperature(temperature))
+  {
+    return false;
+  }
+
   let changed = false;
 
   if (temperatureExtrema.maxTemp === null || temperature > temperatureExtrema.maxTemp)
@@ -112,3 +163,4 @@ export function resetTemperatureExtrema()
   temperatureExtrema.maxTemp = null;
   temperatureExtrema.maxTempAt = null;
 }
+// TODO: reset at midnight
