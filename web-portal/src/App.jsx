@@ -80,11 +80,11 @@ function App() {
 
         <h2>Current Conditions</h2>
         <div className='grid'>
-          <Panel title='Temperature' value={observations.temperature ?? '-'} 
+          <Panel title='Temperature' value={observations.temperature} 
                   extras={{ "Max": observations.highTemp, "Min": observations.lowTemp }} updateTime={observations.lastUpdateTempAndHumidity}/>
-          <Panel title='Humidity' value={observations.humidity ?? '-' } updateTime={observations.lastUpdateTempAndHumidity}
-                  extras={{ "Dew Point": observations.dewPoint ?? '-' }}/>
-          <Panel title="MSL Pressure" value={observations.mslPressure ?? '-'} updateTime={observations.lastUpdateMslPressure}/>
+          <Panel title='Humidity' value={observations.humidity} updateTime={observations.lastUpdateTempAndHumidity}
+                  extras={{ "Dew Point": observations.dewPoint}}/>
+          <Panel title="MSL Pressure" value={observations.mslPressure} updateTime={observations.lastUpdateMslPressure}/>
         </div>
         
         <ExportMonth></ExportMonth>          
