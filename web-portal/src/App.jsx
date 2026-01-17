@@ -33,6 +33,7 @@ function App() {
       setObservations({
         temperature: `${formatTemperature(data.temp)}`,
         humidity: `${formatHumidity(data.humidity)}`,
+        dewPoint: `${formatTemperature(data.dewPoint)}`,
         highTemp: `${formatExtremeReading(formatTemperature(data.maxTemp), data.maxTempAt)}`,
         lowTemp: `${formatExtremeReading(formatTemperature(data.minTemp), data.minTempAt)}`,
         lastUpdateTempAndHumidity: `${formatLastUpdate(data.timestamp)}`

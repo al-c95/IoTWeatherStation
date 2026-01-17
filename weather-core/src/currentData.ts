@@ -3,6 +3,7 @@ import { Temperature, Humidity, NullableDate } from "./dailyWeather";
 export type CurrentObservations = {
   temp: Temperature;
   humidity: Humidity;
+  dewPoint: Temperature;
   timestamp: NullableDate;
 };
 
@@ -18,6 +19,7 @@ export type SseUpdateData = CurrentObservations & DailyTemperatureExtrema;
 const currentObservations: CurrentObservations = {
   temp: null,
   humidity: null,
+  dewPoint: null,
   timestamp: null
 };
 
@@ -26,6 +28,7 @@ export function getCurrentObservations(): Readonly<CurrentObservations>
   return {
     temp: currentObservations.temp,
     humidity: currentObservations.humidity,
+    dewPoint: currentObservations.dewPoint,
     timestamp: currentObservations.timestamp ? new Date(currentObservations.timestamp) : null
   };
 }
@@ -52,6 +55,7 @@ export function getSseUpdateData(): SseUpdateData
   return {
     temp: getCurrentObservations().temp,
     humidity: getCurrentObservations().humidity,
+    dewPoint: getCurrentObservations().dewPoint,
     timestamp: getCurrentObservations().timestamp,
     minTemp: getTemperatureExtrema().minTemp,
     minTempAt: getTemperatureExtrema().minTempAt,
@@ -60,10 +64,23 @@ export function getSseUpdateData(): SseUpdateData
   };
 }
 
+function calculateDewPoint(temperature: number, humidity: number)
+{
+  // Magnus-Tetens approximation
+  const a = 17.62;
+  const b = 243.12;
+
+  const gamma = Math.log(humidity / 100) +(a * temperature) / (b + temperature);
+  const dewPoint = (b * gamma) / (a - gamma);
+
+  return dewPoint;
+}
+
 export function updateCurrentObservations(temperature: number, humidity: number, timestamp: Date)
 {
   currentObservations.temp = temperature;
   currentObservations.humidity = humidity;
+  currentObservations.dewPoint = calculateDewPoint(temperature, humidity);
   currentObservations.timestamp = timestamp;
 }
 

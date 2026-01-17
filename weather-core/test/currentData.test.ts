@@ -56,6 +56,7 @@ describe("updateCurrentObservations", () => {
     // assert
     expect(getCurrentObservations().temp).toBe(25);
     expect(getCurrentObservations().humidity).toBe(50);
+    expect(getCurrentObservations().dewPoint).toBeCloseTo(13.9,1);
   })
 });
 
