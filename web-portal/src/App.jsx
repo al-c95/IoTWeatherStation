@@ -3,7 +3,7 @@ import Panel from './components/Panel';
 import DailyWeatherTable from './components/DailyWeatherTable';
 import ExportMonth from './components/ExportMonth';
 import './App.css';
-import { formatTemperature, formatWindSpeed, formatHumidity, formatLastUpdate, formatExtremeReading } from './utils/formatters';
+import { formatTemperature, formatHumidity, formatLastUpdate, formatExtremeReading } from './utils/formatters';
 import config from "../../config/config.json";
 
 function App() {
@@ -71,6 +71,8 @@ function App() {
       <div className='container'>
         <h1>Local Weather</h1>
         <div>{config.station_name}</div>
+        <div>{config.altitude} m</div>
+        <div>{config.latitude} {config.longitude}</div>
 
         <h2>Current Conditions</h2>
         <div className='grid'>
