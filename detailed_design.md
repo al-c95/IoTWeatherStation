@@ -33,7 +33,7 @@ Unique constraint on (day, month, year).
 ## User Interface
 The user interface is built with React.JS. It communicates with the weather-core web server using the REST API and Server-Sent Events.
 
-REQ-DX - The user interface will display current conditions, which are the latest values and their timestamps, obtained from the web server via Server-Sent Events.
+REQ-DX - The user interface will display current conditions, which are the latest values of temperature, humidity, precipitation, wind, and their timestamps, obtained from the web server via Server-Sent Events.
 
 REQ-DX - The user interface will display weather station metadata, including:
 
@@ -145,7 +145,7 @@ Example payload:
 ```
 
 ### Current conditions endpoint
-REQ-DX - The UI will be able to retrieve current weather conditions from the weather-core service via the following Server-Sent Events endpoint:
+REQ-DX - The UI will be able to obtain current weather conditions from the weather-core service via the following Server-Sent Events endpoint:
 
 GET /update-events-sse
 
@@ -162,10 +162,6 @@ Example SSE Event:
 ```
 data: {"temperature": 24.7, "humidity": 63, "timestamp":"20:32:21"}
 ```
-
-Event Frequency:
-
-Up to 10 events per second (every 0.1 seconds), but values only truly change when new sensor data arrives.
 
 ### Daily temperature and precipitation endpoint
 REQ-DX - the UI will be able to retrieve the last n days of minimum and maximum temperature and precipitation from the weather-core service via the following endpoint:
