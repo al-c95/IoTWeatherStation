@@ -33,7 +33,7 @@ Unique constraint on (day, month, year).
 ## User Interface
 The user interface is built with React.JS. It communicates with the weather-core web server using the REST API and Server-Sent Events.
 
-REQ-DX - The user interface will display current conditions, which are the latest values of temperature, humidity, precipitation, wind, and their timestamps, obtained from the web server via Server-Sent Events.
+REQ-DX - The user interface will display current conditions, which are the latest values of temperature, humidity, dew point, precipitation, wind, and their timestamps, obtained from the web server via Server-Sent Events.
 
 REQ-DX - The user interface will display weather station metadata, including:
 
@@ -160,7 +160,7 @@ Each `data:` event contains a JSON object representing the most recently known c
 
 Example SSE Event:
 ```
-data: {"temperature": 24.7, "humidity": 63, "timestamp":"20:32:21"}
+data: {"temp": 24.7, "humidity": 63, "dewPoint": 17.2, "timestamp": "14:32:21", "minTemp": 0.0, "minTempAt": 06:00:00, "maxTemp": 25.0, "maxTempAt": "14:00:00" }
 ```
 
 ### Daily temperature and precipitation endpoint
@@ -266,6 +266,19 @@ The following limits apply to validation of values read by the sensor nodes:
 | REQ-DX | Humidity | 0% - 100% |
 
 REQ-DX The web server will silently reject values outside these ranges by displaying a null or empty value, and disregarding them for any analysis or calculation.
+
+## Dew point calculation
+REQ-DX - Dew point will be calculated using the Magnus-Tetens approximation:
+
+gamma(T, RH) = ln(RH / 100) + (a · T) / (b + T)
+
+Td = (b · gamma) / (a − gamma)
+
+where:
+- T  = air temperature (°C)
+- RH = relative humidity (%)
+- a  = 17.62
+- b  = 243.12 °C
 
 ## Alerts
 The web application will send email and/or SMS alerts when temperature reaches thresholds. These alerts will be configurable.
