@@ -76,22 +76,23 @@ function calculateDewPoint(temperature: number, humidity: number)
   return dewPoint;
 }
 
-function sanitiseTemperature(temperature: number)
+function validateRange(value: number, lowerBound: number, upperBound: number)
 {
-  if (temperature >= -40 && temperature <= 60)
+  if (value >= lowerBound && value <= upperBound)
   {
     return true;
   }
   return false;
 }
 
+function sanitiseTemperature(temperature: number)
+{
+  return validateRange(temperature, -40, 60);
+}
+
 function sanitiseHumidity(humidity: number)
 {
-  if (humidity >= 0 && humidity <= 100)
-  {
-    return true;
-  }
-  return false;
+  return validateRange(humidity, 0, 100);
 }
 
 export function updateCurrentObservations(temperature: number, humidity: number, timestamp: Date)
