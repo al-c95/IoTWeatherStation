@@ -4,3 +4,8 @@
 ```
 npm run dev
 ```
+
+## Running tests
+```
+npm test
+```
