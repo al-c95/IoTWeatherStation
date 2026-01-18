@@ -225,6 +225,23 @@ Query Parameters:
 |`year`|integer|Yes||Calendar year|
 |`month`|integer|Yes||Calendar month (1-12)|
 
+
+### Year to date summary endpoint
+REQ-DX - the UI will be able to retreive a year to date summary via the following endpoint:
+
+GET /climatology/year-to-date
+
+Example Response (200 OK):
+```
+{
+   "year": 2026,
+   "minTemp": 1.4,
+   "minTempAt": "2026-01-16T10:15:28.245Z",
+   "maxTemp": 27,
+   "maxTempAt": "2026-01-17T10:57:41.740Z"
+}
+```
+
 ## Temperature and Humidity sensor node
 This sensor node consists of an ESP32-S3, interfaced with an SHT30 temperature and humidity sensor via I2C.
 

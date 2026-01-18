@@ -1,5 +1,6 @@
 import Database from "better-sqlite3";
 import path from "path";
+import { YearToDateSummary } from "./climatology";
 import { DailyWeather, Temperature, NullableDate } from "./dailyWeather";
 
 const dbPath = path.resolve(__dirname, "../../weather.db");
@@ -107,4 +108,54 @@ export function persistDailyTemperatureExtrema(
     maxTemp,
     maxTempAt?.toISOString() ?? null
   );
+}
+
+export function getYearToDateSummary(year: number): YearToDateSummary
+{
+  const stmt = db.prepare(`
+    SELECT
+      ? AS year,
+
+      -- Minimum temperature and when it occurred
+      (
+        SELECT min_temp
+        FROM daily_weather
+        WHERE year = ?
+        ORDER BY min_temp ASC
+        LIMIT 1
+      ) AS minTemp,
+
+      (
+        SELECT min_temp_time
+        FROM daily_weather
+        WHERE year = ?
+        ORDER BY min_temp ASC
+        LIMIT 1
+      ) AS minTempAt,
+
+      -- Maximum temperature and when it occurred
+      (
+        SELECT max_temp
+        FROM daily_weather
+        WHERE year = ?
+        ORDER BY max_temp DESC
+        LIMIT 1
+      ) AS maxTemp,
+
+      (
+        SELECT max_temp_time
+        FROM daily_weather
+        WHERE year = ?
+        ORDER BY max_temp DESC
+        LIMIT 1
+      ) AS maxTempAt
+  `);
+
+  return stmt.get(
+    year,
+    year,
+    year,
+    year,
+    year
+  ) as YearToDateSummary;
 }

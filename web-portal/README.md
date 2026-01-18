@@ -1,6 +1,6 @@
 # web-portal
 
-## Running
+## Running app
 ```
 npm run dev
 ```

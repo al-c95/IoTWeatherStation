@@ -1,7 +1,7 @@
 import Fastify from "fastify";
 import { addSseClient, broadcastSseEvent, removeSseClient } from "./sseBroadcaster";
 import { processTemperatureAndHumidityObservations} from "./dailyWeather";
-import { getDailyWeatherLastNDays } from "./db";
+import { getDailyWeatherLastNDays, getYearToDateSummary } from "./db";
 import { createExportWorkbook } from "./Excel";
 import { getSseUpdateData } from "./currentData";
 import { getCurrentTimestamp } from "./utils";
@@ -105,6 +105,12 @@ app.get("/daily-observations/export/xlsx", async (request, reply) => {
     )
     .header("Content-Disposition", `attachment; filename="${filename}"`)
     .send(buffer);
+});
+
+app.get("/climatology/year-to-date", (request, reply) => {
+  const now = getCurrentTimestamp();
+
+  return getYearToDateSummary(now.getFullYear());
 });
 
 app.listen({ port: 3000 });
