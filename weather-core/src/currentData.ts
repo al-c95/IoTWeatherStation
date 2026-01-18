@@ -76,7 +76,7 @@ function calculateDewPoint(temperature: number, humidity: number)
   return dewPoint;
 }
 
-function validateRange(value: number, lowerBound: number, upperBound: number)
+function validateRange(value: number, lowerBound: number, upperBound: number): boolean
 {
   if (value >= lowerBound && value <= upperBound)
   {
