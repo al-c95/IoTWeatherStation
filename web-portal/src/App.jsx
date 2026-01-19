@@ -2,8 +2,9 @@ import React, { useEffect, useState } from 'react';
 import Panel from './components/Panel';
 import DailyWeatherTable from './components/DailyWeatherTable';
 import ExportMonth from './components/ExportMonth';
+import MonthlyAlmanac from './components/MonthlyAlmanac';
 import './App.css';
-import { formatTemperature, formatHumidity, formatLastUpdate, formatExtremeReading } from './utils/formatters';
+import { formatTemperature, formatHumidity, formatLastUpdate, formatExtremeReading, formatLocalTime12h } from './utils/formatters';
 import config from "../../config/config.json";
 
 function App() {
@@ -36,9 +37,9 @@ function App() {
         temperature: `${formatTemperature(data.temp)}`,
         humidity: `${formatHumidity(data.humidity)}`,
         dewPoint: `${formatTemperature(data.dewPoint)}`,
-        highTemp: `${formatExtremeReading(formatTemperature(data.maxTemp), data.maxTempAt)}`,
-        lowTemp: `${formatExtremeReading(formatTemperature(data.minTemp), data.minTempAt)}`,
-        lastUpdateTempAndHumidity: `${formatLastUpdate(data.timestamp)}`
+        highTemp: `${formatExtremeReading(formatTemperature(data.maxTemp), formatLocalTime12h(data.maxTempAt))}`,
+        lowTemp: `${formatExtremeReading(formatTemperature(data.minTemp), formatLocalTime12h(data.minTempAt))}`,
+        lastUpdateTempAndHumidity: `${formatLastUpdate(formatLocalTime12h(data.timestamp))}`
       });
     }
 
@@ -87,9 +88,9 @@ function App() {
           <Panel title="MSL Pressure" value={observations.mslPressure} updateTime={observations.lastUpdateMslPressure}/>
         </div>
         
-        <ExportMonth></ExportMonth>          
-
         <DailyWeatherTable data={dailyData.data} summary={dailyDataSummary}></DailyWeatherTable>
+        
+        <ExportMonth></ExportMonth>
       </div>
     </div>
   );

@@ -4,7 +4,8 @@ import
   formatHumidity,
   formatLastUpdate,
   formatExtremeReading,
-  formatMslPressureReading
+  formatMslPressureReading,
+  formatLocalTime12h
 } from "../../src/utils/formatters.js";
 
 describe("formatTemperature", () =>
@@ -66,7 +67,7 @@ describe("formatExtremeReading", () =>
 
 describe("formatMslPressureReading", () => 
 {
-    test("formats mslp reading correclty", () =>
+    test("formats mslp reading correctly", () =>
     {
         expect(formatMslPressureReading('1000')).toBe('1000 hPa');
     });
@@ -74,5 +75,23 @@ describe("formatMslPressureReading", () =>
     test("returns dash for null", () => 
     {
         expect(formatMslPressureReading(null)).toBe('-');
+    });
+});
+
+describe("formatLocalTime12h", () => 
+{
+    test("formats local time correctly", () =>
+    {
+        expect(formatLocalTime12h("2026-01-18T05:20:55.783Z")).toBe('4:20 pm');
+    });
+
+    test("returns dash for dash", () =>
+    {
+        expect(formatLocalTime12h('-')).toBe('-');
+    });
+
+    test("returns dash for null", () =>
+    {
+        expect(formatLocalTime12h(null)).toBe('-');
     });
 });

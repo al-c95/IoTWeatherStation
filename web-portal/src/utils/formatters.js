@@ -62,3 +62,25 @@ export function formatMslPressureReading(value)
 
   return `${value} hPa`;
 }
+
+export function formatLocalTime12h(utcTimestamp)
+{
+  if (isNullish(utcTimestamp))
+  {
+    return '-';
+  }
+
+  if (utcTimestamp === '-')
+  {
+    return '-';
+  }
+
+  const date = new Date(utcTimestamp);
+
+  return new Intl.DateTimeFormat(undefined,
+  {
+    hour: "numeric",
+    minute: "2-digit",
+    hour12: true
+  }).format(date);
+}
