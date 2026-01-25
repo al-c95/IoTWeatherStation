@@ -3,6 +3,16 @@ function isNullish(value)
   return value === null || value === undefined;
 }
 
+export function formatPrecipitation(precipitation)
+{
+  if (isNullish(precipitation))
+  {
+    return '-';
+  }
+
+  return `${precipitation.toFixed(1)} mm`;
+}
+
 export function formatTemperature(temp)
 {
   if (isNullish(temp))
@@ -83,4 +93,42 @@ export function formatLocalTime12h(utcTimestamp)
     minute: "2-digit",
     hour12: true
   }).format(date);
+}
+
+function getOrdinalSuffix(day)
+{
+  if (day > 3 && day < 21) return "th";
+
+  switch (day % 10)
+  {
+    case 1: return "st";
+    case 2: return "nd";
+    case 3: return "rd";
+    default: return "th";
+  }
+}
+
+export function formatDayAndMonth(utcTimestamp)
+{
+  if (isNullish(utcTimestamp))
+  {
+    return '-';
+  }
+
+  if (utcTimestamp === '-')
+  {
+    return '-';
+  }
+
+  const date = new Date(utcTimestamp);
+
+  if (isNaN(date.getTime()))
+  {
+    return "-";
+  }
+
+  const day = date.getDate(); // local day-of-month
+  const monthName = new Intl.DateTimeFormat(undefined, { month: "long" }).format(date);
+
+  return `${monthName} ${day}${getOrdinalSuffix(day)}`;
 }

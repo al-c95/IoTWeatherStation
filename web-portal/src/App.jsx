@@ -2,10 +2,10 @@ import React, { useEffect, useState } from 'react';
 import Panel from './components/Panel';
 import DailyWeatherTable from './components/DailyWeatherTable';
 import ExportMonth from './components/ExportMonth';
-import MonthlyAlmanac from './components/MonthlyAlmanac';
 import './App.css';
 import { formatTemperature, formatHumidity, formatLastUpdate, formatExtremeReading, formatLocalTime12h } from './utils/formatters';
 import config from "../../config/config.json";
+import YearToDate from './components/YearToDate';
 
 function App() {
   const [observations, setObservations] = useState({
@@ -26,6 +26,7 @@ function App() {
   });
   const [dailyData, setDailyData] = useState([]);
   const [dailyDataSummary, setDailyDataSummary] = useState([]);
+  const [yearToDateSummary, setYearToDateSummary] = useState([]);
 
   useEffect(() => {
     const eventSource = new EventSource('/api/update-events-sse');
@@ -71,6 +72,17 @@ function App() {
     fetchDailyDataSummary();
   }, []);
 
+  useEffect(() => {
+    async function fetchYearToDateSummary() {
+      const dataResponse = await fetch('/api/climatology/year-to-date');
+      const data = await dataResponse.json();
+
+      setYearToDateSummary(data);
+    }
+
+    fetchYearToDateSummary();
+  }, []);
+
   return (
     <div>
       <div className='container'>
@@ -89,7 +101,9 @@ function App() {
         </div>
         
         <DailyWeatherTable data={dailyData.data} summary={dailyDataSummary}></DailyWeatherTable>
-        
+
+        <YearToDate data={yearToDateSummary}></YearToDate>
+
         <ExportMonth></ExportMonth>
       </div>
     </div>

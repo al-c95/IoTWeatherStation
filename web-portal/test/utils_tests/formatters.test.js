@@ -1,12 +1,32 @@
 import
 {
+  formatPrecipitation,
   formatTemperature,
   formatHumidity,
   formatLastUpdate,
   formatExtremeReading,
   formatMslPressureReading,
-  formatLocalTime12h
+  formatLocalTime12h,
+  formatDayAndMonth
 } from "../../src/utils/formatters.js";
+
+describe("formatPrecipitation", () =>
+{
+    test("formats precipitation with one decimal and unit", () => 
+    {
+        expect(formatPrecipitation(0.0)).toBe('0.0 mm');
+    });
+
+    test("returns dash for null", () =>
+    {
+        expect(formatPrecipitation(null)).toBe('-');
+    });
+
+    test("returns dash for undefined", () =>
+    {
+        expect(formatPrecipitation(undefined)).toBe('-');
+    });
+});
 
 describe("formatTemperature", () =>
 {
@@ -93,5 +113,38 @@ describe("formatLocalTime12h", () =>
     test("returns dash for null", () =>
     {
         expect(formatLocalTime12h(null)).toBe('-');
+    });
+});
+
+describe("formatDayAndMonth", () => 
+{
+    test("formats day and month correctly th", () => 
+    {
+        expect(formatDayAndMonth("2026-01-18T05:20:55.783Z")).toBe('January 18th');
+    });
+
+    test("formats day and monty correctly st", () =>
+    {
+        expect(formatDayAndMonth("2026-01-01T05:20:55.783Z")).toBe('January 1st');
+    });
+
+    test("formats day and month correctly nd", () => 
+    {
+        expect(formatDayAndMonth("2026-01-02T05:20:55.783Z")).toBe('January 2nd');
+    });
+
+    test("formats day and month correctly rd", () =>
+    {
+        expect(formatDayAndMonth("2026-01-03T05:20:55.783Z")).toBe('January 3rd');
+    });
+
+    test("returns dash for dash", () =>
+    {
+        expect(formatDayAndMonth('-')).toBe('-');
+    });
+
+    test("returns dash for null", () =>
+    {
+        expect(formatDayAndMonth(null)).toBe('-');
     });
 });

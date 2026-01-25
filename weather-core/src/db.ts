@@ -164,10 +164,18 @@ export function getYearToDateSummary(year: number): YearToDateSummary
         WHERE year = ?
         ORDER BY max_temp DESC
         LIMIT 1
-      ) AS maxTempAt
+      ) AS maxTempAt,
+
+      -- Total precipitation year to date
+      (
+        SELECT COALESCE(SUM(precipitation), 0)
+        FROM daily_weather
+        WHERE year = ?
+      ) AS totalPrecipitation
   `);
 
   return stmt.get(
+    year,
     year,
     year,
     year,

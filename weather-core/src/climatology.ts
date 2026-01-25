@@ -6,5 +6,5 @@ export interface YearToDateSummary
     highestTempDate: NullableDate,
     lowestTemp: Temperature,
     lowestTempDate: NullableDate,
-    totalRainfall: Precipitation
+    totalPrecipitation: Precipitation
 }
