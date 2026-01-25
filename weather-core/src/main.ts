@@ -3,13 +3,14 @@ import { addSseClient, broadcastSseEvent, removeSseClient } from "./sseBroadcast
 import { processTemperatureAndHumidityObservations} from "./dailyWeather";
 import { getDailyWeatherLastNDays, getYearToDateSummary } from "./db";
 import { createExportWorkbook } from "./Excel";
-import { getSseUpdateData } from "./currentData";
+import { getSseUpdateData, retrieveCurrentTemperatureExtrema } from "./currentData";
 import { getCurrentTimestamp } from "./utils";
-import "./db";
 
 const app = Fastify({logger: true});
 
 console.log("APP RUNNING");
+
+retrieveCurrentTemperatureExtrema();
 
 app.post("/sensor-data/temperature-humidity", async (request, reply) => {
 

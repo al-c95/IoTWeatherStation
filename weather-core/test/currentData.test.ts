@@ -1,4 +1,5 @@
-import {getTemperatureExtrema, updateTemperatureExtrema, resetTemperatureExtrema, updateCurrentObservations, getCurrentObservations, getSseUpdateData} from "../src/currentData";
+import {getTemperatureExtrema, updateTemperatureExtrema, resetTemperatureExtrema, updateCurrentObservations, getCurrentObservations, getSseUpdateData, retrieveCurrentTemperatureExtrema} from "../src/currentData";
+import * as utils from "../src/utils";
 
 describe("updateTemperatureExtrema", () => {
     beforeEach(() => {
@@ -117,4 +118,49 @@ describe("getSseUpdateData", () => {
     expect(data.minTemp).toBe(25);
     expect(data.maxTemp).toBe(27);
   })
-})
+});
+
+describe("retrieveCurrentTemperatureExtrema", () => {
+  it("retrieves extrema", () => {
+    // arrange
+    // mock the current timestamp
+    jest.spyOn(utils, "getCurrentTimestamp").mockReturnValue(
+      new Date("2026-01-18T10:00:00")
+    );
+    // fake DB response
+    const fakeDbResult =
+    {
+      minTemp: -2,
+      minTempAt: new Date("2026-01-18T06:00:00"),
+      maxTemp: 27,
+      maxTempAt: new Date("2026-01-18T14:00:00")
+    };
+    const mockRetrieve = jest.fn().mockReturnValue(fakeDbResult);
+
+    // act
+    retrieveCurrentTemperatureExtrema(mockRetrieve);
+
+    // assert
+    const extrema = getTemperatureExtrema();
+    expect(extrema.minTemp).toBe(-2);
+    expect(extrema.maxTemp).toBe(27);
+  }),
+
+  it("does not overwrite if no current extrema", () => {
+    // arrange
+    jest.spyOn(utils, "getCurrentTimestamp").mockReturnValue(
+      new Date("2026-01-18T10:00:00")
+    );
+    resetTemperatureExtrema();
+    const mockRetrieve = jest.fn().mockReturnValue(undefined);
+  
+    // act
+    retrieveCurrentTemperatureExtrema(mockRetrieve);
+    
+    // assert
+    const extrema = getTemperatureExtrema();
+    // values should remain whatever they were before
+    expect(extrema.minTemp).toBeNull();
+    expect(extrema.maxTemp).toBeNull();
+  })
+});

@@ -1,6 +1,7 @@
 import Database from "better-sqlite3";
 import path from "path";
 import { YearToDateSummary } from "./climatology";
+import { DailyTemperatureExtrema } from "./currentData";
 import { DailyWeather, Temperature, NullableDate } from "./dailyWeather";
 
 const dbPath = path.resolve(__dirname, "../../weather.db");
@@ -67,6 +68,21 @@ export function getDailyWeatherForMonth(year: number, month: number): DailyWeath
   `);
 
   return stmt.all(year,month) as DailyWeather[];
+}
+
+export function getCurrentTemperatureExtrema(year: number, month: number, day: number): DailyTemperatureExtrema
+{
+  const stmt = db.prepare(`
+    SELECT
+      min_temp AS minTemp,
+      max_temp AS maxTemp,
+      max_temp_time AS maxTempAt,
+      min_temp_time AS minTempAt
+    FROM daily_weather
+    WHERE year = ? AND month =? AND day = ?
+  `);
+
+  return stmt.get(year, month, day) as DailyTemperatureExtrema;
 }
 
 export function persistDailyTemperatureExtrema(

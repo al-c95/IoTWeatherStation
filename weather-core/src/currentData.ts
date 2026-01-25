@@ -1,4 +1,6 @@
 import { Temperature, Humidity, NullableDate } from "./dailyWeather";
+import { getCurrentTimestamp } from "./utils";
+import { getCurrentTemperatureExtrema } from "./db";
 
 export type CurrentObservations = {
   temp: Temperature;
@@ -155,6 +157,20 @@ export function updateTemperatureExtrema(temperature: number, timestamp: Date): 
   }
 
   return changed;
+}
+
+export function retrieveCurrentTemperatureExtrema(retrieveFunction: (year: number, month: number, day: number) => DailyTemperatureExtrema = getCurrentTemperatureExtrema)
+{
+  const now = getCurrentTimestamp();
+  const currentExtrema = retrieveFunction(now.getFullYear(), now.getMonth() + 1, now.getDate());
+
+  if (currentExtrema != undefined)
+  {
+    temperatureExtrema.minTemp=currentExtrema.minTemp;
+    temperatureExtrema.minTempAt=currentExtrema.minTempAt;
+    temperatureExtrema.maxTemp=currentExtrema.maxTemp;
+    temperatureExtrema.maxTempAt=currentExtrema.maxTempAt;
+  }
 }
 
 export function resetTemperatureExtrema()
