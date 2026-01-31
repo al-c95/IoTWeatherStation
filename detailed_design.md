@@ -10,6 +10,7 @@ REQ-DX - The web application will use a JSON configuration file to store metadat
 |`station_name`|string|N/A|Yes|Human-readable name of the station, displayed in UI and metadata pages.
 |`latitude`|float|degrees|Yes|Geographic latitude|
 |`longitude`|float|degrees|Yes|Geographic longitude|
+|`elevation`|int|metres|Yes|Elevation|
 
 The configuration file will be used by the frontend application and backend services to access metadata about the station.
 
