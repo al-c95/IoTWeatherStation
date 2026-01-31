@@ -1,6 +1,6 @@
 import Database from "better-sqlite3";
 import path from "path";
-import { YearToDateSummary } from "./climatology";
+import { MonthlyAlmanac, YearToDateSummary } from "./climatology";
 import { DailyTemperatureExtrema } from "./currentData";
 import { DailyWeather, Temperature, NullableDate } from "./dailyWeather";
 
@@ -182,4 +182,38 @@ export function getYearToDateSummary(year: number): YearToDateSummary
     year,
     year
   ) as YearToDateSummary;
+}
+
+export function getMonthlyAlmanac(year: number, month: number): MonthlyAlmanac
+{
+  const stmt = db.prepare(`
+    WITH
+    minRow AS (
+      SELECT min_temp, min_temp_time
+      FROM daily_weather
+      WHERE year = ? AND month = ?
+      ORDER BY min_temp ASC
+      LIMIT 1
+    ),
+    maxRow AS (
+      SELECT max_temp, max_temp_time
+      FROM daily_weather
+      WHERE year = ? AND month = ?
+      ORDER BY max_temp DESC
+      LIMIT 1
+    )
+    SELECT
+      ? AS year,
+      minRow.min_temp      AS minTemp,
+      minRow.min_temp_time AS minTempAt,
+      maxRow.max_temp      AS maxTemp,
+      maxRow.max_temp_time AS maxTempAt
+    FROM minRow, maxRow
+  `);
+
+  return stmt.get(
+    year, month,  // minRow
+    year, month,  // maxRow
+    year          // output year column
+  ) as MonthlyAlmanac;
 }

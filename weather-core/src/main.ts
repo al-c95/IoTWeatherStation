@@ -1,7 +1,7 @@
 import Fastify from "fastify";
 import { addSseClient, broadcastSseEvent, removeSseClient } from "./sseBroadcaster";
 import { processTemperatureAndHumidityObservations} from "./dailyWeather";
-import { getDailyWeatherLastNDays, getYearToDateSummary } from "./db";
+import { getDailyWeatherLastNDays, getYearToDateSummary, getMonthlyAlmanac } from "./db";
 import { createExportWorkbook } from "./Excel";
 import { getSseUpdateData, retrieveCurrentTemperatureExtrema } from "./currentData";
 import { getCurrentTimestamp } from "./utils";
@@ -108,10 +108,16 @@ app.get("/daily-observations/export/xlsx", async (request, reply) => {
     .send(buffer);
 });
 
-app.get("/climatology/year-to-date", (request, reply) => {
+app.get("/climatology/year-to-date", async (request, reply) => {
   const now = getCurrentTimestamp();
 
   return getYearToDateSummary(now.getFullYear());
+});
+
+app.get("/climatology/monthly-almanac", async (request, reply) => {
+  const now = getCurrentTimestamp();
+
+  return getMonthlyAlmanac(now.getFullYear(), now.getMonth()+1);
 });
 
 app.listen({ port: 3000 });

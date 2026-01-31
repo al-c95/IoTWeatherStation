@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import Panel from './components/Panel';
-import DailyWeatherTable from './components/DailyWeatherTable';
-import ExportMonth from './components/ExportMonth';
 import './App.css';
 import { formatTemperature, formatHumidity, formatLastUpdate, formatExtremeReading, formatLocalTime12h } from './utils/formatters';
 import config from "../../config/config.json";
+import Panel from './components/Panel';
 import YearToDate from './components/YearToDate';
+import MonthlyAlmanac from './components/MonthlyAlmanac';
+import DailyWeatherTable from './components/DailyWeatherTable';
+import ExportMonth from './components/ExportMonth';
 
 function App() {
   const [observations, setObservations] = useState({
@@ -27,6 +28,7 @@ function App() {
   const [dailyData, setDailyData] = useState([]);
   const [dailyDataSummary, setDailyDataSummary] = useState([]);
   const [yearToDateSummary, setYearToDateSummary] = useState([]);
+  const [monthlyAlmanac, setMonthlyAlmanac] = useState([]);
 
   useEffect(() => {
     const eventSource = new EventSource('/api/update-events-sse');
@@ -83,6 +85,17 @@ function App() {
     fetchYearToDateSummary();
   }, []);
 
+  useEffect(() => {
+    async function fetchMonthlyAlmanac() {
+      const dataResponse = await fetch('/api/climatology/monthly-almanac');
+      const data = await dataResponse.json();
+
+      setMonthlyAlmanac(data);
+    }
+
+    fetchMonthlyAlmanac();
+  }, []);
+
   return (
     <div>
       <div className='container'>
@@ -101,6 +114,8 @@ function App() {
         </div>
         
         <DailyWeatherTable data={dailyData.data} summary={dailyDataSummary}></DailyWeatherTable>
+
+        <MonthlyAlmanac data={monthlyAlmanac}></MonthlyAlmanac>
 
         <YearToDate data={yearToDateSummary}></YearToDate>
 
