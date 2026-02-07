@@ -1,5 +1,6 @@
 import
 {
+  formatPressure,
   formatPrecipitation,
   formatTemperature,
   formatHumidity,
@@ -9,6 +10,24 @@ import
   formatLocalTime12h,
   formatDayAndMonth
 } from "../../src/utils/formatters.js";
+
+describe("formatPressure", () =>
+{
+    test("format pressure with one decimal and unit", () =>
+    {
+        expect(formatPressure(1000.0)).toBe('1000.0 hPa');
+    });
+
+    test("returns dash for null", () =>
+    {
+        expect(formatPressure(null)).toBe('-');
+    });
+
+    test("returns dash for undefined", () =>
+    {
+        expect(formatPressure(undefined)).toBe('-');
+    });
+});
 
 describe("formatPrecipitation", () =>
 {

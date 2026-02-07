@@ -1,11 +1,15 @@
-import { Temperature, Humidity, NullableDate } from "./dailyWeather";
+import { Temperature, Humidity, NullableDate, Pressure } from "./dailyWeather";
 import { getCurrentTimestamp } from "./utils";
 import { getCurrentTemperatureExtrema } from "./db";
+import config from "../../config/config.json";
+
+const elevation: number = config.elevation;
 
 export type CurrentObservations = {
   temp: Temperature;
   humidity: Humidity;
   dewPoint: Temperature;
+  mslPressure: Pressure,
   timestamp: NullableDate;
 };
 
@@ -22,6 +26,7 @@ const currentObservations: CurrentObservations = {
   temp: null,
   humidity: null,
   dewPoint: null,
+  mslPressure: null,
   timestamp: null
 };
 
@@ -31,6 +36,7 @@ export function getCurrentObservations(): Readonly<CurrentObservations>
     temp: currentObservations.temp,
     humidity: currentObservations.humidity,
     dewPoint: currentObservations.dewPoint,
+    mslPressure: currentObservations.mslPressure,
     timestamp: currentObservations.timestamp ? new Date(currentObservations.timestamp) : null
   };
 }
@@ -58,12 +64,19 @@ export function getSseUpdateData(): SseUpdateData
     temp: getCurrentObservations().temp,
     humidity: getCurrentObservations().humidity,
     dewPoint: getCurrentObservations().dewPoint,
+    mslPressure: getCurrentObservations().mslPressure,
     timestamp: getCurrentObservations().timestamp,
     minTemp: getTemperatureExtrema().minTemp,
     minTempAt: getTemperatureExtrema().minTempAt,
     maxTemp: getTemperatureExtrema().maxTemp,
     maxTempAt: getTemperatureExtrema().maxTempAt
   };
+}
+
+function calculateMslp(rawPressure: number, elevation: number)
+{
+  // simplified barometric formula
+  return rawPressure * Math.pow(1 - elevation / 44330, -5.255);
 }
 
 function calculateDewPoint(temperature: number, humidity: number)
@@ -97,7 +110,7 @@ function sanitiseHumidity(humidity: number)
   return validateRange(humidity, 0, 100);
 }
 
-export function updateCurrentObservations(temperature: number, humidity: number, timestamp: Date)
+export function updateCurrentObservations(temperature: number, humidity: number, rawPressure: number, timestamp: Date)
 {
   currentObservations.timestamp = timestamp;
 
@@ -131,6 +144,8 @@ export function updateCurrentObservations(temperature: number, humidity: number,
   {
     currentObservations.humidity=null;
   }
+  
+  currentObservations.mslPressure = calculateMslp(rawPressure, elevation);
 }
 
 export function updateTemperatureExtrema(temperature: number, timestamp: Date): boolean

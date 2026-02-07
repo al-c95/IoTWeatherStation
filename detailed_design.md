@@ -243,10 +243,10 @@ Example Response (200 OK):
 }
 ```
 
-## Temperature and Humidity sensor node
-This sensor node consists of an ESP32-S3, interfaced with an SHT30 temperature and humidity sensor via I2C.
+## Temperature Humidity and Pressure sensor node
+This sensor node consists of an ESP32-S3, interfaced with an SHT30 temperature and humidity sensor via I2C, and BME280 pressure sensor via I2C.
 
-![architecture](temperature_humidity_node.drawio.png)
+![architecture](temperature_humidity_pressure_node.drawio.png)
 
 REQ-DX - SHT30 will measure temperature and humidity every 3 seconds, and will transmit to the web server via HTTP POST only when the values change:
 
@@ -280,6 +280,16 @@ where:
 - RH = relative humidity (%)
 - a  = 17.62
 - b  = 243.12 °C
+
+## Mean sea level pressure calculation
+REQ-DX - Mean sea level pressure will be calculated using the simplified barometric formula:
+
+P_MSL = P * (1 - h/44330)^(-5.255)
+
+where:
+- P_MSL = mean sea level pressure (Pa)
+- P = raw pressure reading (Pa)
+- h = station elevation (m)
 
 ## Alerts
 The web application will send email and/or SMS alerts when temperature reaches thresholds. These alerts will be configurable.

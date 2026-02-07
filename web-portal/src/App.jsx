@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import './App.css';
-import { formatTemperature, formatHumidity, formatLastUpdate, formatExtremeReading, formatLocalTime12h } from './utils/formatters';
+import { formatTemperature, formatHumidity, formatLastUpdate, formatExtremeReading, formatLocalTime12h, formatPressure } from './utils/formatters';
 import config from "../../config/config.json";
 import Panel from './components/Panel';
 import YearToDate from './components/YearToDate';
@@ -42,8 +42,12 @@ function App() {
         dewPoint: `${formatTemperature(data.dewPoint)}`,
         highTemp: `${formatExtremeReading(formatTemperature(data.maxTemp), formatLocalTime12h(data.maxTempAt))}`,
         lowTemp: `${formatExtremeReading(formatTemperature(data.minTemp), formatLocalTime12h(data.minTempAt))}`,
-        lastUpdateTempAndHumidity: `${formatLastUpdate(formatLocalTime12h(data.timestamp))}`
+        lastUpdateTempAndHumidity: `${formatLastUpdate(formatLocalTime12h(data.timestamp))}`,
+        mslPressure: `${formatPressure(data.mslPressure)}`,
+        lastUpdateMslPressure: `${formatLastUpdate(formatLocalTime12h(data.timestamp))}`
       });
+
+      console.log(JSON.stringify(data));
     }
 
     return() => {
@@ -101,7 +105,7 @@ function App() {
       <div className='container'>
         <h1>Local Weather</h1>
         <div>{config.station_name}</div>
-        <div>{config.altitude} m</div>
+        <div>{config.elevation} m</div>
         <div>{config.latitude} {config.longitude}</div>
 
         <h2>Current Conditions</h2>

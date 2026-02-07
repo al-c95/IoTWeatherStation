@@ -1,6 +1,6 @@
 import Fastify from "fastify";
 import { addSseClient, broadcastSseEvent, removeSseClient } from "./sseBroadcaster";
-import { processTemperatureAndHumidityObservations} from "./dailyWeather";
+import { processTemperatureHumidityAndPressureObservations} from "./dailyWeather";
 import { getDailyWeatherLastNDays, getYearToDateSummary, getMonthlyAlmanac } from "./db";
 import { createExportWorkbook } from "./Excel";
 import { getSseUpdateData, retrieveCurrentTemperatureExtrema } from "./currentData";
@@ -19,9 +19,11 @@ app.post("/sensor-data/temperature-humidity", async (request, reply) => {
     const body = request.body as {
       temperature?: number;
       humidity?: number;
+      rawPressure?: number;
     };
     const currentTemperature = body.temperature;
     const currentHumidity = body.humidity;
+    const currentRawPressure = body.rawPressure;
 
     if (typeof currentTemperature !== 'number')
     {
@@ -37,7 +39,14 @@ app.post("/sensor-data/temperature-humidity", async (request, reply) => {
       return { error: "humidity missing or invalid"};
     }
 
-    processTemperatureAndHumidityObservations(currentTemperature, currentHumidity, now);
+    if (typeof currentRawPressure !== 'number')
+    {
+      reply.code(400);
+
+      return { error: "raw pressure missing or invalid"};
+    }
+
+    processTemperatureHumidityAndPressureObservations(currentTemperature, currentHumidity, currentRawPressure, now);
 
     broadcastSseEvent(getSseUpdateData());
 

@@ -1,6 +1,10 @@
 import {getTemperatureExtrema, updateTemperatureExtrema, resetTemperatureExtrema, updateCurrentObservations, getCurrentObservations, getSseUpdateData, retrieveCurrentTemperatureExtrema} from "../src/currentData";
 import * as utils from "../src/utils";
 
+jest.mock("../../config/config.json", () => ({
+  elevation: 0
+}));
+
 describe("updateTemperatureExtrema", () => {
     beforeEach(() => {
       resetTemperatureExtrema();
@@ -60,17 +64,18 @@ describe("updateTemperatureExtrema", () => {
 });
 
 describe("updateCurrentObservations", () => {
-  it("temperature and humidity valid updates observations", () => {
+  it("temperature and humidity and pressure valid updates observations", () => {
     // arrange
     const now = new Date();
 
     // act
-    updateCurrentObservations(25, 50, now);
+    updateCurrentObservations(25, 50, 1000, now);
 
     // assert
     expect(getCurrentObservations().temp).toBe(25);
     expect(getCurrentObservations().humidity).toBe(50);
     expect(getCurrentObservations().dewPoint).toBeCloseTo(13.9,1);
+    expect(getCurrentObservations().mslPressure).toBe(1000);
   })
 
   it("temperature valid humidity invalid updates observations", () => {
@@ -78,12 +83,13 @@ describe("updateCurrentObservations", () => {
     const now = new Date();
 
     // act
-    updateCurrentObservations(25, -1, now);
+    updateCurrentObservations(25, -1, 1000, now);
 
     // assert
     expect(getCurrentObservations().temp).toBe(25);
     expect(getCurrentObservations().humidity).toBe(null);
     expect(getCurrentObservations().dewPoint).toBe(null);
+    expect(getCurrentObservations().mslPressure).toBe(1000);
   })
 
   it("temperature invalid humidity valid updates observations", () => {
@@ -91,12 +97,13 @@ describe("updateCurrentObservations", () => {
     const now = new Date();
 
     // act
-    updateCurrentObservations(-45, 50, now);
+    updateCurrentObservations(-45, 50, 1000, now);
 
     // assert
     expect(getCurrentObservations().temp).toBe(null);
     expect(getCurrentObservations().humidity).toBe(50);
     expect(getCurrentObservations().dewPoint).toBe(null);
+    expect(getCurrentObservations().mslPressure).toBe(1000);
   })
 });
 
@@ -104,9 +111,9 @@ describe("getSseUpdateData", () => {
   it("updates sse", () => {
     // arrange
     const now = new Date();
-    updateCurrentObservations(25, 50, now);
+    updateCurrentObservations(25, 50, 1000, now);
     updateTemperatureExtrema(25, now);
-    updateCurrentObservations(27, 50, new Date());
+    updateCurrentObservations(27, 50, 1000, new Date());
     updateTemperatureExtrema(27, new Date());
 
     // act

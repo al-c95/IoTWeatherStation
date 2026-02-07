@@ -1,4 +1,4 @@
-import { processTemperatureAndHumidityObservations } from "../src/dailyWeather";
+import { processTemperatureHumidityAndPressureObservations } from "../src/dailyWeather";
 import {getTemperatureExtrema, resetTemperatureExtrema, getCurrentObservations} from "../src/currentData";
 
 describe("processTemperatureAndHumidityObservations", () => {
@@ -13,7 +13,7 @@ describe("processTemperatureAndHumidityObservations", () => {
         const now = new Date();
     
         // act
-        const result = processTemperatureAndHumidityObservations(25, 50, now, persistFn);
+        const result = processTemperatureHumidityAndPressureObservations(25, 50, 1000, now, persistFn);
     
         // assert
         expect(getCurrentObservations().temp).toBe(25);
@@ -29,11 +29,11 @@ describe("processTemperatureAndHumidityObservations", () => {
         const persistFn = jest.fn();
         const t1 = new Date("2026-01-12T10:00:00Z");
         const t2 = new Date("2026-01-12T10:01:00Z");
-        processTemperatureAndHumidityObservations(25, 50, t1, persistFn);
+        processTemperatureHumidityAndPressureObservations(25, 50, 1000, t1, persistFn);
         persistFn.mockClear();
     
         // act
-        const result = processTemperatureAndHumidityObservations(25, 51, t2, persistFn);
+        const result = processTemperatureHumidityAndPressureObservations(25, 51, 1000, t2, persistFn);
 
         // assert
         expect(persistFn).not.toHaveBeenCalled();
@@ -44,11 +44,11 @@ describe("processTemperatureAndHumidityObservations", () => {
         const persistFn = jest.fn();
         const t1 = new Date("2026-01-12T10:00:00Z");
         const t2 = new Date("2026-01-12T11:00:00Z");
-        processTemperatureAndHumidityObservations(20, 40, t1, persistFn);
+        processTemperatureHumidityAndPressureObservations(20, 40, 1000, t1, persistFn);
         persistFn.mockClear();
         
         // act
-        const result = processTemperatureAndHumidityObservations(30, 45, t2, persistFn);
+        const result = processTemperatureHumidityAndPressureObservations(30, 45, 1000, t2, persistFn);
 
         // assert
         expect(persistFn).toHaveBeenCalledTimes(1);

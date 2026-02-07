@@ -3,6 +3,16 @@ function isNullish(value)
   return value === null || value === undefined;
 }
 
+export function formatPressure(pressure)
+{
+  if (isNullish(pressure))
+  {
+    return '-';
+  }
+
+  return `${pressure.toFixed(1)} hPa`;
+}
+
 export function formatPrecipitation(precipitation)
 {
   if (isNullish(precipitation))
