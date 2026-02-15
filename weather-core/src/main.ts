@@ -12,7 +12,7 @@ console.log("APP RUNNING");
 
 retrieveCurrentTemperatureExtrema();
 
-app.post("/sensor-data/temperature-humidity", async (request, reply) => {
+app.post("/sensor-data/temperature-humidity-pressure", async (request, reply) => {
 
     const now = getCurrentTimestamp();
 

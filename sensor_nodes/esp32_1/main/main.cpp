@@ -32,7 +32,7 @@ static std::vector<ISensor*> i2c_sensors = {
     &sht30_sensor
 };
 
-static const char post_url[] = "http://192.168.1.102:8000/sensor-data/temperature-humidity";
+static const char post_url[] = "http://192.168.1.102:8000/sensor-data/temperature-humidity-pressure";
 static HttpPostTransmitter http_data_transmitter = HttpPostTransmitter(post_url);
 
 static SensorTask sensor_task(i2c_sensors, &http_data_transmitter);

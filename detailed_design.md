@@ -125,10 +125,10 @@ REQ-DX - For a calendar month's temperature and rainfall data to be included in 
 ## weather-core API
 The weather-core service is built with Node.JS and TypeScript. It communicates with the frontend and database, and provides endpoints for sensor nodes to transmit live readings.
 
-### Temperature and Humidity endpoint
-REQ-DX - The temperature and humidity sensor node will transmit data to the following endpoint:
+### Temperature Humidity and Pressure endpoint
+REQ-DX - The temperature, humidity and pressure sensor node will transmit data to the following endpoint:
 
-POST /sensor-data/temperature-humidity
+POST /sensor-data/temperature-humidity-pressure
 
 Request body (JSON):
 
@@ -136,12 +136,14 @@ Request body (JSON):
 |-----|----|-----|
 |temperature     |float    |°C     |
 |humidity        |int    |%     |
+|rawPressure     |float  |hPa|
 
 Example payload:
 ```
 {
   "temperature": 24.7,
-  "humidity": 63
+  "humidity": 63,
+  "rawPressure": 1002.0
 }
 ```
 
