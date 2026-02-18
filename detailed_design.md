@@ -21,15 +21,20 @@ The database is Sqlite, stored locally. It will have the following schema:
 daily_weather
 |Field|Type|Units/Domain|Nullable?|Default|PK/FK?|Description|
 |-----|----|------------|---------|-------|------|-----------|
-|day|INTEGER| |No| | | |
-|month|INTEGER| |No| | | |
-|year|INTEGER| |No| | | |
+|date|TEXT|YYYY-MM-DD|No||PK
 |min_temp|FLOAT| |Yes| | | |
 |max_temp|FLOAT| |Yes| | | |
-|min_temp_time|TIME| |Yes| | | |
-|max_temp_time|TIME| |Yes| | | |
 |precipitation|FLOAT| |Yes| | | |
-Unique constraint on (day, month, year).
+
+
+observations
+|Field|Type|Units/Domain|Nullable?|Default|PK/FK?|Description|
+|-----|----|------------|---------|-------|------|-----------|
+|id|INTEGER||No||PK
+|timestamp|DATETIME||No||
+|temperature|FLOAT||Yes
+|humidity|INTEGER||Yes
+|pressure|FLOAT||Yes
 
 ## User Interface
 The user interface is built with React.JS. It communicates with the weather-core web server using the REST API and Server-Sent Events.
