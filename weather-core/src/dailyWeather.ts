@@ -1,5 +1,5 @@
-import { persistDailyTemperatureExtrema } from "./db";
-import { getTemperatureExtrema, updateCurrentObservations, updateTemperatureExtrema } from "./currentData";
+import { persistObservations } from "./db";
+import { getCurrentObservations, updateCurrentObservations, retrieveCurrentTemperatureExtrema } from "./currentData";
 
 export type Temperature = number | null;
 export type Humidity = number | null;
@@ -12,14 +12,17 @@ export function processTemperatureHumidityAndPressureObservations(
   humidity: number,
   rawPressure: number,
   timestamp: Date,
-  persistFunction: (ts: Date, minT: Temperature, maxT: Temperature, minTa: NullableDate, maxTa: NullableDate) => void = persistDailyTemperatureExtrema)
+  persistFunction: (timestamp: Date,
+    temperature: Temperature,
+    humidity: Humidity,
+    mslPressure: Pressure) => void = persistObservations)
 {
     updateCurrentObservations(temperature, humidity, rawPressure, timestamp);
-
-    if (updateTemperatureExtrema(temperature, timestamp))
-    {
-      persistFunction(timestamp, getTemperatureExtrema().minTemp, getTemperatureExtrema().maxTemp, getTemperatureExtrema().minTempAt, getTemperatureExtrema().maxTempAt);
-    }
+    persistFunction(timestamp, 
+        getCurrentObservations().temp, 
+        getCurrentObservations().humidity, 
+        getCurrentObservations().mslPressure);
+    retrieveCurrentTemperatureExtrema();
 }
 
 export interface DailyWeather

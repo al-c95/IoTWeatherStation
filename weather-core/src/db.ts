@@ -2,17 +2,16 @@ import Database from "better-sqlite3";
 import path from "path";
 import { MonthlyAlmanac, YearToDateSummary } from "./climatology";
 import { DailyTemperatureExtrema } from "./currentData";
-import { DailyWeather, Temperature, NullableDate } from "./dailyWeather";
+import { DailyWeather, Temperature, NullableDate, Humidity, Pressure } from "./dailyWeather";
 
 const dbPath = path.resolve(__dirname, "../../weather.db");
 
 export const db = new Database(dbPath);
 
-// Optional but recommended
 db.pragma("journal_mode = WAL");
 db.pragma("foreign_keys = ON");
 
-// Schema sanity check
+// schema sanity check
 const tables = db
   .prepare("SELECT name FROM sqlite_master WHERE type='table'")
   .all()
@@ -30,11 +29,11 @@ export function getDailyWeatherLastNDays(days: number): DailyWeather[]
 {
   const stmt = db.prepare(`
     WITH RECURSIVE dates(d) AS (
-      SELECT date('now', 'localtime')
+      SELECT date('now', 'utc')
       UNION ALL
       SELECT date(d, '-1 day')
       FROM dates
-      WHERE d > date('now', 'localtime', '-' || (? - 1) || ' days')
+      WHERE d > date('now', 'utc', '-' || (? - 1) || ' days')
     )
     SELECT
       CAST(strftime('%d', d) AS INTEGER) AS day,
@@ -45,33 +44,41 @@ export function getDailyWeatherLastNDays(days: number): DailyWeather[]
       w.precipitation AS precipitation
     FROM dates
     LEFT JOIN daily_weather w
-      ON w.year  = CAST(strftime('%Y', d) AS INTEGER)
-     AND w.month = CAST(strftime('%m', d) AS INTEGER)
-     AND w.day   = CAST(strftime('%d', d) AS INTEGER)
-    ORDER BY year DESC, month DESC, day DESC;
+      ON w.date = d
+    ORDER BY d DESC;
   `);
 
   return stmt.all(days) as DailyWeather[];
 }
 
-export function getDailyWeatherForMonth(year: number, month: number): DailyWeather[]
-{
+export function getDailyWeatherForMonth(
+  year: number,
+  month: number
+): DailyWeather[] {
+
+  const mm = String(month).padStart(2, "0");
+  const yearMonth = `${year}-${mm}`;
+
   const stmt = db.prepare(`
     SELECT
-      day,
+      CAST(strftime('%d', date) AS INTEGER) AS day,
       min_temp AS minTemp,
       max_temp AS maxTemp,
       precipitation AS precipitation
     FROM daily_weather
-    WHERE year = ? AND month = ?
-    ORDER BY day ASC
+    WHERE date LIKE ? || '%'
+    ORDER BY date ASC
   `);
 
-  return stmt.all(year,month) as DailyWeather[];
+  return stmt.all(yearMonth) as DailyWeather[];
 }
 
 export function getCurrentTemperatureExtrema(year: number, month: number, day: number): DailyTemperatureExtrema
 {
+  const mm = String(month).padStart(2, "0");
+  const dd = String(day).padStart(2, "0");
+  const date = `${year}-${mm}-${dd}`;
+  
   const stmt = db.prepare(`
     SELECT
       min_temp AS minTemp,
@@ -79,51 +86,114 @@ export function getCurrentTemperatureExtrema(year: number, month: number, day: n
       max_temp_time AS maxTempAt,
       min_temp_time AS minTempAt
     FROM daily_weather
-    WHERE year = ? AND month =? AND day = ?
+    WHERE date = ?
   `);
 
-  return stmt.get(year, month, day) as DailyTemperatureExtrema;
+  return stmt.get(date) as DailyTemperatureExtrema;
 }
 
-export function persistDailyTemperatureExtrema(
-  timestamp: Date, 
-  minTemp: Temperature, 
-  maxTemp: Temperature, 
-  minTempAt: NullableDate,
-  maxTempAt: NullableDate
-): void
-{
-    const year = timestamp.getFullYear();
-    const month = timestamp.getMonth() + 1; // JS months are 0-based
-    const day = timestamp.getDate();
-    
-    const stmt = db.prepare(`
-    INSERT INTO daily_weather (
-      year,
-      month,
-      day,
-      min_temp,
-      min_temp_time,
-      max_temp,
-      max_temp_time
-    )
-    VALUES (?, ?, ?, ?, ?, ?, ?)
-    ON CONFLICT(year, month, day) DO UPDATE SET
-      min_temp = excluded.min_temp,
-      min_temp_time = excluded.min_temp_time,
-      max_temp = excluded.max_temp,
-      max_temp_time = excluded.max_temp_time
-  `);
+export function persistObservations(
+  timestamp: Date,
+  temperature: number | null,
+  humidity: number | null,
+  mslPressure: number | null
+): void {
 
-  stmt.run(
-    year,
-    month,
-    day,
-    minTemp,
-    minTempAt?.toISOString() ?? null,
-    maxTemp,
-    maxTempAt?.toISOString() ?? null
-  );
+  const isoTimestamp = timestamp.toISOString(); // UTC
+  const date = isoTimestamp.slice(0, 10);       // YYYY-MM-DD
+
+  const tx = db.transaction(() => {
+
+    // insert raw observation
+    db.prepare(`
+      INSERT INTO observations (
+        timestamp,
+        temperature,
+        humidity,
+        pressure
+      ) VALUES (?, ?, ?, ?)
+    `).run(
+      isoTimestamp,
+      temperature,
+      humidity,
+      mslPressure
+    );
+
+    // ensure daily row exists
+    db.prepare(`
+      INSERT INTO daily_weather (
+        date,
+        min_temp,
+        max_temp,
+        min_temp_time,
+        max_temp_time,
+        precipitation
+      )
+      VALUES (?, ?, ?, ?, ?, 0)
+      ON CONFLICT(date) DO NOTHING
+    `).run(
+      date,
+      temperature,
+      temperature,
+      temperature !== null ? isoTimestamp : null,
+      temperature !== null ? isoTimestamp : null
+    );
+
+    // update min/max + times
+    if (temperature !== null) {
+      db.prepare(`
+  UPDATE daily_weather
+  SET
+    min_temp = CASE
+      WHEN min_temp IS NULL THEN ?
+      WHEN ? < min_temp THEN ?
+      ELSE min_temp
+    END,
+    min_temp_time = CASE
+      WHEN min_temp IS NULL THEN ?
+      WHEN ? < min_temp THEN ?
+      ELSE min_temp_time
+    END,
+    max_temp = CASE
+      WHEN max_temp IS NULL THEN ?
+      WHEN ? > max_temp THEN ?
+      ELSE max_temp
+    END,
+    max_temp_time = CASE
+      WHEN max_temp IS NULL THEN ?
+      WHEN ? > max_temp THEN ?
+      ELSE max_temp_time
+    END
+  WHERE date = ?
+`).run(
+  // min_temp
+  temperature,
+  temperature,
+  temperature,
+
+  // min_temp_time
+  isoTimestamp,
+  temperature,
+  isoTimestamp,
+
+  // max_temp
+  temperature,
+  temperature,
+  temperature,
+
+  // max_temp_time
+  isoTimestamp,
+  temperature,
+  isoTimestamp,
+
+  // WHERE
+  date
+);
+    }
+
+  });
+
+  tx();
 }
 
 export function getYearToDateSummary(year: number): YearToDateSummary
@@ -136,7 +206,7 @@ export function getYearToDateSummary(year: number): YearToDateSummary
       (
         SELECT min_temp
         FROM daily_weather
-        WHERE year = ?
+        WHERE strftime('%Y', date) = ?
         ORDER BY min_temp ASC
         LIMIT 1
       ) AS minTemp,
@@ -144,7 +214,7 @@ export function getYearToDateSummary(year: number): YearToDateSummary
       (
         SELECT min_temp_time
         FROM daily_weather
-        WHERE year = ?
+        WHERE strftime('%Y', date) = ?
         ORDER BY min_temp ASC
         LIMIT 1
       ) AS minTempAt,
@@ -153,7 +223,7 @@ export function getYearToDateSummary(year: number): YearToDateSummary
       (
         SELECT max_temp
         FROM daily_weather
-        WHERE year = ?
+        WHERE strftime('%Y', date) = ?
         ORDER BY max_temp DESC
         LIMIT 1
       ) AS maxTemp,
@@ -161,7 +231,7 @@ export function getYearToDateSummary(year: number): YearToDateSummary
       (
         SELECT max_temp_time
         FROM daily_weather
-        WHERE year = ?
+        WHERE strftime('%Y', date) = ?
         ORDER BY max_temp DESC
         LIMIT 1
       ) AS maxTempAt,
@@ -170,35 +240,42 @@ export function getYearToDateSummary(year: number): YearToDateSummary
       (
         SELECT COALESCE(SUM(precipitation), 0)
         FROM daily_weather
-        WHERE year = ?
+        WHERE strftime('%Y', date) = ?
       ) AS totalPrecipitation
   `);
 
   return stmt.get(
     year,
-    year,
-    year,
-    year,
-    year,
-    year
+    String(year),
+    String(year),
+    String(year),
+    String(year),
+    String(year)
   ) as YearToDateSummary;
 }
 
-export function getMonthlyAlmanac(year: number, month: number): MonthlyAlmanac
-{
+export function getMonthlyAlmanac(
+  year: number,
+  month: number
+): MonthlyAlmanac {
+
+  const mm = String(month).padStart(2, "0");
+  const start = `${year}-${mm}-01`;
+  const end   = `${year}-${mm}-31`; // safe upper bound
+
   const stmt = db.prepare(`
     WITH
     minRow AS (
       SELECT min_temp, min_temp_time
       FROM daily_weather
-      WHERE year = ? AND month = ?
+      WHERE date BETWEEN ? AND ?
       ORDER BY min_temp ASC
       LIMIT 1
     ),
     maxRow AS (
       SELECT max_temp, max_temp_time
       FROM daily_weather
-      WHERE year = ? AND month = ?
+      WHERE date BETWEEN ? AND ?
       ORDER BY max_temp DESC
       LIMIT 1
     )
@@ -212,8 +289,8 @@ export function getMonthlyAlmanac(year: number, month: number): MonthlyAlmanac
   `);
 
   return stmt.get(
-    year, month,  // minRow
-    year, month,  // maxRow
-    year          // output year column
+    start, end,   // minRow
+    start, end,   // maxRow
+    year
   ) as MonthlyAlmanac;
 }

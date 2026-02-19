@@ -68,7 +68,7 @@ function createStyles(): Styles
 
 function createHeaders(worksheet: ExcelJS.Worksheet, sheetModel: ExcelMonthSheet, styles: Styles)
 {
-  worksheet.addRow([`${config.station_name}; ${config.altitude}m; ${config.latitude} ${config.longitude}`]);
+  worksheet.addRow([`${config.station_name}; ${config.elevation}m; ${config.latitude} ${config.longitude}`]);
   worksheet.addRow(["Daily Weather Observations"]);
   worksheet.addRow([`${sheetModel.Month}/${sheetModel.Year}`]);
   worksheet.addRow([]);

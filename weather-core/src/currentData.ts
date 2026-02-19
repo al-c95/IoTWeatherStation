@@ -148,32 +148,6 @@ export function updateCurrentObservations(temperature: number, humidity: number,
   currentObservations.mslPressure = calculateMslp(rawPressure, elevation);
 }
 
-export function updateTemperatureExtrema(temperature: number, timestamp: Date): boolean
-{
-  if (!sanitiseTemperature(temperature))
-  {
-    return false;
-  }
-
-  let changed = false;
-
-  if (temperatureExtrema.maxTemp === null || temperature > temperatureExtrema.maxTemp)
-  {
-    temperatureExtrema.maxTemp = temperature;
-    temperatureExtrema.maxTempAt = timestamp;
-    changed = true;
-  }
-
-  if (temperatureExtrema.minTemp === null || temperature < temperatureExtrema.minTemp) 
-  {
-    temperatureExtrema.minTemp = temperature;
-    temperatureExtrema.minTempAt = timestamp;
-    changed = true;
-  }
-
-  return changed;
-}
-
 export function retrieveCurrentTemperatureExtrema(retrieveFunction: (year: number, month: number, day: number) => DailyTemperatureExtrema = getCurrentTemperatureExtrema)
 {
   const now = getCurrentTimestamp();
@@ -195,4 +169,3 @@ export function resetTemperatureExtrema()
   temperatureExtrema.maxTemp = null;
   temperatureExtrema.maxTempAt = null;
 }
-// TODO: reset at midnight

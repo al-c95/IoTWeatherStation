@@ -25,7 +25,7 @@ daily_weather
 |min_temp|FLOAT| |Yes| | | |
 |max_temp|FLOAT| |Yes| | | |
 |precipitation|FLOAT| |Yes| | | |
-
+Unique constraint on date.
 
 observations
 |Field|Type|Units/Domain|Nullable?|Default|PK/FK?|Description|
