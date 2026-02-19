@@ -1,5 +1,6 @@
 import { persistObservations } from "./db";
 import { getCurrentObservations, updateCurrentObservations, retrieveCurrentTemperatureExtrema } from "./currentData";
+import ThpObservations from "./types/ThpObservations";
 
 export type Temperature = number | null;
 export type Humidity = number | null;
@@ -7,21 +8,24 @@ export type NullableDate = Date | null;
 export type Precipitation = number | null;
 export type Pressure = number | null;
 
-export function processTemperatureHumidityAndPressureObservations(
-  temperature: number, 
-  humidity: number,
-  rawPressure: number,
-  timestamp: Date,
+export function processThpObservations(
+  observations: ThpObservations,
   persistFunction: (timestamp: Date,
     temperature: Temperature,
     humidity: Humidity,
     mslPressure: Pressure) => void = persistObservations)
 {
-    updateCurrentObservations(temperature, humidity, rawPressure, timestamp);
-    persistFunction(timestamp, 
+    updateCurrentObservations(
+        observations.temperature, 
+        observations.humidity, 
+        observations.rawPressure, 
+        observations.timestamp);
+
+    persistFunction(observations.timestamp, 
         getCurrentObservations().temp, 
         getCurrentObservations().humidity, 
         getCurrentObservations().mslPressure);
+
     retrieveCurrentTemperatureExtrema();
 }
 
