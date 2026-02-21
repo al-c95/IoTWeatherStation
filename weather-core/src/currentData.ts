@@ -1,4 +1,4 @@
-import CurrentObservations from "./types/CurrentObservations"
+import CurrentObservations from "./types/CurrentObservations";
 import DailyTemperatureExtrema from "./types/DailyTemperatureExtrema";
 import ThpObservations from "./types/ThpObservations";
 import SseUpdateData from "./types/SseUpdateData";

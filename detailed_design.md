@@ -301,11 +301,11 @@ where:
 ## Alerts
 The web application will send email and/or SMS alerts when temperature reaches thresholds. These alerts will be configurable.
 
-REQ-DX - Alerts will be sent when the temperature reaches the configured threshold value in the specified direction (increasing or decreasing).
+REQ-DX - Alerts will be sent when the temperature reaches the configured threshold value in the specified direction (increasing or decreasing). To avoid alert storming, an alert will be triggered once a threshold is breached and will be active for 10 minutes before another alert is able to be triggered. For example, if we configure an alert for temperatures rising above 30.0°C and it briefly breaches this threshold and falls below it again, another alert will not be triggered if it rising above it again within 10 minutes.
 
 Parameters:
 |Parameter|Description|
 |---------|-----|
 |Threshold value     |Numeric temperature value in °C at which alert is triggered.|
 |Trend direction      |`Increasing` - trigger when temperature rises past threshold. `Decreasing` - trigger when temperature falls below threshold.|
-|Notification channels| Configured in settings: email|
+|Notification channels| Configured in settings: email, SMS|
