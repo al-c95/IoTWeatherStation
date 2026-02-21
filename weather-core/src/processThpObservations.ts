@@ -1,7 +1,8 @@
 import { persistObservations } from "./db";
-import { getCurrentObservations, updateCurrentThpObservations, retrieveCurrentTemperatureExtrema } from "./currentData";
+import { getCurrentObservations, updateCurrentThpObservations, retrieveCurrentTemperatureExtrema, getSseUpdateData } from "./currentData";
 import ThpObservations from "./types/ThpObservations";
 import { Temperature, Humidity, Pressure } from "./types/DailyWeather";
+import { broadcastSseEvent } from "./sseBroadcaster";
 
 function processThpObservations(
   observations: ThpObservations,
@@ -16,6 +17,7 @@ function processThpObservations(
         getCurrentObservations().humidity, 
         getCurrentObservations().mslPressure);
     retrieveCurrentTemperatureExtrema();
+    broadcastSseEvent(getSseUpdateData());
 }
 
 export default processThpObservations;

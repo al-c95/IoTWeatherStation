@@ -1,5 +1,5 @@
 import Fastify from "fastify";
-import { addSseClient, broadcastSseEvent, removeSseClient } from "./sseBroadcaster";
+import { addSseClient, removeSseClient } from "./sseBroadcaster";
 import processThpObservations from "./processThpObservations";
 import { getDailyWeatherLastNDays, getYearToDateSummary, getMonthlyAlmanac } from "./db";
 import { createExportWorkbook } from "./Excel";
@@ -54,8 +54,6 @@ app.post("/sensor-data/temperature-humidity-pressure", async (request, reply) =>
       rawPressure: currentRawPressure
     }
     processThpObservations(observations);
-
-    broadcastSseEvent(getSseUpdateData());
 
     return { status: "success" };
 });
