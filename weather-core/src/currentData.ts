@@ -1,26 +1,12 @@
-import { Temperature, Humidity, NullableDate, Pressure } from "./dailyWeather";
+import CurrentObservations from "./types/CurrentObservations"
+import DailyTemperatureExtrema from "./types/DailyTemperatureExtrema";
+import ThpObservations from "./types/ThpObservations";
+import SseUpdateData from "./types/SseUpdateData";
 import { getCurrentTimestamp } from "./utils";
 import { getCurrentTemperatureExtrema } from "./db";
 import config from "../../config/config.json";
 
 const elevation: number = config.elevation;
-
-export type CurrentObservations = {
-  temp: Temperature;
-  humidity: Humidity;
-  dewPoint: Temperature;
-  mslPressure: Pressure,
-  timestamp: NullableDate;
-};
-
-export type DailyTemperatureExtrema = {
-  minTemp: Temperature;
-  minTempAt: NullableDate;
-  maxTemp: Temperature;
-  maxTempAt: NullableDate;
-};
-
-export type SseUpdateData = CurrentObservations & DailyTemperatureExtrema;
 
 const currentObservations: CurrentObservations = {
   temp: null,
@@ -28,6 +14,13 @@ const currentObservations: CurrentObservations = {
   dewPoint: null,
   mslPressure: null,
   timestamp: null
+};
+
+const temperatureExtrema: DailyTemperatureExtrema = {
+  minTemp: null,
+  minTempAt: null,
+  maxTemp: null,
+  maxTempAt: null
 };
 
 export function getCurrentObservations(): Readonly<CurrentObservations>
@@ -40,13 +33,6 @@ export function getCurrentObservations(): Readonly<CurrentObservations>
     timestamp: currentObservations.timestamp ? new Date(currentObservations.timestamp) : null
   };
 }
-
-const temperatureExtrema: DailyTemperatureExtrema = {
-  minTemp: null,
-  minTempAt: null,
-  maxTemp: null,
-  maxTempAt: null
-};
 
 export function getTemperatureExtrema(): Readonly<DailyTemperatureExtrema>
 {
@@ -110,17 +96,17 @@ function sanitiseHumidity(humidity: number)
   return validateRange(humidity, 0, 100);
 }
 
-export function updateCurrentObservations(temperature: number, humidity: number, rawPressure: number, timestamp: Date)
+export function updateCurrentThpObservations(observations: ThpObservations)
 {
-  currentObservations.timestamp = timestamp;
+  currentObservations.timestamp = observations.timestamp;
 
-  let temperatureSane: boolean = sanitiseTemperature(temperature);
-  let humiditySane: boolean = sanitiseHumidity(humidity);
+  let temperatureSane: boolean = sanitiseTemperature(observations.temperature);
+  let humiditySane: boolean = sanitiseHumidity(observations.humidity);
   let sane: boolean = 
     temperatureSane && humiditySane;
   if (sane)
   {
-    currentObservations.dewPoint=calculateDewPoint(temperature, humidity);
+    currentObservations.dewPoint=calculateDewPoint(observations.temperature, observations.humidity);
   }
   else
   {
@@ -129,7 +115,7 @@ export function updateCurrentObservations(temperature: number, humidity: number,
 
   if (temperatureSane)
   {
-    currentObservations.temp = temperature;
+    currentObservations.temp = observations.temperature;
   }
   else
   {
@@ -138,14 +124,14 @@ export function updateCurrentObservations(temperature: number, humidity: number,
 
   if (humiditySane)
   {
-    currentObservations.humidity = humidity;
+    currentObservations.humidity = observations.humidity;
   }
   else
   {
     currentObservations.humidity=null;
   }
   
-  currentObservations.mslPressure = calculateMslp(rawPressure, elevation);
+  currentObservations.mslPressure = calculateMslp(observations.rawPressure, elevation);
 }
 
 export function retrieveCurrentTemperatureExtrema(retrieveFunction: (year: number, month: number, day: number) => DailyTemperatureExtrema = getCurrentTemperatureExtrema)

@@ -1,4 +1,5 @@
-import {getTemperatureExtrema, resetTemperatureExtrema, updateCurrentObservations, getCurrentObservations, getSseUpdateData, retrieveCurrentTemperatureExtrema} from "../src/currentData";
+import {getTemperatureExtrema, resetTemperatureExtrema, updateCurrentThpObservations, getCurrentObservations, getSseUpdateData, retrieveCurrentTemperatureExtrema} from "../src/currentData";
+import ThpObservations from "../src/types/ThpObservations";
 import * as utils from "../src/utils";
 
 jest.mock("../../config/config.json", () => ({
@@ -9,9 +10,15 @@ describe("updateCurrentObservations", () => {
   it("temperature and humidity and pressure valid updates observations", () => {
     // arrange
     const now = new Date();
+    const observations: ThpObservations = {
+      timestamp:now,
+      temperature: 25,
+      humidity: 50,
+      rawPressure: 1000
+    };
 
     // act
-    updateCurrentObservations(25, 50, 1000, now);
+    updateCurrentThpObservations(observations);
 
     // assert
     expect(getCurrentObservations().temp).toBe(25);
@@ -23,9 +30,15 @@ describe("updateCurrentObservations", () => {
   it("temperature valid humidity invalid updates observations", () => {
     // arrange
     const now = new Date();
+    const observations: ThpObservations = {
+      timestamp:now,
+      temperature: 25,
+      humidity: -1,
+      rawPressure: 1000
+    };
 
     // act
-    updateCurrentObservations(25, -1, 1000, now);
+    updateCurrentThpObservations(observations);
 
     // assert
     expect(getCurrentObservations().temp).toBe(25);
@@ -37,9 +50,15 @@ describe("updateCurrentObservations", () => {
   it("temperature invalid humidity valid updates observations", () => {
     // arrange
     const now = new Date();
+    const observations: ThpObservations = {
+      timestamp:now,
+      temperature: -45,
+      humidity: 50,
+      rawPressure: 1000
+    };
 
     // act
-    updateCurrentObservations(-45, 50, 1000, now);
+    updateCurrentThpObservations(observations);
 
     // assert
     expect(getCurrentObservations().temp).toBe(null);
@@ -53,8 +72,15 @@ describe("getSseUpdateData", () => {
   it("updates sse", () => {
     // arrange
     const now = new Date();
-    updateCurrentObservations(25, 50, 1000, now);
-    updateCurrentObservations(27, 50, 1000, new Date());
+    const observations: ThpObservations = {
+      timestamp:now,
+      temperature: 27,
+      humidity: 50,
+      rawPressure: 1000
+    };
+    updateCurrentThpObservations(observations);
+    observations.timestamp = new Date();
+    updateCurrentThpObservations(observations);
 
     // act
     const data = getSseUpdateData();

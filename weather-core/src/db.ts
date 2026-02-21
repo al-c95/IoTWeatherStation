@@ -1,8 +1,8 @@
 import Database from "better-sqlite3";
 import path from "path";
 import { MonthlyAlmanac, YearToDateSummary } from "./climatology";
-import { DailyTemperatureExtrema } from "./currentData";
-import { DailyWeather, Temperature, NullableDate, Humidity, Pressure } from "./dailyWeather";
+import { DailyWeather } from "./types/DailyWeather";
+import DailyTemperatureExtrema from "./types/DailyTemperatureExtrema";
 
 const dbPath = path.resolve(__dirname, "../../weather.db");
 

@@ -1,4 +1,4 @@
-import { Precipitation, Temperature, NullableDate } from "./dailyWeather";
+import { Precipitation, Temperature, NullableDate } from "./types/DailyWeather";
 
 export interface YearToDateSummary
 {

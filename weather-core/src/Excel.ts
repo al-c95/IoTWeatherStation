@@ -1,5 +1,5 @@
 import ExcelJS from "exceljs";
-import { Precipitation, Temperature, DailyWeather, } from "./dailyWeather";
+import { Precipitation, Temperature, DailyWeather, } from "./types/DailyWeather";
 import { getDailyWeatherForMonth } from "./db";
 import config from "../../config/config.json";
 
