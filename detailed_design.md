@@ -11,6 +11,15 @@ REQ-DX - The web application will use a JSON configuration file to store metadat
 |`latitude`|float|degrees|Yes|Geographic latitude|
 |`longitude`|float|degrees|Yes|Geographic longitude|
 |`elevation`|int|metres|Yes|Elevation|
+|`alerts`|JSON array||Yes|Alerts configuration|
+
+Each object in `alerts` array:
+|Field|Type|Units|Required|Description|
+|-----|----|-----|-----------|----|
+|`type`|"temperature"||||
+|`trend`| "increasing" or "decreasing" ||Yes|Direction of threshold crossing|
+|`threshold`|float|°C|Yes|Threshold at which alert triggers|
+|`recipients`|JSON array||Yes|Email addresses of recipients|
 
 The configuration file will be used by the frontend application and backend services to access metadata about the station.
 

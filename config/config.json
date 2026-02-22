@@ -2,5 +2,15 @@
     "station_name": "dev",
     "latitude": -33.8679,
     "longitude": 151.2012,
-    "elevation": 8
-  }
+    "elevation": 8,
+    "alerts": [
+      {
+        "type": "temperature",
+        "trend": "increasing",
+        "threshold": 30.0,
+        "recipients": [
+          "john.smith@example.com"
+        ]
+      }
+    ]
+}
