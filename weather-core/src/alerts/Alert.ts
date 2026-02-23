@@ -1,4 +1,6 @@
+import AlertsConfig from "../types/AlertConfig";
 import NotificationChannel from "./NotificationChannel";
+import TemperatureAlert from "./TemperatureAlert";
 
 abstract class Alert<TObservations>
 {

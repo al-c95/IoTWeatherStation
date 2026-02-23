@@ -14,7 +14,7 @@ class TemperatureAlert extends Alert<ThpObservations>
         trendDirection: TrendDirection, 
         notificationChannels: NotificationChannel[]
     ) {
-        super('Temperature alert', `Temperature has increased above threshold of ${threshold} !`, notificationChannels, 600000);
+        super('Temperature alert', `Temperature has reached threshold of ${threshold}°C`, notificationChannels, 600000);
         this._previousTemp=null;
         this._threshold=threshold;
         this._trendDirection=trendDirection;
@@ -36,8 +36,8 @@ class TemperatureAlert extends Alert<ThpObservations>
 
         const crossed =
             this._trendDirection === "increasing"
-                ? this._previousTemp <= this._threshold && current > this._threshold
-                : this._previousTemp >= this._threshold && current < this._threshold;
+                ? this._previousTemp <= this._threshold && current >= this._threshold
+                : this._previousTemp >= this._threshold && current <= this._threshold;
 
         this._previousTemp = current;
 

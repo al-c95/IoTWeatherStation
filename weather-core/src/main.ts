@@ -53,7 +53,7 @@ app.post("/sensor-data/temperature-humidity-pressure", async (request, reply) =>
       humidity: currentHumidity,
       rawPressure: currentRawPressure
     }
-    processThpObservations(observations);
+    await processThpObservations(observations);
 
     return { status: "success" };
 });
