@@ -1,13 +1,16 @@
 import NotificationChannel from "./NotificationChannel";
 import nodemailer from 'nodemailer';
 import dotenv from 'dotenv';
+import { AppLogger, getLogger } from "../logger";
 
 class EmailNotificationChannel implements NotificationChannel
 {
     private _recipients: string[];
+    protected readonly _logger: AppLogger;
 
     constructor(recipients: string[]) {
         this._recipients=recipients;
+        this._logger=getLogger(this.constructor.name);
     }
 
     async send(title: string, message: string): Promise<void>
@@ -34,10 +37,11 @@ class EmailNotificationChannel implements NotificationChannel
                 text: message, // plain text body
                 html: "", // html body
               });
-          
-              console.log("Email sent! ID:", info.messageId);
-            } catch (error) {
-              console.error("Error sending email:", error);
+
+              this._logger.info(`Email sent. ID: ${info.messageId}`);
+            } 
+            catch (error) {
+              this._logger.error('Error sending email:', {error});
             }
           };
          

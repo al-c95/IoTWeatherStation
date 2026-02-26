@@ -1,8 +1,6 @@
 import TemperatureAlert from "../../src/alerts/TemperatureAlert"
-import Alert from "../../src/alerts/Alert"
 import NotificationChannel from "../../src/alerts/NotificationChannel";
 import ThpObservations from "../../src/types/ThpObservations";
-import TrendDirection from "../../src/types/TrendDirection";
 
 class MockChannel implements NotificationChannel
 {

@@ -8,7 +8,7 @@ import config from "../../config/config.json";
 import AlertConfig from "./types/AlertConfig";
 
 const alertsConfig = config.alerts as AlertConfig[];
-const temperatureAlertManager: TemperatureAlertEngine = new TemperatureAlertEngine(alertsConfig);
+const temperatureAlertEngine: TemperatureAlertEngine = new TemperatureAlertEngine(alertsConfig);
 
 async function processThpObservations(
   observations: ThpObservations,
@@ -23,9 +23,10 @@ async function processThpObservations(
         getCurrentObservations().humidity, 
         getCurrentObservations().mslPressure);
     retrieveCurrentTemperatureExtrema();
+    
     broadcastSseEvent(getSseUpdateData());
 
-    await temperatureAlertManager.processObservations(observations);
+    await temperatureAlertEngine.processObservations(observations);
 }
 
 export default processThpObservations;

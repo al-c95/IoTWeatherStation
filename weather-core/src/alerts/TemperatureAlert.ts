@@ -39,6 +39,8 @@ class TemperatureAlert extends Alert<ThpObservations>
                 ? this._previousTemp <= this._threshold && current >= this._threshold
                 : this._previousTemp >= this._threshold && current <= this._threshold;
 
+        this._logger.trace(`Current temperature: ${current}, Previous temperature: ${this._previousTemp}`);
+
         this._previousTemp = current;
 
         return crossed;

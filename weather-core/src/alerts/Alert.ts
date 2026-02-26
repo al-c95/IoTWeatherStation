@@ -1,6 +1,5 @@
-import AlertsConfig from "../types/AlertConfig";
 import NotificationChannel from "./NotificationChannel";
-import TemperatureAlert from "./TemperatureAlert";
+import { AppLogger, getLogger } from "../logger";
 
 abstract class Alert<TObservations>
 {
@@ -10,6 +9,7 @@ abstract class Alert<TObservations>
     private readonly _title: string;
     protected readonly _message: string;
     private readonly _cooldownMillis: number;
+    protected readonly _logger: AppLogger;
 
     constructor(title: string, message: string, channels: NotificationChannel[], cooldownMillis: number) {
         this._channels = channels;
@@ -17,6 +17,14 @@ abstract class Alert<TObservations>
         this._title = title;
         this._message=message;
         this._cooldownMillis=cooldownMillis;
+
+        this._logger = getLogger(this.constructor.name);
+
+        this._logger.debug("Alert constructed", {
+            title,
+            cooldownMillis,
+            channelCount: channels.length,
+        });
     }
 
     isActive(): boolean
@@ -28,8 +36,12 @@ abstract class Alert<TObservations>
 
     async processObservations(observations: TObservations)
     {
+        this._logger.trace("Processing observations");
+
         if (this._isActive)
         {
+            this._logger.trace("Alert skipped because it is active");
+
             return;
         }
 
@@ -37,9 +49,15 @@ abstract class Alert<TObservations>
         {
             return;
         }
+        this._logger.info("Alert triggered");
 
-        await Promise.all(this._channels.map(c => c.send(this._title, this._message)));
-
+        try {
+            await Promise.all(this._channels.map(c => c.send(this._title, this._message)));
+        }
+        catch (err) {
+            this._logger.error("Error sending notification", { err });
+        }
+        
         this._isActive=true;
         if (this._expiryTimer) {
             clearTimeout(this._expiryTimer);
@@ -47,6 +65,9 @@ abstract class Alert<TObservations>
         this._expiryTimer = setTimeout(() => {
             this._isActive=false;
             this._expiryTimer=null;
+
+            this._logger.trace("Alert timer expired");
+
         }, this._cooldownMillis);
     }
 
@@ -57,6 +78,8 @@ abstract class Alert<TObservations>
             clearTimeout(this._expiryTimer);
             this._expiryTimer=null;
         }
+
+        this._logger.debug("Alert disposed");
     }
 }
 
