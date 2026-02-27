@@ -41,11 +41,7 @@ class TemperatureAlertEngine
                 );
 
                 this.alerts.push(temperatureAlert);
-            } else {
-                this._logger.warn("Unsupported alert type in config", {
-                    type: alertConfig.type,
-                });
-            }
+            } 
         }
 
         this._logger.info("TemperatureAlertEngine initialized", {
@@ -53,7 +49,7 @@ class TemperatureAlertEngine
         });
     }
 
-    async processObservations(observations: ThpObservations)
+    async processObservations(observations: ThpObservations): Promise<void>
     {
         this._logger.trace("Dispatching observations to alerts", {
             alertCount: this.alerts.length,

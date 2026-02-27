@@ -1,17 +1,19 @@
 import Fastify from "fastify";
 import { addSseClient, removeSseClient } from "./sseBroadcaster";
-import processThpObservations from "./processThpObservations";
 import { getDailyWeatherLastNDays, getYearToDateSummary, getMonthlyAlmanac } from "./db";
 import { createExportWorkbook } from "./Excel";
 import { getSseUpdateData, retrieveCurrentTemperatureExtrema } from "./currentData";
 import { getCurrentTimestamp } from "./utils";
 import ThpObservations from "./types/ThpObservations";
+import ThpIngestionService from "./ThpIngestionService";
 
 const app = Fastify({logger: true});
 
 console.log("weather-core running...");
 
 retrieveCurrentTemperatureExtrema();
+
+const thpIngestionService: ThpIngestionService = new ThpIngestionService();
 
 app.post("/sensor-data/temperature-humidity-pressure", async (request, reply) => {
 
@@ -53,7 +55,7 @@ app.post("/sensor-data/temperature-humidity-pressure", async (request, reply) =>
       humidity: currentHumidity,
       rawPressure: currentRawPressure
     }
-    await processThpObservations(observations);
+    await thpIngestionService.execute(observations);
 
     return { status: "success" };
 });
