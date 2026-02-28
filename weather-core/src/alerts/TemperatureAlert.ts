@@ -2,10 +2,11 @@ import Alert from "./Alert"
 import NotificationChannel from "./NotificationChannel";
 import ThpObservations from "../types/ThpObservations";
 import TrendDirection from "../types/TrendDirection";
+import { Temperature } from "../types/DailyWeather";
 
 class TemperatureAlert extends Alert<ThpObservations>
 {
-    private _previousTemp: number | null;
+    private _previousTemp: Temperature;
     private readonly _threshold: number;
     private readonly _trendDirection: TrendDirection;
 
@@ -14,7 +15,7 @@ class TemperatureAlert extends Alert<ThpObservations>
         trendDirection: TrendDirection, 
         notificationChannels: NotificationChannel[]
     ) {
-        super('Temperature alert', `Temperature has reached threshold of ${threshold}°C`, notificationChannels, 600000);
+        super('Temperature alert', `Temperature has reached ${threshold}°C`, notificationChannels, 600000);
         this._previousTemp=null;
         this._threshold=threshold;
         this._trendDirection=trendDirection;
@@ -31,6 +32,7 @@ class TemperatureAlert extends Alert<ThpObservations>
 
         if (this._previousTemp === null) {
             this._previousTemp = current;
+            
             return false;
         }
 

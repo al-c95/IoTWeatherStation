@@ -1,7 +1,4 @@
-import AlertConfig from "../types/AlertConfig";
 import ThpObservations from "../types/ThpObservations";
-import EmailNotificationChannel from "./EmailNotificationChannel";
-import NotificationChannel from "./NotificationChannel";
 import TemperatureAlert from "./TemperatureAlert";
 import { AppLogger, getLogger } from "../logger";
 
@@ -10,39 +7,9 @@ class TemperatureAlertEngine
     private alerts: TemperatureAlert[];
     protected readonly _logger: AppLogger;
 
-    constructor(alertsConfig: AlertConfig[]) {
-        this.alerts = [];
+    constructor(alerts: TemperatureAlert[]) {
+        this.alerts = alerts;
         this._logger = getLogger(this.constructor.name);
-
-        this._logger.info("Initializing TemperatureAlertEngine", {
-            configCount: alertsConfig.length,
-        });
-
-        for (const alertConfig of alertsConfig) {
-            if (alertConfig.type === "temperature") {
-
-                this._logger.debug("Creating temperature alert from config", {
-                    threshold: alertConfig.threshold,
-                    trend: alertConfig.trend,
-                    recipients: alertConfig.recipients.length,
-                });
-
-                const notificationChannels: NotificationChannel[] = [];
-                const emails = [...alertConfig.recipients];
-
-                notificationChannels.push(
-                    new EmailNotificationChannel(emails)
-                );
-
-                const temperatureAlert = new TemperatureAlert(
-                    alertConfig.threshold,
-                    alertConfig.trend,
-                    notificationChannels
-                );
-
-                this.alerts.push(temperatureAlert);
-            } 
-        }
 
         this._logger.info("TemperatureAlertEngine initialized", {
             alertCount: this.alerts.length,

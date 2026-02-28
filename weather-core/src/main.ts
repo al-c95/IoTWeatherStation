@@ -6,6 +6,10 @@ import { getSseUpdateData, retrieveCurrentTemperatureExtrema } from "./currentDa
 import { getCurrentTimestamp } from "./utils";
 import ThpObservations from "./types/ThpObservations";
 import ThpIngestionService from "./ThpIngestionService";
+import config from "../../config/config.json";
+import AlertConfig from "./types/AlertConfig";
+import temperatureAlertFactory from "./alerts/temperatureAlertFactory";
+import TemperatureAlertEngine from "./alerts/TemperatureAlertEngine";
 
 const app = Fastify({logger: true});
 
@@ -13,7 +17,9 @@ console.log("weather-core running...");
 
 retrieveCurrentTemperatureExtrema();
 
-const thpIngestionService: ThpIngestionService = new ThpIngestionService();
+const alertsConfig = config.alerts as AlertConfig[];
+const temperatureAlertEngine: TemperatureAlertEngine = new TemperatureAlertEngine(temperatureAlertFactory(alertsConfig));
+const thpIngestionService: ThpIngestionService = new ThpIngestionService(temperatureAlertEngine);
 
 app.post("/sensor-data/temperature-humidity-pressure", async (request, reply) => {
 

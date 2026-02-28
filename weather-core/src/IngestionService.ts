@@ -3,23 +3,18 @@ import { getSseUpdateData } from "./currentData";
 
 abstract class IngestionService<TObservations> {
 
-    protected readonly _alertEngine: any;
+    protected _alertEngine: any;
 
     constructor(alertEngine: any) {
         this._alertEngine=alertEngine;
     }
 
-    protected abstract runPipeline(observations: TObservations): void;
+    protected abstract runPipeline(observations: TObservations): Promise<void>;
     
     async execute(observations: TObservations): Promise<void> {
-        this.runPipeline(observations);
-
-        broadcastSseEvent(getSseUpdateData());
+        await this.runPipeline(observations);
         await this._alertEngine.processObservations(observations);
-    }
-
-    dispose(): void {
-        this._alertEngine.dispose();
+        broadcastSseEvent(getSseUpdateData());
     }
 }
 

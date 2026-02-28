@@ -1,92 +1,118 @@
 import TemperatureAlertEngine from "../../src/alerts/TemperatureAlertEngine";
 import ThpObservations from "../../src/types/ThpObservations";
-import AlertConfig from "../../src/types/AlertConfig";
+import TemperatureAlert from "../../src/alerts/TemperatureAlert";
+import { getLogger } from "../../src/logger";
 
-// mock EmailNotificationChannel to avoid real SMTP usage
-jest.mock("../../src/alerts/EmailNotificationChannel", () => {
-  return {
-    __esModule: true,
-    default: jest.fn().mockImplementation(() => ({
-      send: jest.fn().mockResolvedValue(undefined)
-    }))
-  };
-});
+// mock logger
+const mockLogger = {
+  info: jest.fn(),
+  debug: jest.fn(),
+  trace: jest.fn(),
+  error: jest.fn(),
+};
 
-function thp(temp: number): ThpObservations {
-  return {
-    temperature: temp,
-    humidity: 50,
-    rawPressure: 1000,
-    timestamp: new Date()
-  };
-}
+// mock getLogger to return our fake logger
+jest.mock("../../src/logger", () => ({
+  getLogger: jest.fn(),
+}));
 
 describe("TemperatureAlertEngine", () => {
-
   beforeEach(() => {
-    jest.useFakeTimers();
+    jest.clearAllMocks();
+    (getLogger as jest.Mock).mockReturnValue(mockLogger);
   });
 
-  afterEach(() => {
-    jest.clearAllTimers();
-    jest.useRealTimers();
-  });
+  const fakeObservations: ThpObservations = {
+    temperature: 25,
+    humidity: 50,
+    rawPressure: 1013,
+    timestamp: new Date(),
+  };
 
-  test("constructs only temperature alerts", () => {
+  function createMockAlert() {
+    return {
+      processObservations: jest.fn().mockResolvedValue(undefined),
+      dispose: jest.fn(),
+    } as unknown as TemperatureAlert;
+  }
+
+  it("logs initialization with alert count", () => {
     // arrange
-    const config: AlertConfig[] = [
-      {
-        type: "temperature",
-        trend: "increasing",
-        threshold: 30,
-        recipients: ["a@test.com"]
-      }
-    ];
+    const alerts = [createMockAlert(), createMockAlert()];
 
     // act
-    const engine = new TemperatureAlertEngine(config);
+    new TemperatureAlertEngine(alerts);
 
     // assert
-    expect(engine).toBeDefined();
+    expect(mockLogger.info).toHaveBeenCalledWith(
+      "TemperatureAlertEngine initialized",
+      { alertCount: 2 }
+    );
   });
 
-  test("processObservations delegates to alerts", async () => {
+  it("dispatches observations to all alerts", async () => {
     // arrange
-    const config: AlertConfig[] = [
-      {
-        type: "temperature",
-        trend: "increasing",
-        threshold: 30,
-        recipients: ["a@test.com"]
-      }
-    ];
+    const alert1 = createMockAlert();
+    const alert2 = createMockAlert();
+    const engine = new TemperatureAlertEngine([alert1, alert2]);
 
     // act
-    const engine = new TemperatureAlertEngine(config);
+    await engine.processObservations(fakeObservations);
 
     // assert
-    await engine.processObservations(thp(29));
-    await engine.processObservations(thp(31));
-    // if no error thrown and promise resolves,
-    // delegation worked (TemperatureAlert logic tested separately)
-    expect(true).toBe(true);
+    expect(alert1.processObservations).toHaveBeenCalledWith(fakeObservations);
+    expect(alert2.processObservations).toHaveBeenCalledWith(fakeObservations);
+    expect(mockLogger.trace).toHaveBeenCalledWith(
+      "Dispatching observations to alerts",
+      expect.objectContaining({
+        alertCount: 2,
+        temperature: 25,
+      })
+    );
   });
 
-  test("dispose clears internal alert timers safely", () => {
+  it("continues processing if one alert throws", async () => {
     // arrange
-    const config: AlertConfig[] = [
-      {
-        type: "temperature",
-        trend: "increasing",
-        threshold: 30,
-        recipients: ["a@test.com"]
-      }
-    ];
+    const failingAlert = {
+      processObservations: jest.fn().mockRejectedValue(new Error("boom")),
+      dispose: jest.fn(),
+    } as unknown as TemperatureAlert;
+    const workingAlert = createMockAlert();
+    const engine = new TemperatureAlertEngine([
+      failingAlert,
+      workingAlert,
+    ]);
 
     // act
-    const engine = new TemperatureAlertEngine(config);
+    await engine.processObservations(fakeObservations);
 
     // assert
-    expect(() => engine.dispose()).not.toThrow();
+    expect(failingAlert.processObservations).toHaveBeenCalled();
+    expect(workingAlert.processObservations).toHaveBeenCalled();
+    expect(mockLogger.error).toHaveBeenCalledWith(
+      "Alert processing failed",
+      expect.objectContaining({ err: expect.any(Error) })
+    );
+  });
+
+  it("dispose calls dispose on all alerts and logs", () => {
+    // arrange
+    const alert1 = createMockAlert();
+    const alert2 = createMockAlert();
+    const engine = new TemperatureAlertEngine([alert1, alert2]);
+
+    // act
+    engine.dispose();
+
+    // assert
+    expect(alert1.dispose).toHaveBeenCalled();
+    expect(alert2.dispose).toHaveBeenCalled();
+    expect(mockLogger.info).toHaveBeenCalledWith(
+      "Disposing TemperatureAlertEngine",
+      { alertCount: 2 }
+    );
+    expect(mockLogger.debug).toHaveBeenCalledWith(
+      "TemperatureAlertEngine disposed"
+    );
   });
 });
