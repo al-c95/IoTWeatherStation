@@ -5,7 +5,7 @@ import { createExportWorkbook } from "./Excel";
 import { getSseUpdateData, retrieveCurrentTemperatureExtrema } from "./currentData";
 import { getCurrentTimestamp } from "./utils";
 import ThpObservations from "./types/ThpObservations";
-import ThpIngestionService from "./ThpIngestionService";
+import ThpIngestionService from "./ingestion/ThpIngestionService";
 import config from "../../config/config.json";
 import AlertConfig from "./types/AlertConfig";
 import temperatureAlertFactory from "./alerts/temperatureAlertFactory";
@@ -18,8 +18,11 @@ console.log("weather-core running...");
 retrieveCurrentTemperatureExtrema();
 
 const alertsConfig = config.alerts as AlertConfig[];
-const temperatureAlertEngine: TemperatureAlertEngine = new TemperatureAlertEngine(temperatureAlertFactory(alertsConfig));
-const thpIngestionService: ThpIngestionService = new ThpIngestionService(temperatureAlertEngine);
+const thpIngestionService = new ThpIngestionService(
+    new TemperatureAlertEngine(
+        temperatureAlertFactory(alertsConfig)
+    )
+);
 
 app.post("/sensor-data/temperature-humidity-pressure", async (request, reply) => {
 

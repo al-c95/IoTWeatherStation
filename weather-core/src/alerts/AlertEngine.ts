@@ -1,7 +1,6 @@
-import Alert from "./Alert";
-
-abstract class AlertEngine<ThpObservations> {
-    
+interface AlertEngine<T> {
+    processObservations(observations: T): Promise<void>;
+    dispose(): void;
 }
 
 export default AlertEngine;

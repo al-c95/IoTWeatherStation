@@ -15,7 +15,16 @@ class TemperatureAlert extends Alert<ThpObservations>
         trendDirection: TrendDirection, 
         notificationChannels: NotificationChannel[]
     ) {
-        super('Temperature alert', `Temperature has reached ${threshold}°C`, notificationChannels, 600000);
+        let message: string = 'Temperature has';
+        if (trendDirection==="increasing") {
+            message = `${message} increased to `;
+        }
+        else {
+            message = `${message} decreased to `;
+        }
+        message = `${message} ${threshold}°C`;
+
+        super('Temperature alert', message, notificationChannels, 600000);
         this._previousTemp=null;
         this._threshold=threshold;
         this._trendDirection=trendDirection;

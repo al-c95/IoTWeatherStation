@@ -1,8 +1,9 @@
 import ThpObservations from "../types/ThpObservations";
 import TemperatureAlert from "./TemperatureAlert";
 import { AppLogger, getLogger } from "../logger";
+import AlertEngine from "./AlertEngine";
 
-class TemperatureAlertEngine
+class TemperatureAlertEngine implements AlertEngine<ThpObservations>
 {
     private alerts: TemperatureAlert[];
     protected readonly _logger: AppLogger;
