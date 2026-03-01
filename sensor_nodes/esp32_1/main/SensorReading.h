@@ -3,7 +3,7 @@
 #include <string>
 #include <variant>
 
-using SensorValue = std::variant<float, int>;
+using SensorValue = std::variant<float, int, int64_t>;
 
 struct SensorReading
 {

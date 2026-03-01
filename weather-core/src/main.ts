@@ -26,16 +26,16 @@ const thpIngestionService = new ThpIngestionService(
 
 app.post("/sensor-data/temperature-humidity-pressure", async (request, reply) => {
 
-    const now = getCurrentTimestamp();
-
     const body = request.body as {
       temperature?: number;
       humidity?: number;
       rawPressure?: number;
+      timestampUtc?: number;
     };
     const currentTemperature = body.temperature;
     const currentHumidity = body.humidity;
     const currentRawPressure = body.rawPressure;
+    const currentTimestamp = body.timestampUtc;
 
     if (typeof currentTemperature !== 'number')
     {
@@ -50,19 +50,24 @@ app.post("/sensor-data/temperature-humidity-pressure", async (request, reply) =>
 
       return { error: "humidity missing or invalid"};
     }
-
-    if (typeof currentRawPressure !== 'number')
+    // pressure optional for now
+    if (currentRawPressure !== undefined && typeof currentRawPressure !== "number")
     {
       reply.code(400);
+      return { error: "raw pressure invalid"};
+    }
 
-      return { error: "raw pressure missing or invalid"};
+    if (typeof currentTimestamp !== 'number') {
+      reply.code(400);
+
+      return { error: "timestampUtc missing or invalid"};
     }
 
     const observations: ThpObservations = {
-      timestamp: now,
+      timestamp: new Date(currentTimestamp * 1000),
       temperature: currentTemperature,
       humidity: currentHumidity,
-      rawPressure: currentRawPressure
+      rawPressure: 1000 // pressure optional for now, just use default value
     }
     await thpIngestionService.execute(observations);
 
@@ -145,4 +150,7 @@ app.get("/climatology/monthly-almanac", async (request, reply) => {
   return getMonthlyAlmanac(now.getFullYear(), now.getMonth()+1);
 });
 
-app.listen({ port: 3000 });
+app.listen({
+  port: 3000,
+  host: "0.0.0.0"
+});

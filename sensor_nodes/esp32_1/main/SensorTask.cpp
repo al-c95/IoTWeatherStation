@@ -5,6 +5,7 @@
 #include <math.h>
 #include "SensorTask.h"
 #include <memory>
+#include "time_sync.h"
 
 static const char *TAG = "SENSOR_TASK";
 
@@ -70,6 +71,18 @@ void SensorTask::run()
 
         if (changed)
         {
+            if (!time_sync_is_valid())
+            {
+                ESP_LOGW(TAG, "Time not valid, skipping transmission");
+                vTaskDelay(pdMS_TO_TICKS(3000));
+
+                continue;
+            }
+            int64_t timestamp_ms = time_sync_utc_now_ms();
+            int timestamp_sec = static_cast<int>(timestamp_ms / 1000);
+            // inject timestamp into outgoing map
+            current_values["timestampUtc"] = timestamp_sec;
+
             bool ok = _sensor_data_transmitter->transmit(current_values);
             if (ok)
             {

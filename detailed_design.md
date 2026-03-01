@@ -151,13 +151,15 @@ Request body (JSON):
 |temperature     |float    |°C     |
 |humidity        |int    |%     |
 |rawPressure     |float  |hPa|
+|timestampUtc    |int    |seconds|
 
 Example payload:
 ```
 {
   "temperature": 24.7,
   "humidity": 63,
-  "rawPressure": 1002.0
+  "rawPressure": 1002.0,
+  "timestampUtc": 1772333598
 }
 ```
 
@@ -260,7 +262,7 @@ Example Response (200 OK):
 ```
 
 ## Temperature Humidity and Pressure sensor node
-This sensor node consists of an ESP32-S3, interfaced with an SHT30 temperature and humidity sensor via I2C, and BME280 pressure sensor via I2C.
+This sensor node consists of an ESP32-S3, interfaced with an SHT30 temperature and humidity sensor via I2C, and BME280 pressure sensor via I2C. This node is the authoritative source for sensor measurement timestamps, being synced with a NTP time server at startup.
 
 ![architecture](temperature_humidity_pressure_node.drawio.png)
 

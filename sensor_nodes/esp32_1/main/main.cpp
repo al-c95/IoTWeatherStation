@@ -13,6 +13,7 @@
 #include "nvs_flash.h"
 #include "esp_netif.h"
 #include "esp_http_client.h"
+#include "time_sync.h"
 
 #define I2C_PORT       I2C_NUM_0
 #define I2C_SDA_PIN    GPIO_NUM_8
@@ -32,7 +33,7 @@ static std::vector<ISensor*> i2c_sensors = {
     &sht30_sensor
 };
 
-static const char post_url[] = "http://192.168.1.102:8000/sensor-data/temperature-humidity-pressure";
+static const char post_url[] = "http://192.168.1.100:3000/sensor-data/temperature-humidity-pressure";
 static HttpPostTransmitter http_data_transmitter = HttpPostTransmitter(post_url);
 
 static SensorTask sensor_task(i2c_sensors, &http_data_transmitter);
@@ -45,6 +46,9 @@ extern "C" void app_main(void)
     auto connected = [](const esp_ip4_addr_t* ip)
     {
         ESP_LOGI(TAG, "WiFi connected!");
+
+        time_sync_start();
+        time_sync_wait_until_synced(30);
 
         sensor_task.start();
     };
