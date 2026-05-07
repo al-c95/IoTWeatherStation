@@ -23,6 +23,10 @@ Before each major revision or release, the following test cycles are performed:
 - **Integration Tests** — Verify interactions between major software components (e.g., weather-core and weather-analysis endpoints tested using Postman, SoapUI, or simulator scripts).
 - **End-to-End Tests** — Acceptance tests run with the full software stack, validating complete user flows.
 
+#### Development Guidelines
+- Commit messages should be descriptive and follow the format: `type(scope): description` (e.g., `feat(sensor_nodes): add new temperature sensor support`).
+- Branches should be named according to the feature or bug being worked on (e.g., `feature/add-rainfall-sensor`, `bugfix/fix-data-logging`).
+
 ### Repo structure
 `sensor_nodes` - ESP-IDF projects for sensor nodes.
 `weather-core` - Node.JS web server.
