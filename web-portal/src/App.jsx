@@ -31,6 +31,7 @@ function App() {
   const [dailyDataSummary, setDailyDataSummary] = useState([]);
   const [yearToDateSummary, setYearToDateSummary] = useState([]);
   const [monthlyAlmanac, setMonthlyAlmanac] = useState([]);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     const eventSource = new EventSource('/api/update-events-sse');
@@ -54,17 +55,27 @@ function App() {
       console.log(JSON.stringify(data));
     }
 
-    return() => {
+    return () => {
       eventSource.close();
     };
   }, []);
 
   useEffect(() => {
     async function fetchDailyData() {
-      const dataResponse = await fetch('/api/daily-observations?days=5');
-      const data = await dataResponse.json();
-
-      setDailyData(data);
+      try {
+        setError(null);
+        const response = await fetch('/api/daily-observations?days=5');
+        if (!response.ok) {
+          throw new Error(`Failed to fetch daily data: HTTP ${response.status}`);
+        }
+        const data = await response.json();
+        setDailyData(data);
+      } 
+      catch (err) {
+        console.error('Error fetching daily data:', err);
+        setError(err.message);
+        setDailyData([]);
+      }
     }
 
     fetchDailyData();
@@ -84,10 +95,20 @@ function App() {
 
   useEffect(() => {
     async function fetchYearToDateSummary() {
-      const dataResponse = await fetch('/api/climatology/year-to-date');
-      const data = await dataResponse.json();
-
-      setYearToDateSummary(data);
+      try {
+        setError(null);
+        const response = await fetch('/api/climatology/year-to-date');
+        if (!response.ok) {
+          throw new Error(`Failed to fetch year-to-date data: HTTP ${response.status}`);
+        }
+        const data = await response.json();
+        setYearToDateSummary(data);
+      } 
+      catch (err) {
+        console.error('Error fetching year-to-date data:', err);
+        setError(err.message);
+        setYearToDateSummary([]);
+      }
     }
 
     fetchYearToDateSummary();
@@ -95,10 +116,20 @@ function App() {
 
   useEffect(() => {
     async function fetchMonthlyAlmanac() {
-      const dataResponse = await fetch('/api/climatology/monthly-almanac');
-      const data = await dataResponse.json();
-
-      setMonthlyAlmanac(data);
+      try {
+        setError(null);
+        const response = await fetch('/api/climatology/monthly-almanac');
+        if (!response.ok) {
+          throw new Error(`Failed to fetch monthly almanac: HTTP ${response.status}`);
+        }
+        const data = await response.json();
+        setMonthlyAlmanac(data);
+      } 
+      catch (err) {
+        console.error('Error fetching monthly almanac:', err);
+        setError(err.message);
+        setMonthlyAlmanac([]);
+      }
     }
 
     fetchMonthlyAlmanac();
@@ -106,6 +137,7 @@ function App() {
 
   return (
     <div>
+      {error && <div style={{ backgroundColor: '#fee', color: '#c00', padding: '10px', margin: '10px', borderRadius: '4px' }}>Error: {error}</div>}
       <div className='container'>
         <h1>Local Weather</h1>
         <div>{config.station_name}</div>
