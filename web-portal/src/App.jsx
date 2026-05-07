@@ -68,7 +68,8 @@ function App() {
         if (!response.ok) {
           throw new Error(`Failed to fetch daily data: HTTP ${response.status}`);
         }
-        const data = await response.json();
+        const text = await response.text();
+        const data = text ? JSON.parse(text) : [];
         setDailyData(data);
       } 
       catch (err) {
@@ -101,7 +102,8 @@ function App() {
         if (!response.ok) {
           throw new Error(`Failed to fetch year-to-date data: HTTP ${response.status}`);
         }
-        const data = await response.json();
+        const text = await response.text();
+        const data = text ? JSON.parse(text) : [];
         setYearToDateSummary(data);
       } 
       catch (err) {
@@ -122,7 +124,8 @@ function App() {
         if (!response.ok) {
           throw new Error(`Failed to fetch monthly almanac: HTTP ${response.status}`);
         }
-        const data = await response.json();
+        const text = await response.text();
+        const data = text ? JSON.parse(text) : [];
         setMonthlyAlmanac(data);
       } 
       catch (err) {
