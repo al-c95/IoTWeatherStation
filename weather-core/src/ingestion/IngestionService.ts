@@ -4,9 +4,9 @@ import AlertEngine from "../alerts/AlertEngine";
 
 abstract class IngestionService<TObservations> {
 
-    protected readonly alertEngine: AlertEngine<TObservations>;
+    protected readonly alertEngine: AlertEngine<TObservations> | null;
 
-    constructor(alertEngine: AlertEngine<TObservations>) {
+    constructor(alertEngine: AlertEngine<TObservations> | null) {
         this.alertEngine = alertEngine;
     }
 
@@ -14,7 +14,7 @@ abstract class IngestionService<TObservations> {
     
     async execute(observations: TObservations): Promise<void> {
         await this.runPipeline(observations);
-        await this.alertEngine.processObservations(observations);
+        await this.alertEngine?.processObservations(observations);
         broadcastSseEvent(getSseUpdateData());
     }
 }

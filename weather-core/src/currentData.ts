@@ -5,6 +5,7 @@ import SseUpdateData from "./types/SseUpdateData";
 import { getCurrentTimestamp } from "./utils";
 import { getCurrentTemperatureExtrema } from "./db";
 import config from "../../config/config.json";
+import RainObservations from "./types/RainObservations";
 
 const elevation: number = config.elevation;
 
@@ -13,6 +14,7 @@ const currentObservations: CurrentObservations = {
   humidity: null,
   dewPoint: null,
   mslPressure: null,
+  totalPrecipitation: null,
   timestamp: null
 };
 
@@ -30,6 +32,7 @@ export function getCurrentObservations(): Readonly<CurrentObservations>
     humidity: currentObservations.humidity,
     dewPoint: currentObservations.dewPoint,
     mslPressure: currentObservations.mslPressure,
+    totalPrecipitation: currentObservations.totalPrecipitation,
     timestamp: currentObservations.timestamp ? new Date(currentObservations.timestamp) : null
   };
 }
@@ -51,6 +54,7 @@ export function getSseUpdateData(): SseUpdateData
     humidity: getCurrentObservations().humidity,
     dewPoint: getCurrentObservations().dewPoint,
     mslPressure: getCurrentObservations().mslPressure,
+    totalPrecipitation: getCurrentObservations().totalPrecipitation,
     timestamp: getCurrentObservations().timestamp,
     minTemp: getTemperatureExtrema().minTemp,
     minTempAt: getTemperatureExtrema().minTempAt,
@@ -94,6 +98,18 @@ function sanitiseTemperature(temperature: number)
 function sanitiseHumidity(humidity: number)
 {
   return validateRange(humidity, 0, 100);
+}
+
+export function updateRain(observations: RainObservations)
+{
+  currentObservations.timestamp = observations.timestamp;
+
+  if (currentObservations.totalPrecipitation === null) {
+    currentObservations.totalPrecipitation = 0.0;
+  }
+  for (const tip of observations.tips) {
+    currentObservations.totalPrecipitation += 0.2;
+  }
 }
 
 export function updateCurrentThpObservations(observations: ThpObservations)
@@ -154,4 +170,9 @@ export function resetTemperatureExtrema()
   temperatureExtrema.minTempAt = null;
   temperatureExtrema.maxTemp = null;
   temperatureExtrema.maxTempAt = null;
+}
+
+export function resetRain()
+{
+  currentObservations.totalPrecipitation = null;
 }

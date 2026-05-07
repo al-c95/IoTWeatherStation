@@ -1,5 +1,6 @@
-import {getTemperatureExtrema, resetTemperatureExtrema, updateCurrentThpObservations, getCurrentObservations, getSseUpdateData, retrieveCurrentTemperatureExtrema} from "../src/currentData";
+import {getTemperatureExtrema, resetTemperatureExtrema, updateCurrentThpObservations, getCurrentObservations, getSseUpdateData, retrieveCurrentTemperatureExtrema, updateRain, resetRain} from "../src/currentData";
 import ThpObservations from "../src/types/ThpObservations";
+import RainObservations from "../src/types/RainObservations";
 import * as utils from "../src/utils";
 
 jest.mock("../../config/config.json", () => ({
@@ -25,6 +26,7 @@ describe("updateCurrentObservations", () => {
     expect(getCurrentObservations().humidity).toBe(50);
     expect(getCurrentObservations().dewPoint).toBeCloseTo(13.9,1);
     expect(getCurrentObservations().mslPressure).toBe(1000);
+    expect(getCurrentObservations().totalPrecipitation).toBeNull();
   })
 
   it("temperature valid humidity invalid updates observations", () => {
@@ -45,6 +47,7 @@ describe("updateCurrentObservations", () => {
     expect(getCurrentObservations().humidity).toBe(null);
     expect(getCurrentObservations().dewPoint).toBe(null);
     expect(getCurrentObservations().mslPressure).toBe(1000);
+    expect(getCurrentObservations().totalPrecipitation).toBeNull();
   })
 
   it("temperature invalid humidity valid updates observations", () => {
@@ -65,6 +68,7 @@ describe("updateCurrentObservations", () => {
     expect(getCurrentObservations().humidity).toBe(50);
     expect(getCurrentObservations().dewPoint).toBe(null);
     expect(getCurrentObservations().mslPressure).toBe(1000);
+    expect(getCurrentObservations().totalPrecipitation).toBeNull();
   })
 });
 
@@ -94,6 +98,7 @@ describe("getSseUpdateData", () => {
     expect(data.maxTempAt).toBe(null);
     expect(data.mslPressure).toBe(1000);
     expect(data.dewPoint).toBeCloseTo(15.7,1);
+    expect(data.totalPrecipitation).toBeNull();
   })
 });
 
@@ -140,4 +145,48 @@ describe("retrieveCurrentTemperatureExtrema", () => {
     expect(extrema.minTemp).toBeNull();
     expect(extrema.maxTemp).toBeNull();
   })
+});
+
+describe("updateRain", () => {
+  it("updates totalPrecipitation correctly from null", () => {
+    // arrange
+    const now = new Date();
+    const rainObs: RainObservations = {
+      timestamp: now,
+      tips: [
+        { timestamp: new Date(now.getTime() - 1000) },
+        { timestamp: new Date(now.getTime() - 2000) },
+        { timestamp: new Date(now.getTime() - 3000) }
+      ] // 3 tips, each 0.2mm
+    };
+    resetRain();
+
+    // act
+    updateRain(rainObs);
+
+    // assert
+    expect(getCurrentObservations().totalPrecipitation).toBeCloseTo(0.6, 5);
+    expect(getCurrentObservations().timestamp).toEqual(now);
+  });
+
+  it("accumulates totalPrecipitation correctly", () => {
+    // arrange
+    const now = new Date();
+    resetRain();
+    const rainObs: RainObservations = {
+      timestamp: now,
+      tips: [
+        { timestamp: new Date(now.getTime() - 1000) },
+        { timestamp: new Date(now.getTime() - 2000) }
+      ] // 2 tips, each 0.2mm
+    };
+    updateRain(rainObs); // first update to set totalPrecipitation to 0.4
+
+    // act
+    updateRain(rainObs);
+
+    // assert
+    expect(getCurrentObservations().totalPrecipitation).toBeCloseTo(0.8, 5);
+    expect(getCurrentObservations().timestamp).toEqual(now);
+  });
 });

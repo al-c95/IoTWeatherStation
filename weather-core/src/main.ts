@@ -6,10 +6,12 @@ import { getSseUpdateData, retrieveCurrentTemperatureExtrema } from "./currentDa
 import { getCurrentTimestamp } from "./utils";
 import ThpObservations from "./types/ThpObservations";
 import ThpIngestionService from "./ingestion/ThpIngestionService";
+import RainIngestionService from "./ingestion/RainIngestionService";
 import config from "../../config/config.json";
 import AlertConfig from "./types/AlertConfig";
 import temperatureAlertFactory from "./alerts/temperatureAlertFactory";
 import TemperatureAlertEngine from "./alerts/TemperatureAlertEngine";
+import RainObservations from "./types/RainObservations";
 
 const app = Fastify({logger: true});
 
@@ -72,6 +74,28 @@ app.post("/sensor-data/temperature-humidity-pressure", async (request, reply) =>
     await thpIngestionService.execute(observations);
 
     return { status: "success" };
+});
+
+const rainIngestionService: RainIngestionService = new RainIngestionService();
+
+app.post("/sensor-data/rain", async (request, reply) => {
+
+  const body = request.body as {
+    timestampUtc: number,
+    tips: [
+      timestampUtc: number
+    ]
+  };
+
+  const observations: RainObservations = {
+    timestamp: new Date(body.timestampUtc * 1000),
+    tips: body.tips.map((t: number) => ({
+      timestamp: new Date(t * 1000) 
+    }))
+  };
+  await rainIngestionService.execute(observations);
+
+  return { status: "success" };
 });
 
 app.get("/daily-observations", async (request, reply) => {

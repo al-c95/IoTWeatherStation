@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import './App.css';
-import { formatTemperature, formatHumidity, formatLastUpdate, formatExtremeReading, formatLocalTime12h, formatPressure } from './utils/formatters';
+import { formatTemperature, formatHumidity, formatLastUpdate, formatExtremeReading, formatLocalTime12h, formatPressure, formatPrecipitation } from './utils/formatters';
 import config from "../../config/config.json";
 import Panel from './components/Panel';
 import YearToDate from './components/YearToDate';
@@ -23,7 +23,9 @@ function App() {
     lastUpdateWind: null,
     sustainedWind: null,
     windGusts: null,
-    highestWindGust: null
+    highestWindGust: null,
+    rainfall: null,
+    lastUpdateRainfall: null
   });
   const [dailyData, setDailyData] = useState([]);
   const [dailyDataSummary, setDailyDataSummary] = useState([]);
@@ -44,7 +46,9 @@ function App() {
         lowTemp: `${formatExtremeReading(formatTemperature(data.minTemp), formatLocalTime12h(data.minTempAt))}`,
         lastUpdateTempAndHumidity: `${formatLastUpdate(formatLocalTime12h(data.timestamp))}`,
         mslPressure: `${formatPressure(data.mslPressure)}`,
-        lastUpdateMslPressure: `${formatLastUpdate(formatLocalTime12h(data.timestamp))}`
+        lastUpdateMslPressure: `${formatLastUpdate(formatLocalTime12h(data.timestamp))}`,
+        rainfall: `${formatPrecipitation(data.totalPrecipitation)}`,
+        lastUpdateRainfall: `${formatLastUpdate(formatLocalTime12h(data.timestamp))}`
       });
 
       console.log(JSON.stringify(data));
@@ -115,6 +119,7 @@ function App() {
           <Panel title='Humidity' value={observations.humidity} updateTime={observations.lastUpdateTempAndHumidity}
                   extras={{ "Dew Point": observations.dewPoint}}/>
           <Panel title="MSL Pressure" value={observations.mslPressure} updateTime={observations.lastUpdateMslPressure}/>
+          <Panel title="Rainfall" value={observations.rainfall} updateTime={observations.lastUpdateRainfall}/>
         </div>
         
         <DailyWeatherTable data={dailyData.data} summary={dailyDataSummary}></DailyWeatherTable>

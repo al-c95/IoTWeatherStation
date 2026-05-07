@@ -1,10 +1,11 @@
-import { Temperature, Humidity, Pressure, NullableDate } from "./DailyWeather";
+import { Temperature, Humidity, Pressure, NullableDate, Precipitation } from "./DailyWeather";
 
 type CurrentObservations = {
     temp: Temperature;
     humidity: Humidity;
     dewPoint: Temperature;
-    mslPressure: Pressure,
+    mslPressure: Pressure;
+    totalPrecipitation: Precipitation;
     timestamp: NullableDate;
   };
 
