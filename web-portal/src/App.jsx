@@ -7,6 +7,7 @@ import YearToDate from './components/YearToDate';
 import MonthlyAlmanac from './components/MonthlyAlmanac';
 import DailyWeatherTable from './components/DailyWeatherTable';
 import ExportMonth from './components/ExportMonth';
+import WeatherAiChat from './components/WeatherAiChat';
 
 function App() {
   const [observations, setObservations] = useState({
@@ -164,6 +165,8 @@ function App() {
         <YearToDate data={yearToDateSummary}></YearToDate>
 
         <ExportMonth></ExportMonth>
+
+        <WeatherAiChat></WeatherAiChat>
       </div>
     </div>
   );
