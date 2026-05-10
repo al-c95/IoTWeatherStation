@@ -15,7 +15,7 @@ function WeatherAiChat() {
     setError(null);
     setIsStreaming(true);
 
-    const url = `/llm/prompt?prompt=${encodeURIComponent(prompt)}`;
+    const url = `analysis-api/llm/prompt?prompt=${encodeURIComponent(prompt)}`;
     const eventSource = new EventSource(url);
 
     eventSource.onmessage = (event) => {

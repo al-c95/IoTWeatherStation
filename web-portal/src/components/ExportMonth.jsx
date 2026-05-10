@@ -13,7 +13,7 @@ function ExportMonth() {
   const handleExport = async () => {
     try
     {
-      const response = await fetch(`/api/daily-observations/export/xlsx?year=${year}&month=${month}`);
+      const response = await fetch(`/core-api/daily-observations/export/xlsx?year=${year}&month=${month}`);
       if (!response.ok)
       {
         alert("Export failed!");
