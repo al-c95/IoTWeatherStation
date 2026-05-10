@@ -261,6 +261,42 @@ Example Response (200 OK):
 }
 ```
 
+## weather-analysis API
+The weather-analysis service is built with FastAPI and Python. It provides endpoints for AI and other analysis of weather data.
+
+### AI response streaming endpoint
+
+GET /llm/prompt?prompt={prompt}
+
+Query parameters:
+
+| Field | Type | Required | Description |
+|---|---|---|---|
+| `prompt` | string | Yes | Natural language prompt for the AI |
+
+Example request:
+
+```http
+GET /llm/prompt?prompt=What%20was%20the%20hottest%20April%2010th%20ever%3F
+```
+
+Example response:
+```txt
+HTTP/1.1 200 OK
+Content-Type: text/event-stream
+
+data: {"chunk":"The hottest "}
+
+data: {"chunk":"April 10th "}
+
+data: {"chunk":"was 29.4°C "}
+
+data: {"chunk":"on 2018-04-10."}
+
+data: {"done":true}
+```
+Each `data:` event contains a JSON object. Response chunks are sent using the `chunk` field. The stream ends when a `data: {"done": true}` event is received. 
+
 ## Temperature Humidity and Pressure sensor node
 This sensor node consists of an ESP32-S3, interfaced with an SHT30 temperature and humidity sensor via I2C, and BME280 pressure sensor via I2C. This node is the authoritative source for sensor measurement timestamps, being synced with a NTP time server at startup.
 
