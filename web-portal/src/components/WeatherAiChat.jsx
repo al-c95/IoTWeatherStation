@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import './WeatherAiChat.css';
 
 function WeatherAiChat() {
   const [prompt, setPrompt] = useState('What was the hottest April 10th ever?');
@@ -41,36 +42,39 @@ function WeatherAiChat() {
   }
 
   return (
-    <div style={{ marginTop: '2rem' }}>
+  <section className="ai-chat">
+    <div className="ai-chat-header">
       <h2>Weather AI Assistant</h2>
+      <p>Ask questions about historical weather records.</p>
+    </div>
 
+    {answer && (
+      <div className="ai-message ai-message-assistant">
+        {answer}
+      </div>
+    )}
+
+    {error && (
+      <div className="ai-message ai-message-error">
+        {error}
+      </div>
+    )}
+
+    <div className="ai-input-row">
       <textarea
         value={prompt}
         onChange={(event) => setPrompt(event.target.value)}
-        rows={3}
-        style={{ width: '100%', maxWidth: '700px' }}
+        rows={2}
         disabled={isStreaming}
+        placeholder="Ask about your weather data..."
       />
 
-      <div style={{ marginTop: '0.5rem' }}>
-        <button onClick={askQuestion} disabled={isStreaming || !prompt.trim()}>
-          {isStreaming ? 'Thinking...' : 'Ask'}
-        </button>
-      </div>
-
-      {error && (
-        <div style={{ color: '#c00', marginTop: '1rem' }}>
-          {error}
-        </div>
-      )}
-
-      {answer && (
-        <div style={{ marginTop: '1rem', whiteSpace: 'pre-wrap' }}>
-          {answer}
-        </div>
-      )}
+      <button onClick={askQuestion} disabled={isStreaming || !prompt.trim()}>
+        {isStreaming ? 'Thinking…' : 'Ask'}
+      </button>
     </div>
-  );
+  </section>
+);
 }
 
 export default WeatherAiChat;
