@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import './WeatherAiChat.css';
+import ReactMarkdown from 'react-markdown';
 
 function WeatherAiChat() {
   const [prompt, setPrompt] = useState('What was the hottest April 10th ever?');
@@ -88,7 +89,11 @@ function WeatherAiChat() {
         {messages.map((message, index) => (
           <div key={index} className={`ai-chat-row ${message.role}`}>
             <div className="ai-chat-bubble">
-              {message.content || (message.role === 'assistant' && isStreaming ? 'Thinking…' : '')}
+              {message.role === 'user' ? (
+                message.content
+              ) : (
+                <ReactMarkdown>{message.content || (message.role === 'assistant' && isStreaming ? 'Thinking…' : '')}</ReactMarkdown>
+              )}
             </div>
           </div>
         ))}
