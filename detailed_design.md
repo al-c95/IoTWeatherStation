@@ -261,21 +261,21 @@ Example Response (200 OK):
 }
 ```
 
-## weather-analysis API
+### weather-analysis API
+
 The weather-analysis service is built with FastAPI and Python. It provides endpoints for AI and other analysis of weather data.
 
-### AI response streaming endpoint
-
+#### One-shot AI response streaming endpoint
+```http
 GET /llm/prompt?prompt={prompt}
+```
 
 Query parameters:
-
 | Field | Type | Required | Description |
 |---|---|---|---|
 | `prompt` | string | Yes | Natural language prompt for the AI |
 
 Example request:
-
 ```http
 GET /llm/prompt?prompt=What%20was%20the%20hottest%20April%2010th%20ever%3F
 ```
@@ -295,7 +295,72 @@ data: {"chunk":"on 2018-04-10."}
 
 data: {"done":true}
 ```
-Each `data:` event contains a JSON object. Response chunks are sent using the `chunk` field. The stream ends when a `data: {"done": true}` event is received. 
+
+Each `data:` event contains a JSON object. Response chunks are sent using the `chunk` field. The stream ends when a `data: {"done": true}` event is received.
+
+---
+
+### Conversational AI chat streaming endpoint
+
+```http
+POST /llm/chat
+```
+
+Request body:
+| Field | Type | Required | Description |
+|---|---|---|---|
+| `messages` | array | Yes | Chat message history |
+
+Message object format:
+| Field | Type | Required | Description |
+|---|---|---|---|
+| `role` | string | Yes | Message role (`user` or `assistant`) |
+| `content` | string | Yes | Message content |
+
+Example request:
+```http
+POST /llm/chat
+Content-Type: application/json
+```
+
+```json
+{
+  "messages": [
+    {
+      "role": "user",
+      "content": "What was the hottest April 10th ever?"
+    },
+    {
+      "role": "assistant",
+      "content": "The hottest April 10th was 29.4°C on 2018-04-10."
+    },
+    {
+      "role": "user",
+      "content": "What about April 11th?"
+    }
+  ]
+}
+```
+
+Example response:
+```txt
+HTTP/1.1 200 OK
+Content-Type: text/event-stream
+
+data: {"chunk":"The hottest "}
+
+data: {"chunk":"April 11th "}
+
+data: {"chunk":"was 31.1°C "}
+
+data: {"chunk":"on 2017-04-11."}
+
+data: {"done":true}
+```
+
+The endpoint maintains conversational context by using the supplied message history.
+
+Each `data:` event contains a JSON object. Response chunks are sent using the `chunk` field. The stream ends when a `data: {"done": true}` event is received.
 
 ## Temperature Humidity and Pressure sensor node
 This sensor node consists of an ESP32-S3, interfaced with an SHT30 temperature and humidity sensor via I2C, and BME280 pressure sensor via I2C. This node is the authoritative source for sensor measurement timestamps, being synced with a NTP time server at startup.

@@ -23,47 +23,100 @@ function WeatherAiChat() {
     });
   }
 
-  function askQuestion() {
-    const trimmedPrompt = prompt.trim();
+async function askQuestion() {
+  const trimmedPrompt = prompt.trim();
 
-    if (!trimmedPrompt || isStreaming) {
-      return;
+  if (!trimmedPrompt || isStreaming) {
+    return;
+  }
+
+  setError(null);
+  setIsStreaming(true);
+  setPrompt('');
+
+  const updatedMessages = [
+    ...messages,
+    { role: 'user', content: trimmedPrompt },
+    { role: 'assistant', content: '' },
+  ];
+
+  setMessages(updatedMessages);
+
+  try {
+    const response = await fetch('/analysis-api/llm/chat', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        messages: updatedMessages
+          .filter((message) => message.content.trim() !== '')
+          .map((message) => ({
+            role: message.role,
+            content: message.content,
+          })),
+      }),
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}`);
     }
 
-    setError(null);
-    setIsStreaming(true);
-    setPrompt('');
+    if (!response.body) {
+      throw new Error('Missing response body');
+    }
 
-    setMessages((previous) => [
-      ...previous,
-      { role: 'user', content: trimmedPrompt },
-      { role: 'assistant', content: '' },
-    ]);
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder();
 
-    const url = `/analysis-api/llm/prompt?prompt=${encodeURIComponent(trimmedPrompt)}`;
-    const eventSource = new EventSource(url);
+    let buffer = '';
 
-    eventSource.onmessage = (event) => {
-      const payload = JSON.parse(event.data);
+    while (true) {
+      const { done, value } = await reader.read();
 
-      if (payload.done) {
-        eventSource.close();
-        setIsStreaming(false);
-        return;
+      if (done) {
+        break;
       }
 
-      if (payload.chunk) {
-        appendToLastAssistantMessage(payload.chunk);
-      }
-    };
+      buffer += decoder.decode(value, { stream: true });
 
-    eventSource.addEventListener('error', (event) => {
-      console.error('AI stream error:', event);
-      eventSource.close();
-      setError('The AI response stream failed.');
-      setIsStreaming(false);
-    });
+      const events = buffer.split('\n\n');
+      buffer = events.pop() || '';
+
+      for (const event of events) {
+        const lines = event.split('\n');
+
+        for (const line of lines) {
+          if (!line.startsWith('data: ')) {
+            continue;
+          }
+
+          const jsonText = line.replace('data: ', '');
+
+          const payload = JSON.parse(jsonText);
+
+          if (payload.done) {
+            setIsStreaming(false);
+            return;
+          }
+
+          if (payload.chunk) {
+            appendToLastAssistantMessage(payload.chunk);
+          }
+        }
+      }
+    }
+
+    setIsStreaming(false);
+
+  } catch (error) {
+    console.error('AI stream error:', error);
+
+    setError('The AI response stream failed.');
+    setIsStreaming(false);
   }
+}
+
 
   function handleKeyDown(event) {
     if (event.key === 'Enter' && !event.shiftKey) {
