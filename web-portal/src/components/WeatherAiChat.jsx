@@ -3,20 +3,43 @@ import './WeatherAiChat.css';
 
 function WeatherAiChat() {
   const [prompt, setPrompt] = useState('What was the hottest April 10th ever?');
-  const [answer, setAnswer] = useState('');
+  const [messages, setMessages] = useState([]);
   const [isStreaming, setIsStreaming] = useState(false);
   const [error, setError] = useState(null);
 
+  function appendToLastAssistantMessage(chunk) {
+    setMessages((previous) => {
+      const updated = [...previous];
+      const lastIndex = updated.length - 1;
+      const lastMessage = updated[lastIndex];
+
+      updated[lastIndex] = {
+        ...lastMessage,
+        content: lastMessage.content + chunk,
+      };
+
+      return updated;
+    });
+  }
+
   function askQuestion() {
-    if (!prompt.trim() || isStreaming) {
+    const trimmedPrompt = prompt.trim();
+
+    if (!trimmedPrompt || isStreaming) {
       return;
     }
 
-    setAnswer('');
     setError(null);
     setIsStreaming(true);
+    setPrompt('');
 
-    const url = `analysis-api/llm/prompt?prompt=${encodeURIComponent(prompt)}`;
+    setMessages((previous) => [
+      ...previous,
+      { role: 'user', content: trimmedPrompt },
+      { role: 'assistant', content: '' },
+    ]);
+
+    const url = `/analysis-api/llm/prompt?prompt=${encodeURIComponent(trimmedPrompt)}`;
     const eventSource = new EventSource(url);
 
     eventSource.onmessage = (event) => {
@@ -29,7 +52,7 @@ function WeatherAiChat() {
       }
 
       if (payload.chunk) {
-        setAnswer((previous) => previous + payload.chunk);
+        appendToLastAssistantMessage(payload.chunk);
       }
     };
 
@@ -41,40 +64,58 @@ function WeatherAiChat() {
     });
   }
 
+  function handleKeyDown(event) {
+    if (event.key === 'Enter' && !event.shiftKey) {
+      event.preventDefault();
+      askQuestion();
+    }
+  }
+
   return (
-  <section className="ai-chat">
-    <div className="ai-chat-header">
-      <h2>Weather AI Assistant</h2>
-      <p>Ask questions about historical weather records.</p>
-    </div>
-
-    {answer && (
-      <div className="ai-message ai-message-assistant">
-        {answer}
+    <section className="ai-chat">
+      <div className="ai-chat-header">
+        <h2>Weather AI Assistant</h2>
+        <p>Ask questions about historical weather records.</p>
       </div>
-    )}
 
-    {error && (
-      <div className="ai-message ai-message-error">
-        {error}
+      <div className="ai-chat-messages">
+        {messages.length === 0 && (
+          <div className="ai-empty-state">
+            Try asking: “What was the hottest April 10th ever?”
+          </div>
+        )}
+
+        {messages.map((message, index) => (
+          <div key={index} className={`ai-chat-row ${message.role}`}>
+            <div className="ai-chat-bubble">
+              {message.content || (message.role === 'assistant' && isStreaming ? 'Thinking…' : '')}
+            </div>
+          </div>
+        ))}
       </div>
-    )}
 
-    <div className="ai-input-row">
-      <textarea
-        value={prompt}
-        onChange={(event) => setPrompt(event.target.value)}
-        rows={2}
-        disabled={isStreaming}
-        placeholder="Ask about your weather data..."
-      />
+      {error && (
+        <div className="ai-message ai-message-error">
+          {error}
+        </div>
+      )}
 
-      <button onClick={askQuestion} disabled={isStreaming || !prompt.trim()}>
-        {isStreaming ? 'Thinking…' : 'Ask'}
-      </button>
-    </div>
-  </section>
-);
+      <div className="ai-input-row">
+        <textarea
+          value={prompt}
+          onChange={(event) => setPrompt(event.target.value)}
+          onKeyDown={handleKeyDown}
+          rows={2}
+          disabled={isStreaming}
+          placeholder="Ask about your weather data..."
+        />
+
+        <button onClick={askQuestion} disabled={isStreaming || !prompt.trim()}>
+          {isStreaming ? 'Thinking…' : 'Ask'}
+        </button>
+      </div>
+    </section>
+  );
 }
 
 export default WeatherAiChat;
