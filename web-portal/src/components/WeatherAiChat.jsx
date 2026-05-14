@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import './WeatherAiChat.css';
 import ReactMarkdown from 'react-markdown';
 
@@ -7,6 +7,16 @@ function WeatherAiChat() {
   const [messages, setMessages] = useState([]);
   const [isStreaming, setIsStreaming] = useState(false);
   const [error, setError] = useState(null);
+
+  const abortControllerRef = useRef(null);
+
+  useEffect(() => {
+    return () => {
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
+      }
+    };
+  }, []);
 
   function appendToLastAssistantMessage(chunk) {
     setMessages((previous) => {
@@ -23,100 +33,113 @@ function WeatherAiChat() {
     });
   }
 
-async function askQuestion() {
-  const trimmedPrompt = prompt.trim();
+  function cancelRequest() {
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+      abortControllerRef.current = null;
+    }
 
-  if (!trimmedPrompt || isStreaming) {
-    return;
+    setIsStreaming(false);
   }
 
-  setError(null);
-  setIsStreaming(true);
-  setPrompt('');
+  async function askQuestion() {
+    const trimmedPrompt = prompt.trim();
 
-  const updatedMessages = [
-    ...messages,
-    { role: 'user', content: trimmedPrompt },
-    { role: 'assistant', content: '' },
-  ];
-
-  setMessages(updatedMessages);
-
-  try {
-    const response = await fetch('/analysis-api/llm/chat', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        messages: updatedMessages
-          .filter((message) => message.content.trim() !== '')
-          .map((message) => ({
-            role: message.role,
-            content: message.content,
-          })),
-      }),
-    });
-
-    if (!response.ok) {
-      throw new Error(`HTTP ${response.status}`);
+    if (!trimmedPrompt || isStreaming) {
+      return;
     }
 
-    if (!response.body) {
-      throw new Error('Missing response body');
-    }
+    setError(null);
+    setIsStreaming(true);
+    setPrompt('');
 
-    const reader = response.body.getReader();
-    const decoder = new TextDecoder();
+    const updatedMessages = [
+      ...messages,
+      { role: 'user', content: trimmedPrompt },
+      { role: 'assistant', content: '' },
+    ];
 
-    let buffer = '';
+    setMessages(updatedMessages);
 
-    while (true) {
-      const { done, value } = await reader.read();
+    const controller = new AbortController();
+    abortControllerRef.current = controller;
 
-      if (done) {
-        break;
+    try {
+      const response = await fetch('/analysis-api/llm/chat', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        signal: controller.signal,
+        body: JSON.stringify({
+          messages: updatedMessages
+            .filter((message) => message.content.trim() !== '')
+            .map((message) => ({
+              role: message.role,
+              content: message.content,
+            })),
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}`);
       }
 
-      buffer += decoder.decode(value, { stream: true });
+      if (!response.body) {
+        throw new Error('Missing response body');
+      }
 
-      const events = buffer.split('\n\n');
-      buffer = events.pop() || '';
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
 
-      for (const event of events) {
-        const lines = event.split('\n');
+      let buffer = '';
 
-        for (const line of lines) {
-          if (!line.startsWith('data: ')) {
-            continue;
-          }
+      while (true) {
+        const { done, value } = await reader.read();
 
-          const jsonText = line.replace('data: ', '');
+        if (done) {
+          break;
+        }
 
-          const payload = JSON.parse(jsonText);
+        buffer += decoder.decode(value, { stream: true });
 
-          if (payload.done) {
-            setIsStreaming(false);
-            return;
-          }
+        const events = buffer.split('\n\n');
+        buffer = events.pop() || '';
 
-          if (payload.chunk) {
-            appendToLastAssistantMessage(payload.chunk);
+        for (const event of events) {
+          const lines = event.split('\n');
+
+          for (const line of lines) {
+            if (!line.startsWith('data: ')) {
+              continue;
+            }
+
+            const jsonText = line.replace('data: ', '');
+            const payload = JSON.parse(jsonText);
+
+            if (payload.done) {
+              return;
+            }
+
+            if (payload.chunk) {
+              appendToLastAssistantMessage(payload.chunk);
+            }
           }
         }
       }
+    } catch (error) {
+      if (error.name === 'AbortError') {
+        console.log('AI stream cancelled.');
+        return;
+      }
+
+      console.error('AI stream error:', error);
+      setError('The AI response stream failed.');
+    } finally {
+      abortControllerRef.current = null;
+      setIsStreaming(false);
     }
-
-    setIsStreaming(false);
-
-  } catch (error) {
-    console.error('AI stream error:', error);
-
-    setError('The AI response stream failed.');
-    setIsStreaming(false);
   }
-}
-
 
   function handleKeyDown(event) {
     if (event.key === 'Enter' && !event.shiftKey) {
@@ -145,7 +168,9 @@ async function askQuestion() {
               {message.role === 'user' ? (
                 message.content
               ) : (
-                <ReactMarkdown>{message.content || (message.role === 'assistant' && isStreaming ? 'Thinking…' : '')}</ReactMarkdown>
+                <ReactMarkdown>
+                  {message.content || (message.role === 'assistant' && isStreaming ? 'Thinking…' : '')}
+                </ReactMarkdown>
               )}
             </div>
           </div>
@@ -171,6 +196,12 @@ async function askQuestion() {
         <button onClick={askQuestion} disabled={isStreaming || !prompt.trim()}>
           {isStreaming ? 'Thinking…' : 'Ask'}
         </button>
+
+        {isStreaming && (
+          <button type="button" onClick={cancelRequest}>
+            Cancel
+          </button>
+        )}
       </div>
     </section>
   );
