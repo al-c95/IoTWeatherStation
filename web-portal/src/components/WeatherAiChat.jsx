@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import './WeatherAiChat.css';
 import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 
 function WeatherAiChat() {
   const [prompt, setPrompt] = useState('What was the hottest April 10th ever?');
@@ -168,7 +169,7 @@ function WeatherAiChat() {
               {message.role === 'user' ? (
                 message.content
               ) : (
-                <ReactMarkdown>
+                <ReactMarkdown remarkPlugins={[remarkGfm]}>
                   {message.content || (message.role === 'assistant' && isStreaming ? 'Thinking…' : '')}
                 </ReactMarkdown>
               )}
