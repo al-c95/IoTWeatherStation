@@ -1,0 +1,13 @@
+{
+  "name": "iot-weather-station",
+  "private": true,
+  "scripts": {
+    "dev": "concurrently -n core,analysis,web -c blue,green,magenta \"npm run dev:core\" \"npm run dev:analysis\" \"npm run dev:web\"",
+    "dev:core": "npm --prefix weather-core run dev",
+    "dev:analysis": "cd weather-analysis && uvicorn app:app --reload --port 8000",
+    "dev:web": "npm --prefix web-portal run dev"
+  },
+  "devDependencies": {
+    "concurrently": "^9.0.0"
+  }
+}
