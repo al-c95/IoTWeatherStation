@@ -85,10 +85,7 @@ function App() {
 
   useEffect(() => {
     async function fetchDailyDataSummary() {
-      //const summaryResponse = await fetch('/api/ai/summarise-last-five-days');
-      //const summary = await summaryResponse.json();
 
-      //setDailyDataSummary(summary);
       setDailyDataSummary('summary');
     }
 
