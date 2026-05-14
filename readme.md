@@ -29,6 +29,9 @@ Before each major revision or release, the following test cycles are performed:
 
 ### Repo structure
 `sensor_nodes` - ESP-IDF projects for sensor nodes.
+
 `weather-core` - Node.JS web server.
+
 `weather-analysis` - FastAPI web server.
+
 `web-portal` - React frontend.
