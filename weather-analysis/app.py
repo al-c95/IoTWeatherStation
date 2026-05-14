@@ -34,6 +34,7 @@ app.add_middleware(
 llm_client = OpenAI()
 
 MODEL = "gpt-5.4-mini"
+CONFIG_PATH = "../config/config.json"
 
 SYSTEM_PROMPT = """
 You are a weather archive assistant for a personal weather station.
@@ -57,6 +58,30 @@ Never ask the user to run a query.
 Never provide SQL as the final answer unless explicitly asked for SQL.
 
 Be concise and directly answer the question using the tool results.
+"""
+
+def load_station_config() -> dict:
+    with open(CONFIG_PATH, "r", encoding="utf-8") as file:
+        return json.load(file)
+
+
+def build_system_prompt() -> str:
+    config = load_station_config()
+
+    latitude = config.get("latitude")
+    longitude = config.get("longitude")
+    elevation = config.get("elevation")
+    station_name = config.get("station_name")
+
+    return f"""{SYSTEM_PROMPT}
+
+Station metadata:
+- Station name: {station_name}
+- Latitude: {latitude}
+- Longitude: {longitude}
+- Elevation: {elevation} m
+
+Use this location metadata when answering questions where geography, climate classification, exposure, elevation, coastal influence, or seasonality may matter.
 """
 
 
@@ -86,7 +111,7 @@ def run_weather_chat(messages: list[ChatMessage]) -> str:
 
     response = llm_client.responses.create(
         model=MODEL,
-        instructions=SYSTEM_PROMPT,
+        instructions=build_system_prompt(),
         input=input_messages,
         tools=tools.TOOLS,
     )
