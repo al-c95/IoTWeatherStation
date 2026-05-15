@@ -8,11 +8,11 @@ May be integrated into a future **smart home hub**.
 ## Project Approach
 This project is managed as a **hybrid systems engineering and agile software** project:
 
-- **Concept Design** — describes the high-level architecture and requirements, and serves as a baseline for implementation. Changes infrequently.  
+- [**Concept Design**](docs/concept-design.md) — describes the high-level architecture and requirements, and serves as a baseline for implementation. Changes infrequently.  
 - **Detailed Design** — describes the software implementation at a lower level. A *living* document that may evolve frequently as features are added or refined.
 
 ### Development and Test Plan
-High-level system requirements in the **Concept Design** are traced to requirements in the **Detailed Design**.  
+High-level system requirements in the [**Concept Design**](docs/concept-design.md) are traced to requirements in the **Detailed Design**.  
 Detailed design requirements are further traced to **test cases**, written as features are developed.
 
 #### Testing Strategy
