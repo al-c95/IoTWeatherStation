@@ -6,6 +6,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse
 from routers.llm import router as llm_router
+from routers.climatology import router as climatology_router
 from openai import OpenAI
 from pydantic import BaseModel
 
@@ -24,3 +25,4 @@ app.add_middleware(
 )
 
 app.include_router(llm_router)
+app.include_router(climatology_router)

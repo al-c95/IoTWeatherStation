@@ -1,5 +1,7 @@
 from typing import Any
 import json
+import calendar
+import sqlite3
 from data import get_db_connection
 
 
@@ -49,12 +51,10 @@ def call_tool(name: str, arguments: dict[str, Any]) -> dict[str, Any]:
     if name == "run_sql_readonly":
         return run_sql_readonly(arguments["sql"])
 
+    if name == "calculate_climatology":
+        return calculate_climatology()
+
     raise ValueError(f"Unknown tool: {name}")
-
-
-import calendar
-import sqlite3
-from typing import Any
 
 
 def calculate_percentile(values: list[float], percentile: float) -> float | None:

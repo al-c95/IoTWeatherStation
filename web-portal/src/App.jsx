@@ -8,6 +8,7 @@ import MonthlyAlmanac from './components/MonthlyAlmanac';
 import DailyWeatherTable from './components/DailyWeatherTable';
 import ExportMonth from './components/ExportMonth';
 import WeatherAiChat from './components/WeatherAiChat';
+import Climatology from './components/Climatology';
 
 function App() {
   const [observations, setObservations] = useState({
@@ -29,7 +30,6 @@ function App() {
     lastUpdateRainfall: null
   });
   const [dailyData, setDailyData] = useState([]);
-  const [ setDailyDataSummary] = useState([]);
   const [yearToDateSummary, setYearToDateSummary] = useState([]);
   const [monthlyAlmanac, setMonthlyAlmanac] = useState([]);
   const [error, setError] = useState(null);
@@ -81,15 +81,6 @@ function App() {
     }
 
     fetchDailyData();
-  }, []);
-
-  useEffect(() => {
-    async function fetchDailyDataSummary() {
-
-      setDailyDataSummary('summary');
-    }
-
-    fetchDailyDataSummary();
   }, []);
 
   useEffect(() => {
@@ -160,6 +151,8 @@ function App() {
         <MonthlyAlmanac data={monthlyAlmanac}></MonthlyAlmanac>
 
         <YearToDate data={yearToDateSummary}></YearToDate>
+
+        <Climatology></Climatology>
 
         <ExportMonth></ExportMonth>
 
