@@ -127,14 +127,6 @@ REQ-DX - Calendar month statistics will be used to calculate overall climatology
 - Mean snow days
 - Highest wind gust and calendar date
 
-#### Completeness rules
-REQ-DX - For a calendar month's temperature and rainfall data to be included in climatology calculations, it must satisfy the following completeness rules:
-|Days in month|Days with available data|
-|-------------|------------------------|
-|28|26
-|29|27
-|30|27
-|31|28
 
 ## weather-core API
 The weather-core service is built with Node.JS and TypeScript. It communicates with the frontend and database, and provides endpoints for sensor nodes to transmit live readings.
@@ -361,6 +353,121 @@ data: {"done":true}
 The endpoint maintains conversational context by using the supplied message history.
 
 Each `data:` event contains a JSON object. Response chunks are sent using the `chunk` field. The stream ends when a `data: {"done": true}` event is received.
+
+### Climatology endpoint - full climatology data
+
+REQ-DX - the weather-analysis service will provide an endpoint to retrieve climatology data.
+
+```http
+GET /climatology/full-monthly
+```
+
+Example response:
+
+```txt
+HTTP/1.1 200 OK
+Content-Type: application/json
+```
+
+```json
+{
+  "months": [
+    {
+      "month": 1,
+      "month_name": "January",
+      "record_count": 434,
+      "year_count": 14,
+      "statistics": {
+        "mean_min_temp": 19.4,
+        "mean_daily_temp": 24.8,
+        "mean_max_temp": 30.2,
+
+        "lowest_min_temp": {
+          "value": 11.8,
+          "date": "2018-01-22"
+        },
+
+        "highest_min_temp": {
+          "value": 26.1,
+          "date": "2020-01-05"
+        },
+
+        "lowest_max_temp": {
+          "value": 19.7,
+          "date": "2017-01-14"
+        },
+
+        "highest_max_temp": {
+          "value": 44.2,
+          "date": "2020-01-04"
+        },
+
+        "decile_1_min_temp": 15.3,
+        "decile_1_max_temp": 23.6,
+
+        "decile_9_min_temp": 23.0,
+        "decile_9_max_temp": 37.9,
+
+        "mean_days_min_lte_0": 0.0,
+        "mean_days_min_lte_2": 0.0,
+        "mean_days_min_lte_5": 0.0,
+
+        "mean_days_max_gte_30": 14.8,
+        "mean_days_max_gte_35": 5.3,
+        "mean_days_max_gte_40": 1.1
+      }
+    },
+
+    {
+      "month": 2,
+      "month_name": "February",
+      "record_count": 395,
+      "year_count": 14,
+      "statistics": {
+        "mean_min_temp": 18.8,
+        "mean_daily_temp": 24.0,
+        "mean_max_temp": 29.2,
+
+        "lowest_min_temp": {
+          "value": 12.0,
+          "date": "2016-02-17"
+        },
+
+        "highest_min_temp": {
+          "value": 25.7,
+          "date": "2017-02-10"
+        },
+
+        "lowest_max_temp": {
+          "value": 18.9,
+          "date": "2022-02-25"
+        },
+
+        "highest_max_temp": {
+          "value": 42.3,
+          "date": "2017-02-11"
+        },
+
+        "decile_1_min_temp": 14.9,
+        "decile_1_max_temp": 22.8,
+
+        "decile_9_min_temp": 22.4,
+        "decile_9_max_temp": 36.4,
+
+        "mean_days_min_lte_0": 0.0,
+        "mean_days_min_lte_2": 0.0,
+        "mean_days_min_lte_5": 0.0,
+
+        "mean_days_max_gte_30": 11.6,
+        "mean_days_max_gte_35": 3.9,
+        "mean_days_max_gte_40": 0.8
+      }
+    }
+  ]
+}
+```
+
+The response contains climatology statistics grouped by calendar month. Threshold day counts are calculated per year and averaged across all available years for the month.
 
 ## Temperature Humidity and Pressure sensor node
 This sensor node consists of an ESP32-S3, interfaced with an SHT30 temperature and humidity sensor via I2C, and BME280 pressure sensor via I2C. This node is the authoritative source for sensor measurement timestamps, being synced with a NTP time server at startup.
