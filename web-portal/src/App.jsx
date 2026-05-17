@@ -29,7 +29,7 @@ function App() {
     lastUpdateRainfall: null
   });
   const [dailyData, setDailyData] = useState([]);
-  const [dailyDataSummary, setDailyDataSummary] = useState([]);
+  const [ setDailyDataSummary] = useState([]);
   const [yearToDateSummary, setYearToDateSummary] = useState([]);
   const [monthlyAlmanac, setMonthlyAlmanac] = useState([]);
   const [error, setError] = useState(null);
@@ -155,7 +155,7 @@ function App() {
           <Panel title="Rainfall" value={observations.rainfall} updateTime={observations.lastUpdateRainfall}/>
         </div>
         
-        <DailyWeatherTable data={dailyData.data} summary={dailyDataSummary}></DailyWeatherTable>
+        <DailyWeatherTable data={dailyData.data}></DailyWeatherTable>
 
         <MonthlyAlmanac data={monthlyAlmanac}></MonthlyAlmanac>
 

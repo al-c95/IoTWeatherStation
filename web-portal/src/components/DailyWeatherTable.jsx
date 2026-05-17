@@ -1,8 +1,7 @@
-import React from 'react';
 import './DailyWeatherTable.css';
 import { formatTemperature } from '../utils/formatters'
 
-function DailyWeatherTable({ data, summary }) {
+function DailyWeatherTable({ data}) {
     
     if (!Array.isArray(data)) {
       return <p>No data available</p>;
@@ -33,9 +32,7 @@ function DailyWeatherTable({ data, summary }) {
             ))}
           </tbody>
         </table>
-  
-        <h3>AI Summary</h3>
-        <p>{summary}</p>
+
       </div>
     );
   }
