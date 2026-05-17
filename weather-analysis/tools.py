@@ -3,6 +3,14 @@ import json
 import calendar
 import sqlite3
 from data import get_db_connection
+from typing import Any, Callable
+
+
+TOOL_REGISTRY: dict[str, Callable[..., dict[str, Any]]] = {
+    "get_schema": lambda: get_schema(),
+    "run_sql_readonly": lambda sql: run_sql_readonly(sql),
+    "calculate_climatology": lambda: calculate_climatology(),
+}
 
 
 TOOLS = [
@@ -42,19 +50,18 @@ TOOLS = [
 
 
 def call_tool(name: str, arguments: dict[str, Any]) -> dict[str, Any]:
+    tool = TOOL_REGISTRY.get(name)
+
+    if tool is None:
+        raise ValueError(f"Unknown tool: {name}")
+
+    result = tool(**arguments)
+
     if name == "get_schema":
-        result = get_schema()
         print("\n--- Schema requested ---")
         print(json.dumps(result, indent=2))
-        return result
 
-    if name == "run_sql_readonly":
-        return run_sql_readonly(arguments["sql"])
-
-    if name == "calculate_climatology":
-        return calculate_climatology()
-
-    raise ValueError(f"Unknown tool: {name}")
+    return result
 
 
 def calculate_percentile(values: list[float], percentile: float) -> float | None:
