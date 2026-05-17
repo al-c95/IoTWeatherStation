@@ -8,7 +8,7 @@ table td,
 table th {
     font-family: Arial, sans-serif;
     font-style: normal;
-    font-size: 11pt;
+    font-size: 10pt;
     border: 1px solid; /* grid lines */
     padding: 6px 10px; /* spacing inside cells */
     vertical-align: middle; /* centres text vertically */
