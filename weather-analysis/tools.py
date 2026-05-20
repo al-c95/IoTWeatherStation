@@ -44,7 +44,34 @@ TOOLS = [
     {
         "type": "function",
         "name": "calculate_climatology",
-        "description": "Calculate climatological averages for a given month and day across all years in the dataset."
+        "description": """Calculate climatological averages for a given month (not individual days) across all years in the dataset.
+            - Mean minimum temperature
+            - Mean daily temperature (average of minimum and maximum)
+            - Mean maximum temperature
+            - Lowest minimum temperature and calendar date
+            - Highest minimum temperature and calendar date
+            - Lowest maximum temperature and calendar date
+            - Highest maximum temperature and calendar date
+            - Decile 1 minimum temperature
+            - Decile 1 maximum temperature
+            - Decile 9 minimum temperature
+            - Decile 9 maximum temperature
+            - Mean number days <=0°C
+            - Mean number days <=2°C
+            - Mean number days <=5°C
+            - Mean number days >=30°C
+            - Mean number days >=35°C
+            - Mean number days >=40°C
+            - Total rainfall
+            - Highest daily rainfall and calendar date
+            - Total rain days
+            - Total thunderstorm days
+            - Total fog days
+            - Total hail days
+            - Total dust days
+            - Total snow days
+            - Highest wind gust and date
+        """,
     }
 ]
 
