@@ -3,6 +3,16 @@ function isNullish(value)
   return value === null || value === undefined;
 }
 
+export function formatOneDecimalPlace(value)
+{
+  if (isNullish(value))
+  {
+    return '-';
+  }
+
+  return value.toFixed(1);
+}
+
 export function formatPressure(pressure)
 {
   if (isNullish(pressure))

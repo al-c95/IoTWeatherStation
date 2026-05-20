@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { formatOneDecimalPlace } from '../utils/formatters';
 
 function Climatology() {
   const [climatology, setClimatology] = useState(null);
@@ -81,26 +82,26 @@ function Climatology() {
                       <td colSpan={17}>No data</td>
                     ) : (
                       <>
-                        <td>{stats.mean_min_temp}</td>
-                        <td>{stats.mean_daily_temp}</td>
-                        <td>{stats.mean_max_temp}</td>
+                        <td>{formatOneDecimalPlace(stats.mean_min_temp)}</td>
+                        <td>{formatOneDecimalPlace(stats.mean_daily_temp)}</td>
+                        <td>{formatOneDecimalPlace(stats.mean_max_temp)}</td>
 
-                        <td>{stats.lowest_min_temp.value} ({stats.lowest_min_temp.date})</td>
-                        <td>{stats.highest_min_temp.value} ({stats.highest_min_temp.date})</td>
-                        <td>{stats.lowest_max_temp.value} ({stats.lowest_max_temp.date})</td>
-                        <td>{stats.highest_max_temp.value} ({stats.highest_max_temp.date})</td>
+                        <td>{formatOneDecimalPlace(stats.lowest_min_temp.value)} ({stats.lowest_min_temp.date})</td>
+                        <td>{formatOneDecimalPlace(stats.highest_min_temp.value)} ({stats.highest_min_temp.date})</td>
+                        <td>{formatOneDecimalPlace(stats.lowest_max_temp.value)} ({stats.lowest_max_temp.date})</td>
+                        <td>{formatOneDecimalPlace(stats.highest_max_temp.value)} ({stats.highest_max_temp.date})</td>
 
-                        <td>{stats.decile_1_min_temp}</td>
-                        <td>{stats.decile_1_max_temp}</td>
-                        <td>{stats.decile_9_min_temp}</td>
-                        <td>{stats.decile_9_max_temp}</td>
+                        <td>{formatOneDecimalPlace(stats.decile_1_min_temp)}</td>
+                        <td>{formatOneDecimalPlace(stats.decile_1_max_temp)}</td>
+                        <td>{formatOneDecimalPlace(stats.decile_9_min_temp)}</td>
+                        <td>{formatOneDecimalPlace(stats.decile_9_max_temp)}</td>
 
-                        <td>{stats.mean_days_min_lte_0}</td>
-                        <td>{stats.mean_days_min_lte_2}</td>
-                        <td>{stats.mean_days_min_lte_5}</td>
-                        <td>{stats.mean_days_max_gte_30}</td>
-                        <td>{stats.mean_days_max_gte_35}</td>
-                        <td>{stats.mean_days_max_gte_40}</td>
+                        <td>{formatOneDecimalPlace(stats.mean_days_min_lte_0)}</td>
+                        <td>{formatOneDecimalPlace(stats.mean_days_min_lte_2)}</td>
+                        <td>{formatOneDecimalPlace(stats.mean_days_min_lte_5)}</td>
+                        <td>{formatOneDecimalPlace(stats.mean_days_max_gte_30)}</td>
+                        <td>{formatOneDecimalPlace(stats.mean_days_max_gte_35)}</td>
+                        <td>{formatOneDecimalPlace(stats.mean_days_max_gte_40)}</td>
                       </>
                     )}
                   </tr>
