@@ -62,15 +62,6 @@ TOOLS = [
             - Mean number days >=30°C
             - Mean number days >=35°C
             - Mean number days >=40°C
-            - Total rainfall
-            - Highest daily rainfall and calendar date
-            - Total rain days
-            - Total thunderstorm days
-            - Total fog days
-            - Total hail days
-            - Total dust days
-            - Total snow days
-            - Highest wind gust and date
         """,
     }
 ]
