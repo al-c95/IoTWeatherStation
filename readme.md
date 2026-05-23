@@ -35,3 +35,8 @@ Before each major revision or release, the following test cycles are performed:
 `weather-analysis` - FastAPI web server.
 
 `web-portal` - React frontend.
+
+### Running the applications
+```
+npm run dev
+```
