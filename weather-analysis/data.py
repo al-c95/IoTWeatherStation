@@ -1,7 +1,13 @@
 import sqlite3
 from typing import Any
+from dotenv import load_dotenv
+import os
 
-DB_PATH = "../weather.db"
+# Load variables from .env file
+load_dotenv()
+
+# Get path from environment, fallback to default if missing
+DB_PATH = os.getenv("DB_PATH", "../weather.db")
 
 
 def get_db_connection() -> sqlite3.Connection:
