@@ -136,27 +136,43 @@ function App() {
         <div>{config.elevation} m</div>
         <div>{config.latitude} {config.longitude}</div>
 
-        <h2>Current Conditions</h2>
-        <div className='grid'>
-          <Panel title='Temperature' value={observations.temperature} 
-                  extras={{ "Max": observations.highTemp, "Min": observations.lowTemp }} updateTime={observations.lastUpdateTempAndHumidity}/>
-          <Panel title='Humidity' value={observations.humidity} updateTime={observations.lastUpdateTempAndHumidity}
-                  extras={{ "Dew Point": observations.dewPoint}}/>
-          <Panel title="MSL Pressure" value={observations.mslPressure} updateTime={observations.lastUpdateMslPressure}/>
-          <Panel title="Rainfall" value={observations.rainfall} updateTime={observations.lastUpdateRainfall}/>
+        <div className="dashboard-layout">
+          <aside className="dashboard-current">
+            <h2>Current Conditions</h2>
+
+            <div className="grid">
+              <Panel title="Temperature" value={observations.temperature}
+                extras={{ "Max": observations.highTemp, "Min": observations.lowTemp }}
+                updateTime={observations.lastUpdateTempAndHumidity}
+              />
+
+              <Panel title="Humidity" value={observations.humidity}
+                updateTime={observations.lastUpdateTempAndHumidity}
+                extras={{ "Dew Point": observations.dewPoint }}
+              />
+
+              <Panel title="MSL Pressure" value={observations.mslPressure}
+                updateTime={observations.lastUpdateMslPressure}
+              />
+
+              <Panel title="Rainfall" value={observations.rainfall}
+                updateTime={observations.lastUpdateRainfall}
+              />
+            </div>
+          </aside>
+
+          <main className="dashboard-main">
+            <DailyWeatherTable data={dailyData.data} />
+            <MonthlyAlmanac data={monthlyAlmanac} />
+            <YearToDate data={yearToDateSummary} />
+            <Climatology />
+            <ExportMonth />
+          </main>
+
+          <aside className="dashboard-ai">
+            <WeatherAiChat />
+          </aside>
         </div>
-        
-        <DailyWeatherTable data={dailyData.data}></DailyWeatherTable>
-
-        <MonthlyAlmanac data={monthlyAlmanac}></MonthlyAlmanac>
-
-        <YearToDate data={yearToDateSummary}></YearToDate>
-
-        <Climatology></Climatology>
-
-        <ExportMonth></ExportMonth>
-
-        <WeatherAiChat></WeatherAiChat>
       </div>
     </div>
   );
