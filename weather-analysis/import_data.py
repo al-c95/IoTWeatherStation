@@ -4,10 +4,10 @@ from pathlib import Path
 from datetime import datetime, date
 from typing import Optional
 from openpyxl import load_workbook
+from data import get_db_connection
 
 BASE_DIR = Path(__file__).resolve().parent
 
-DB_PATH = "../weather.db"
 XLSX_FOLDER = "../monthly_xlsx_files"
 
 
@@ -116,7 +116,7 @@ def import_workbook(conn: sqlite3.Connection, xlsx_path: Path) -> int:
     return inserted
 
 
-def import_folder(db_path: str, folder: str) -> None:
+def import_folder(folder: str) -> None:
     folder_path = Path(folder)
     if not folder_path.exists():
         raise FileNotFoundError(f"Folder not found: {folder_path}")
@@ -130,7 +130,7 @@ def import_folder(db_path: str, folder: str) -> None:
         print("No .xlsx files found.")
         return
 
-    conn = sqlite3.connect(db_path)
+    conn = get_db_connection()
     try:
         total_rows = 0
         for path in xlsx_files:
@@ -145,4 +145,4 @@ def import_folder(db_path: str, folder: str) -> None:
 
 
 if __name__ == "__main__":
-    import_folder(DB_PATH, XLSX_FOLDER)
+    import_folder(XLSX_FOLDER)
