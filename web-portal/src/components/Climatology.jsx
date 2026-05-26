@@ -4,6 +4,7 @@ import { formatOneDecimalPlace } from '../utils/formatters';
 function Climatology() {
   const [climatology, setClimatology] = useState(null);
   const [error, setError] = useState(null);
+  const [showAllStats, setShowAllStats] = useState(false);
 
   useEffect(() => {
     async function fetchClimatology() {
@@ -44,6 +45,18 @@ function Climatology() {
         <div>Loading climatology...</div>
       )}
 
+      <div style={{ marginBottom: '1rem' }}>
+  <label>
+    <input
+      type="checkbox"
+      checked={showAllStats}
+      onChange={(event) => setShowAllStats(event.target.checked)}
+    />
+    {' '}
+    Show all statistics
+  </label>
+</div>
+
       {months.length > 0 && (
         <div style={{ overflowX: 'auto' }}>
           <table>
@@ -57,16 +70,22 @@ function Climatology() {
                 <th>Highest min</th>
                 <th>Lowest max</th>
                 <th>Highest max</th>
-                <th>D1 min</th>
-                <th>D1 max</th>
-                <th>D9 min</th>
-                <th>D9 max</th>
-                <th>≤0°C days</th>
-                <th>≤2°C days</th>
-                <th>≤5°C days</th>
-                <th>≥30°C days</th>
-                <th>≥35°C days</th>
-                <th>≥40°C days</th>
+
+                {showAllStats && (
+                  <>
+                  <th>D1 min</th>
+                  <th>D1 max</th>
+                  <th>D9 min</th>
+                  <th>D9 max</th>
+                  <th>≤0°C days</th>
+                  <th>≤2°C days</th>
+                  <th>≤5°C days</th>
+                  <th>≥30°C days</th>
+                  <th>≥35°C days</th>
+                  <th>≥40°C days</th>
+                  </>
+                )}
+                
               </tr>
             </thead>
 
@@ -102,17 +121,22 @@ function Climatology() {
                           {formatOneDecimalPlace(stats.highest_max_temp.value)}
                         </td>
 
-                        <td>{formatOneDecimalPlace(stats.decile_1_min_temp)}</td>
-                        <td>{formatOneDecimalPlace(stats.decile_1_max_temp)}</td>
-                        <td>{formatOneDecimalPlace(stats.decile_9_min_temp)}</td>
-                        <td>{formatOneDecimalPlace(stats.decile_9_max_temp)}</td>
+                        {showAllStats && (
+                          <>
+                          <td>{formatOneDecimalPlace(stats.decile_1_min_temp)}</td>
+                          <td>{formatOneDecimalPlace(stats.decile_1_max_temp)}</td>
+                          <td>{formatOneDecimalPlace(stats.decile_9_min_temp)}</td>
+                          <td>{formatOneDecimalPlace(stats.decile_9_max_temp)}</td>
 
-                        <td>{formatOneDecimalPlace(stats.mean_days_min_lte_0)}</td>
-                        <td>{formatOneDecimalPlace(stats.mean_days_min_lte_2)}</td>
-                        <td>{formatOneDecimalPlace(stats.mean_days_min_lte_5)}</td>
-                        <td>{formatOneDecimalPlace(stats.mean_days_max_gte_30)}</td>
-                        <td>{formatOneDecimalPlace(stats.mean_days_max_gte_35)}</td>
-                        <td>{formatOneDecimalPlace(stats.mean_days_max_gte_40)}</td>
+                          <td>{formatOneDecimalPlace(stats.mean_days_min_lte_0)}</td>
+                          <td>{formatOneDecimalPlace(stats.mean_days_min_lte_2)}</td>
+                          <td>{formatOneDecimalPlace(stats.mean_days_min_lte_5)}</td>
+                          <td>{formatOneDecimalPlace(stats.mean_days_max_gte_30)}</td>
+                          <td>{formatOneDecimalPlace(stats.mean_days_max_gte_35)}</td>
+                          <td>{formatOneDecimalPlace(stats.mean_days_max_gte_40)}</td>
+                          </>
+                        )}
+                        
                       </>
                     )}
                   </tr>
