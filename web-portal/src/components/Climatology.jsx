@@ -86,10 +86,21 @@ function Climatology() {
                         <td>{formatOneDecimalPlace(stats.mean_daily_temp)}</td>
                         <td>{formatOneDecimalPlace(stats.mean_max_temp)}</td>
 
-                        <td>{formatOneDecimalPlace(stats.lowest_min_temp.value)} ({stats.lowest_min_temp.date})</td>
-                        <td>{formatOneDecimalPlace(stats.highest_min_temp.value)} ({stats.highest_min_temp.date})</td>
-                        <td>{formatOneDecimalPlace(stats.lowest_max_temp.value)} ({stats.lowest_max_temp.date})</td>
-                        <td>{formatOneDecimalPlace(stats.highest_max_temp.value)} ({stats.highest_max_temp.date})</td>
+                        <td title={`Date: ${stats.lowest_min_temp.date}`}>
+                          {formatOneDecimalPlace(stats.lowest_min_temp.value)}
+                        </td>
+
+                        <td title={`Date: ${stats.highest_min_temp.date}`}>
+                          {formatOneDecimalPlace(stats.highest_min_temp.value)}
+                        </td>
+
+                        <td title={`Date: ${stats.lowest_max_temp.date}`}>
+                          {formatOneDecimalPlace(stats.lowest_max_temp.value)}
+                        </td>
+
+                        <td title={`Date: ${stats.highest_max_temp.date}`}>
+                          {formatOneDecimalPlace(stats.highest_max_temp.value)}
+                        </td>
 
                         <td>{formatOneDecimalPlace(stats.decile_1_min_temp)}</td>
                         <td>{formatOneDecimalPlace(stats.decile_1_max_temp)}</td>
