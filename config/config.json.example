@@ -9,7 +9,15 @@
         "trend": "increasing",
         "threshold": 30.0,
         "recipients": [
-          "john.smith@example.com"
+          "johnsmith@email.com"
+        ]
+      },
+      {
+        "type": "temperature",
+        "trend": "decreasing",
+        "threshold": 0.0,
+        "recipients": [
+          "janedoe@email.com"
         ]
       }
     ]

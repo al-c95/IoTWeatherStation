@@ -40,3 +40,7 @@ Before each major revision or release, the following test cycles are performed:
 ```
 npm run dev
 ```
+
+### Configuration
+- global configuration file: `config/config.json`
+- example configuration file: `config/config.example.json`
