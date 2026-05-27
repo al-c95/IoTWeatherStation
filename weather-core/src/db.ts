@@ -4,8 +4,9 @@ import { MonthlyAlmanac, YearToDateSummary } from "./climatology";
 import { DailyWeather } from "./types/DailyWeather";
 import DailyTemperatureExtrema from "./types/DailyTemperatureExtrema";
 
-const dbPath = path.resolve(__dirname, "../../weather.db");
+const dbPath = process.env.DB_PATH ?? path.resolve(__dirname, "../../weather.db");
 
+console.log(`Opening SQLite database: ${dbPath}`);
 export const db = new Database(dbPath);
 
 db.pragma("journal_mode = WAL");
