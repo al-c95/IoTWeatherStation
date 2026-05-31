@@ -109,6 +109,11 @@ export function retrieveCurrentTotalRain() {
     currentObservations.totalPrecipitation = getDailyRainTotal(now);
 }
 
+export function hydrateCurrentState() {
+    retrieveCurrentTemperatureExtrema();
+    retrieveCurrentTotalRain();
+}
+
 export function resetTemperatureExtrema() {
     temperatureExtrema.minTemp = null;
     temperatureExtrema.minTempAt = null;
