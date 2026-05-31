@@ -1,8 +1,8 @@
 import IngestionService from "./IngestionService";
 import ThpObservations from "../types/ThpObservations";
-import { updateCurrentThpObservations } from "../currentData";
-import { getCurrentObservations } from "../currentData";
-import { retrieveCurrentTemperatureExtrema } from "../currentData";
+import { updateCurrentThpObservations } from "../currentConditions/currentData";
+import { getCurrentObservations } from "../currentConditions/currentData";
+import { retrieveCurrentTemperatureExtrema } from "../currentConditions/currentData";
 import { persistObservations } from "../db";
 import AlertEngine from "../alerts/AlertEngine";
 

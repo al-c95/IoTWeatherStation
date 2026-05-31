@@ -1,6 +1,6 @@
 import RainObservations from "../types/RainObservations";
 import IngestionService from "./IngestionService";
-import { updateRain } from "../currentData";
+import { updateRain } from "../currentConditions/currentData";
 
 class RainIngestionService extends IngestionService<RainObservations> {
 
