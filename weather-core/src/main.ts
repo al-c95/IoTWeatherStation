@@ -81,18 +81,19 @@ const rainIngestionService: RainIngestionService = new RainIngestionService();
 app.post("/sensor-data/rain", async (request, reply) => {
 
   const body = request.body as {
-    timestampUtc: number,
-    tips: [
-      timestampUtc: number
-    ]
+    timestampUtc: number;
+    tips: {
+      timestampUtc: number;
+    }[];
   };
 
   const observations: RainObservations = {
     timestamp: new Date(body.timestampUtc * 1000),
-    tips: body.tips.map((t: number) => ({
-      timestamp: new Date(t * 1000) 
-    }))
+    tips: body.tips.map((tip) => ({
+      timestamp: new Date(tip.timestampUtc * 1000),
+    })),
   };
+
   await rainIngestionService.execute(observations);
 
   return { status: "success" };

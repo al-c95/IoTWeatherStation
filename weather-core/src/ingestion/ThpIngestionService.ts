@@ -21,7 +21,7 @@ class ThpIngestionService extends IngestionService<ThpObservations> {
             current.temp, 
             current.humidity, 
             current.mslPressure);
-            
+
         retrieveCurrentTemperatureExtrema();
     }
 

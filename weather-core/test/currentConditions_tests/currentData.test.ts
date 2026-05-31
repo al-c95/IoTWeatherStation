@@ -1,4 +1,4 @@
-import {getTemperatureExtrema, resetTemperatureExtrema, updateCurrentThpObservations, getCurrentObservations, getSseUpdateData, retrieveCurrentTemperatureExtrema, updateRain, resetRain} from "../../src/currentConditions/currentData";
+import {getTemperatureExtrema, resetTemperatureExtrema, updateCurrentThpObservations, getCurrentObservations, getSseUpdateData, retrieveCurrentTemperatureExtrema, resetRain} from "../../src/currentConditions/currentData";
 import ThpObservations from "../../src/types/ThpObservations";
 import RainObservations from "../../src/types/RainObservations";
 import * as utils from "../../src/utils";
@@ -145,48 +145,4 @@ describe("retrieveCurrentTemperatureExtrema", () => {
     expect(extrema.minTemp).toBeNull();
     expect(extrema.maxTemp).toBeNull();
   })
-});
-
-describe("updateRain", () => {
-  it("updates totalPrecipitation correctly from null", () => {
-    // arrange
-    const now = new Date();
-    const rainObs: RainObservations = {
-      timestamp: now,
-      tips: [
-        { timestamp: new Date(now.getTime() - 1000) },
-        { timestamp: new Date(now.getTime() - 2000) },
-        { timestamp: new Date(now.getTime() - 3000) }
-      ] // 3 tips, each 0.2mm
-    };
-    resetRain();
-
-    // act
-    updateRain(rainObs);
-
-    // assert
-    expect(getCurrentObservations().totalPrecipitation).toBeCloseTo(0.6, 5);
-    expect(getCurrentObservations().timestamp).toEqual(now);
-  });
-
-  it("accumulates totalPrecipitation correctly", () => {
-    // arrange
-    const now = new Date();
-    resetRain();
-    const rainObs: RainObservations = {
-      timestamp: now,
-      tips: [
-        { timestamp: new Date(now.getTime() - 1000) },
-        { timestamp: new Date(now.getTime() - 2000) }
-      ] // 2 tips, each 0.2mm
-    };
-    updateRain(rainObs); // first update to set totalPrecipitation to 0.4
-
-    // act
-    updateRain(rainObs);
-
-    // assert
-    expect(getCurrentObservations().totalPrecipitation).toBeCloseTo(0.8, 5);
-    expect(getCurrentObservations().timestamp).toEqual(now);
-  });
 });

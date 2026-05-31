@@ -3,9 +3,8 @@ import DailyTemperatureExtrema from "../types/DailyTemperatureExtrema";
 import ThpObservations from "../types/ThpObservations";
 import SseUpdateData from "../types/SseUpdateData";
 import { getCurrentTimestamp } from "../utils";
-import { getCurrentTemperatureExtrema } from "../db";
+import { getCurrentTemperatureExtrema, getDailyRainTotal } from "../db";
 import config from "../../../config/config.json";
-import RainObservations from "../types/RainObservations";
 import { calculateDewPoint, calculateMslp } from "./calculations";
 import { sanitiseHumidity, sanitiseTemperature } from "./validation";
 
@@ -43,7 +42,7 @@ export function getTemperatureExtrema(): Readonly<DailyTemperatureExtrema> {
         minTemp: temperatureExtrema.minTemp,
         maxTemp: temperatureExtrema.maxTemp,
         minTempAt: temperatureExtrema.minTempAt ? new Date(temperatureExtrema.minTempAt) : null,
-        maxTempAt: temperatureExtrema.maxTempAt? new Date(temperatureExtrema.maxTempAt) : null
+        maxTempAt: temperatureExtrema.maxTempAt ? new Date(temperatureExtrema.maxTempAt) : null
     };
 }
 
@@ -60,17 +59,6 @@ export function getSseUpdateData(): SseUpdateData {
         maxTemp: getTemperatureExtrema().maxTemp,
         maxTempAt: getTemperatureExtrema().maxTempAt
     };
-}
-
-export function updateRain(observations: RainObservations) {
-    currentObservations.timestamp = observations.timestamp;
-
-    if (currentObservations.totalPrecipitation === null) {
-        currentObservations.totalPrecipitation = 0.0;
-    }
-    for (const tip of observations.tips) {
-        currentObservations.totalPrecipitation += 0.2;
-    }
 }
 
 export function updateCurrentThpObservations(observations: ThpObservations) {
@@ -98,7 +86,7 @@ export function updateCurrentThpObservations(observations: ThpObservations) {
         currentObservations.humidity = observations.humidity;
     }
     else {
-        currentObservations.humidity=null;
+        currentObservations.humidity = null;
     }
   
     currentObservations.mslPressure = calculateMslp(observations.rawPressure, elevation);
@@ -114,6 +102,11 @@ export function retrieveCurrentTemperatureExtrema(retrieveFunction: (year: numbe
         temperatureExtrema.maxTemp=currentExtrema.maxTemp;
         temperatureExtrema.maxTempAt=currentExtrema.maxTempAt;
     }
+}
+
+export function retrieveCurrentTotalRain() {
+    const now = getCurrentTimestamp();
+    currentObservations.totalPrecipitation = getDailyRainTotal(now);
 }
 
 export function resetTemperatureExtrema() {

@@ -197,6 +197,41 @@ export function persistObservations(
   tx();
 }
 
+export function persistRainTips(tips: { timestamp: Date }[]): void {
+
+    const updateDailyPrecipitation = db.prepare(`
+      INSERT INTO daily_weather (date, precipitation)
+      VALUES (?, ?)
+      ON CONFLICT(date) DO UPDATE SET precipitation = precipitation + excluded.precipitation
+    `);
+
+    const transaction = db.transaction((tips: { timestamp: Date }[]) => {
+      for (const tip of tips) {
+        console.log(`Persisting rain tip at ${tip.timestamp.toISOString()}`);
+        const isoTimestamp = tip.timestamp.toISOString(); // UTC
+        const date = isoTimestamp.slice(0, 10);       // YYYY-MM-DD
+
+        updateDailyPrecipitation.run(date, 0.2);
+      }
+    });
+
+    transaction(tips);
+}
+
+export function getDailyRainTotal(timestamp: Date): number {
+  
+  const isoTimestamp = timestamp.toISOString(); // UTC
+  const date = isoTimestamp.slice(0, 10);       // YYYY-MM-DD
+
+  const row = db.prepare(`
+    SELECT COALESCE(precipitation, 0) AS precipitation
+    FROM daily_weather
+    WHERE date = ?
+  `).get(date) as { precipitation: number } | undefined;
+
+  return row?.precipitation ?? 0;
+}
+
 export function getYearToDateSummary(year: number): YearToDateSummary
 {
   const stmt = db.prepare(`

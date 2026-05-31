@@ -1,6 +1,7 @@
 import RainObservations from "../types/RainObservations";
 import IngestionService from "./IngestionService";
-import { updateRain } from "../currentConditions/currentData";
+import { persistRainTips } from "../db";
+import { retrieveCurrentTotalRain } from "../currentConditions/currentData";
 
 class RainIngestionService extends IngestionService<RainObservations> {
 
@@ -10,7 +11,8 @@ class RainIngestionService extends IngestionService<RainObservations> {
     }
 
     protected async runPipeline(observations: RainObservations): Promise<void> {
-        updateRain(observations);
+        persistRainTips(observations.tips);
+        retrieveCurrentTotalRain();
     }
 
 }
