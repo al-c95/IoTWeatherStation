@@ -1,181 +1,24 @@
 import Fastify from "fastify";
-import { addSseClient, removeSseClient } from "./sseBroadcaster";
-import { getDailyWeatherLastNDays, getYearToDateSummary, getMonthlyAlmanac } from "./db";
-import { createExportWorkbook } from "./Excel";
-import { getSseUpdateData, hydrateCurrentState } from "./currentConditions/currentData";
-import { getCurrentTimestamp } from "./utils";
-import ThpObservations from "./types/ThpObservations";
-import ThpIngestionService from "./ingestion/ThpIngestionService";
-import RainIngestionService from "./ingestion/RainIngestionService";
-import config from "../../config/config.json";
-import AlertConfig from "./types/AlertConfig";
-import temperatureAlertFactory from "./alerts/temperatureAlertFactory";
-import TemperatureAlertEngine from "./alerts/TemperatureAlertEngine";
-import RainObservations from "./types/RainObservations";
+import { hydrateCurrentState } from "./currentConditions/currentData";
+import sensorRoutes from "./routes/sensorRoutes";
+import sseRoutes from "./routes/sseRoutes";
+import dailyWeatherRoutes from "./routes/dailyWeatherRoutes";
+import exportRoutes from "./routes/exportRoutes";
+import climatologyRoutes from "./routes/climatologyRoutes";
 
-const app = Fastify({logger: true});
+const app = Fastify({ logger: true });
 
 console.log("weather-core running...");
 
 hydrateCurrentState();
 
-const alertsConfig = config.alerts as AlertConfig[];
-const thpIngestionService = new ThpIngestionService(
-    new TemperatureAlertEngine(
-        temperatureAlertFactory(alertsConfig)
-    )
-);
-
-app.post("/sensor-data/temperature-humidity-pressure", async (request, reply) => {
-
-    const body = request.body as {
-      temperature?: number;
-      humidity?: number;
-      rawPressure?: number;
-      timestampUtc?: number;
-    };
-    const currentTemperature = body.temperature;
-    const currentHumidity = body.humidity;
-    const currentRawPressure = body.rawPressure;
-    const currentTimestamp = body.timestampUtc;
-
-    if (typeof currentTemperature !== 'number')
-    {
-      reply.code(400);
-
-      return { error: "temperature missing or invalid"};
-    }
-
-    if (typeof currentHumidity !== 'number')
-    {
-      reply.code(400);
-
-      return { error: "humidity missing or invalid"};
-    }
-    // pressure optional for now
-    if (currentRawPressure !== undefined && typeof currentRawPressure !== "number")
-    {
-      reply.code(400);
-      return { error: "raw pressure invalid"};
-    }
-
-    if (typeof currentTimestamp !== 'number') {
-      reply.code(400);
-
-      return { error: "timestampUtc missing or invalid"};
-    }
-
-    const observations: ThpObservations = {
-      timestamp: new Date(currentTimestamp * 1000),
-      temperature: currentTemperature,
-      humidity: currentHumidity,
-      rawPressure: 1000 // pressure optional for now, just use default value
-    }
-    await thpIngestionService.execute(observations);
-
-    return { status: "success" };
-});
-
-const rainIngestionService: RainIngestionService = new RainIngestionService();
-
-app.post("/sensor-data/rain", async (request, reply) => {
-
-  const body = request.body as {
-    timestampUtc: number;
-    tips: {
-      timestampUtc: number;
-    }[];
-  };
-
-  const observations: RainObservations = {
-    timestamp: new Date(body.timestampUtc * 1000),
-    tips: body.tips.map((tip) => ({
-      timestamp: new Date(tip.timestampUtc * 1000),
-    })),
-  };
-
-  await rainIngestionService.execute(observations);
-
-  return { status: "success" };
-});
-
-app.get("/daily-observations", async (request, reply) => {
-  const query = request.query as { days?: string };
-  const days = Number(query.days ?? 7);
-
-  if (!Number.isInteger(days) || days < 1 || days > 365)
-  {
-    reply.code(400);
-
-    return { error: "days must be an integer between 1 and 365" };
-  }
-
-  const data = getDailyWeatherLastNDays(days);
-
-  return { days, data };
-});
-
-app.get("/update-events-sse", (request, reply) => {
-  const response = reply.raw;
-
-  response.writeHead(200, {
-    "Content-Type": "text/event-stream",
-    "Cache-Control": "no-cache",
-    "Connection": "keep-alive",
-    "Access-Control-Allow-Origin": "*"
-  });
-
-  response.write(`data: ${JSON.stringify(getSseUpdateData())}\n\n`);
-
-  addSseClient(response);
-
-  request.raw.on("close", () => {
-    removeSseClient(response);
-  });
-});
-
-app.get("/daily-observations/export/xlsx", async (request, reply) => {
-  const query = request.query as {
-    year?: string;
-    month?: string;
-  };
-
-  const year = Number(query.year);
-  const month = Number(query.month);
-
-  if (!Number.isInteger(year) || !Number.isInteger(month) || month < 1 || month > 12)
-  {
-    reply.code(400);
-
-    return { error: "year and month are required (month must be 1–12)" };
-  }
-
-  const buffer = await createExportWorkbook(year, month);
-
-  const filename = `daily-weather-${year}-${String(month).padStart(2, "0")}.xlsx`;
-
-  reply
-    .header(
-      "Content-Type",
-      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-    )
-    .header("Content-Disposition", `attachment; filename="${filename}"`)
-    .send(buffer);
-});
-
-app.get("/climatology/year-to-date", async (request, reply) => {
-  const now = getCurrentTimestamp();
-
-  return getYearToDateSummary(now.getFullYear());
-});
-
-app.get("/climatology/monthly-almanac", async (request, reply) => {
-  const now = getCurrentTimestamp();
-
-  return getMonthlyAlmanac(now.getFullYear(), now.getMonth()+1);
-});
+app.register(sensorRoutes);
+app.register(sseRoutes);
+app.register(dailyWeatherRoutes);
+app.register(exportRoutes);
+app.register(climatologyRoutes);
 
 app.listen({
   port: 3000,
-  host: "0.0.0.0"
+  host: "0.0.0.0",
 });
