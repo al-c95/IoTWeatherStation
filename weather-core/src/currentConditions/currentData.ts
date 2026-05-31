@@ -12,132 +12,117 @@ import { sanitiseHumidity, sanitiseTemperature } from "./validation";
 const elevation: number = config.elevation;
 
 const currentObservations: CurrentObservations = {
-  temp: null,
-  humidity: null,
-  dewPoint: null,
-  mslPressure: null,
-  totalPrecipitation: null,
-  timestamp: null
+    temp: null,
+    humidity: null,
+    dewPoint: null,
+    mslPressure: null,
+    totalPrecipitation: null,
+    timestamp: null
 };
 
 const temperatureExtrema: DailyTemperatureExtrema = {
-  minTemp: null,
-  minTempAt: null,
-  maxTemp: null,
-  maxTempAt: null
+    minTemp: null,
+    minTempAt: null,
+    maxTemp: null,
+    maxTempAt: null
 };
 
-export function getCurrentObservations(): Readonly<CurrentObservations>
-{
-  return {
-    temp: currentObservations.temp,
-    humidity: currentObservations.humidity,
-    dewPoint: currentObservations.dewPoint,
-    mslPressure: currentObservations.mslPressure,
-    totalPrecipitation: currentObservations.totalPrecipitation,
-    timestamp: currentObservations.timestamp ? new Date(currentObservations.timestamp) : null
-  };
+export function getCurrentObservations(): Readonly<CurrentObservations> {
+    return {
+        temp: currentObservations.temp,
+        humidity: currentObservations.humidity,
+        dewPoint: currentObservations.dewPoint,
+        mslPressure: currentObservations.mslPressure,
+        totalPrecipitation: currentObservations.totalPrecipitation,
+        timestamp: currentObservations.timestamp ? new Date(currentObservations.timestamp) : null
+    };
 }
 
-export function getTemperatureExtrema(): Readonly<DailyTemperatureExtrema>
-{
-  return {
-    minTemp: temperatureExtrema.minTemp,
-    maxTemp: temperatureExtrema.maxTemp,
-    minTempAt: temperatureExtrema.minTempAt ? new Date(temperatureExtrema.minTempAt) : null,
-    maxTempAt: temperatureExtrema.maxTempAt? new Date(temperatureExtrema.maxTempAt) : null
-  };
+export function getTemperatureExtrema(): Readonly<DailyTemperatureExtrema> {
+    return {
+        minTemp: temperatureExtrema.minTemp,
+        maxTemp: temperatureExtrema.maxTemp,
+        minTempAt: temperatureExtrema.minTempAt ? new Date(temperatureExtrema.minTempAt) : null,
+        maxTempAt: temperatureExtrema.maxTempAt? new Date(temperatureExtrema.maxTempAt) : null
+    };
 }
 
-export function getSseUpdateData(): SseUpdateData
-{
-  return {
-    temp: getCurrentObservations().temp,
-    humidity: getCurrentObservations().humidity,
-    dewPoint: getCurrentObservations().dewPoint,
-    mslPressure: getCurrentObservations().mslPressure,
-    totalPrecipitation: getCurrentObservations().totalPrecipitation,
-    timestamp: getCurrentObservations().timestamp,
-    minTemp: getTemperatureExtrema().minTemp,
-    minTempAt: getTemperatureExtrema().minTempAt,
-    maxTemp: getTemperatureExtrema().maxTemp,
-    maxTempAt: getTemperatureExtrema().maxTempAt
-  };
+export function getSseUpdateData(): SseUpdateData {
+    return {
+        temp: getCurrentObservations().temp,
+        humidity: getCurrentObservations().humidity,
+        dewPoint: getCurrentObservations().dewPoint,
+        mslPressure: getCurrentObservations().mslPressure,
+        totalPrecipitation: getCurrentObservations().totalPrecipitation,
+        timestamp: getCurrentObservations().timestamp,
+        minTemp: getTemperatureExtrema().minTemp,
+        minTempAt: getTemperatureExtrema().minTempAt,
+        maxTemp: getTemperatureExtrema().maxTemp,
+        maxTempAt: getTemperatureExtrema().maxTempAt
+    };
 }
 
-export function updateRain(observations: RainObservations)
-{
-  currentObservations.timestamp = observations.timestamp;
+export function updateRain(observations: RainObservations) {
+    currentObservations.timestamp = observations.timestamp;
 
-  if (currentObservations.totalPrecipitation === null) {
-    currentObservations.totalPrecipitation = 0.0;
-  }
-  for (const tip of observations.tips) {
-    currentObservations.totalPrecipitation += 0.2;
-  }
+    if (currentObservations.totalPrecipitation === null) {
+        currentObservations.totalPrecipitation = 0.0;
+    }
+    for (const tip of observations.tips) {
+        currentObservations.totalPrecipitation += 0.2;
+    }
 }
 
-export function updateCurrentThpObservations(observations: ThpObservations)
-{
-  currentObservations.timestamp = observations.timestamp;
+export function updateCurrentThpObservations(observations: ThpObservations) {
+    currentObservations.timestamp = observations.timestamp;
 
-  let temperatureSane: boolean = sanitiseTemperature(observations.temperature);
-  let humiditySane: boolean = sanitiseHumidity(observations.humidity);
-  let sane: boolean = 
-    temperatureSane && humiditySane;
-  if (sane)
-  {
-    currentObservations.dewPoint=calculateDewPoint(observations.temperature, observations.humidity);
-  }
-  else
-  {
-    currentObservations.dewPoint=null;
-  }
+    let temperatureSane: boolean = sanitiseTemperature(observations.temperature);
+    let humiditySane: boolean = sanitiseHumidity(observations.humidity);
+    let sane: boolean = 
+      temperatureSane && humiditySane;
+    if (sane) {
+        currentObservations.dewPoint = calculateDewPoint(observations.temperature, observations.humidity);
+    }
+    else {
+        currentObservations.dewPoint = null;
+    }
 
-  if (temperatureSane)
-  {
-    currentObservations.temp = observations.temperature;
-  }
-  else
-  {
-    currentObservations.temp = null;
-  }
+    if (temperatureSane) {
+        currentObservations.temp = observations.temperature;
+    }
+    else {
+        currentObservations.temp = null;
+    }
 
-  if (humiditySane)
-  {
-    currentObservations.humidity = observations.humidity;
-  }
-  else
-  {
-    currentObservations.humidity=null;
-  }
+    if (humiditySane) {
+        currentObservations.humidity = observations.humidity;
+    }
+    else {
+        currentObservations.humidity=null;
+    }
   
-  currentObservations.mslPressure = calculateMslp(observations.rawPressure, elevation);
+    currentObservations.mslPressure = calculateMslp(observations.rawPressure, elevation);
 }
 
-export function retrieveCurrentTemperatureExtrema(retrieveFunction: (year: number, month: number, day: number) => DailyTemperatureExtrema = getCurrentTemperatureExtrema)
-{
-  const now = getCurrentTimestamp();
-  const currentExtrema = retrieveFunction(now.getFullYear(), now.getMonth() + 1, now.getDate());
+export function retrieveCurrentTemperatureExtrema(retrieveFunction: (year: number, month: number, day: number) => DailyTemperatureExtrema = getCurrentTemperatureExtrema) {
+    const now = getCurrentTimestamp();
+    const currentExtrema = retrieveFunction(now.getFullYear(), now.getMonth() + 1, now.getDate());
 
-  if (currentExtrema != undefined)
-  {
-    temperatureExtrema.minTemp=currentExtrema.minTemp;
-    temperatureExtrema.minTempAt=currentExtrema.minTempAt;
-    temperatureExtrema.maxTemp=currentExtrema.maxTemp;
-    temperatureExtrema.maxTempAt=currentExtrema.maxTempAt;
-  }
+    if (currentExtrema != undefined) {
+        temperatureExtrema.minTemp=currentExtrema.minTemp;
+        temperatureExtrema.minTempAt=currentExtrema.minTempAt;
+        temperatureExtrema.maxTemp=currentExtrema.maxTemp;
+        temperatureExtrema.maxTempAt=currentExtrema.maxTempAt;
+    }
 }
 
-export function resetTemperatureExtrema()
-{
-  temperatureExtrema.minTemp = null;
-  temperatureExtrema.minTempAt = null;
-  temperatureExtrema.maxTemp = null;
-  temperatureExtrema.maxTempAt = null;
+export function resetTemperatureExtrema() {
+    temperatureExtrema.minTemp = null;
+    temperatureExtrema.minTempAt = null;
+    temperatureExtrema.maxTemp = null;
+    temperatureExtrema.maxTempAt = null;
 }
 
-export function resetRain()
-{
-  currentObservations.totalPrecipitation = null;
+export function resetRain() {
+    currentObservations.totalPrecipitation = null;
 }

@@ -14,10 +14,14 @@ class ThpIngestionService extends IngestionService<ThpObservations> {
 
     protected async runPipeline(observations: ThpObservations): Promise<void> {
         updateCurrentThpObservations(observations);
+
+        const current = getCurrentObservations();
+
         persistObservations(observations.timestamp, 
-            getCurrentObservations().temp, 
-            getCurrentObservations().humidity, 
-            getCurrentObservations().mslPressure);
+            current.temp, 
+            current.humidity, 
+            current.mslPressure);
+            
         retrieveCurrentTemperatureExtrema();
     }
 
