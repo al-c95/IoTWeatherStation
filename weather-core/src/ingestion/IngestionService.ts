@@ -1,5 +1,5 @@
 import { broadcastSseEvent } from "../sseBroadcaster";
-import { getSseUpdateData } from "../currentData";
+import { getSseUpdateData } from "../currentConditions/currentData";
 import AlertEngine from "../alerts/AlertEngine";
 
 abstract class IngestionService<TObservations> {

@@ -2,7 +2,7 @@ import Fastify from "fastify";
 import { addSseClient, removeSseClient } from "./sseBroadcaster";
 import { getDailyWeatherLastNDays, getYearToDateSummary, getMonthlyAlmanac } from "./db";
 import { createExportWorkbook } from "./Excel";
-import { getSseUpdateData, retrieveCurrentTemperatureExtrema } from "./currentData";
+import { getSseUpdateData, retrieveCurrentTemperatureExtrema } from "./currentConditions/currentData";
 import { getCurrentTimestamp } from "./utils";
 import ThpObservations from "./types/ThpObservations";
 import ThpIngestionService from "./ingestion/ThpIngestionService";

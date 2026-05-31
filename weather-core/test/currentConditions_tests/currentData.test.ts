@@ -1,9 +1,9 @@
-import {getTemperatureExtrema, resetTemperatureExtrema, updateCurrentThpObservations, getCurrentObservations, getSseUpdateData, retrieveCurrentTemperatureExtrema, updateRain, resetRain} from "../src/currentData";
-import ThpObservations from "../src/types/ThpObservations";
-import RainObservations from "../src/types/RainObservations";
-import * as utils from "../src/utils";
+import {getTemperatureExtrema, resetTemperatureExtrema, updateCurrentThpObservations, getCurrentObservations, getSseUpdateData, retrieveCurrentTemperatureExtrema, updateRain, resetRain} from "../../src/currentConditions/currentData";
+import ThpObservations from "../../src/types/ThpObservations";
+import RainObservations from "../../src/types/RainObservations";
+import * as utils from "../../src/utils";
 
-jest.mock("../../config/config.json", () => ({
+jest.mock("../../../config/config.json", () => ({
   elevation: 0
 }));
 

@@ -1,11 +1,13 @@
-import CurrentObservations from "./types/CurrentObservations";
-import DailyTemperatureExtrema from "./types/DailyTemperatureExtrema";
-import ThpObservations from "./types/ThpObservations";
-import SseUpdateData from "./types/SseUpdateData";
-import { getCurrentTimestamp } from "./utils";
-import { getCurrentTemperatureExtrema } from "./db";
-import config from "../../config/config.json";
-import RainObservations from "./types/RainObservations";
+import CurrentObservations from "../types/CurrentObservations";
+import DailyTemperatureExtrema from "../types/DailyTemperatureExtrema";
+import ThpObservations from "../types/ThpObservations";
+import SseUpdateData from "../types/SseUpdateData";
+import { getCurrentTimestamp } from "../utils";
+import { getCurrentTemperatureExtrema } from "../db";
+import config from "../../../config/config.json";
+import RainObservations from "../types/RainObservations";
+import { calculateDewPoint, calculateMslp } from "./calculations";
+import { sanitiseHumidity, sanitiseTemperature } from "./validation";
 
 const elevation: number = config.elevation;
 
@@ -61,43 +63,6 @@ export function getSseUpdateData(): SseUpdateData
     maxTemp: getTemperatureExtrema().maxTemp,
     maxTempAt: getTemperatureExtrema().maxTempAt
   };
-}
-
-function calculateMslp(rawPressure: number, elevation: number)
-{
-  // simplified barometric formula
-  return rawPressure * Math.pow(1 - elevation / 44330, -5.255);
-}
-
-function calculateDewPoint(temperature: number, humidity: number)
-{
-  // Magnus-Tetens approximation
-  const a = 17.62;
-  const b = 243.12;
-
-  const gamma = Math.log(humidity / 100) +(a * temperature) / (b + temperature);
-  const dewPoint = (b * gamma) / (a - gamma);
-
-  return dewPoint;
-}
-
-function validateRange(value: number, lowerBound: number, upperBound: number): boolean
-{
-  if (value >= lowerBound && value <= upperBound)
-  {
-    return true;
-  }
-  return false;
-}
-
-function sanitiseTemperature(temperature: number)
-{
-  return validateRange(temperature, -40, 60);
-}
-
-function sanitiseHumidity(humidity: number)
-{
-  return validateRange(humidity, 0, 100);
 }
 
 export function updateRain(observations: RainObservations)
