@@ -3,6 +3,7 @@ import NotificationChannel from "./NotificationChannel";
 import ThpObservations from "../types/ThpObservations";
 import TrendDirection from "../types/TrendDirection";
 import { Temperature } from "../types/DailyWeather";
+import config from "../../../config/config.json";
 
 class TemperatureAlert extends Alert<ThpObservations>
 {
@@ -15,7 +16,7 @@ class TemperatureAlert extends Alert<ThpObservations>
         trendDirection: TrendDirection, 
         notificationChannels: NotificationChannel[]
     ) {
-        let message: string = 'Temperature has';
+        let message: string = `Temperature at ${config.station_name} has`;
         if (trendDirection==="increasing") {
             message = `${message} increased to `;
         }
