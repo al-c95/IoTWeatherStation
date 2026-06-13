@@ -1,6 +1,6 @@
 .dashboard-layout {
   display: grid;
-  grid-template-columns: 320px minmax(0, 1fr) 420px;
+  grid-template-columns: 500px minmax(0, 1fr) 420px;
   gap: 2rem;
   align-items: start;
 }
@@ -21,7 +21,7 @@
 
 @media (max-width: 1400px) {
   .dashboard-layout {
-    grid-template-columns: 280px 1fr;
+    grid-template-columns: 350px 1fr;
   }
 
   .dashboard-ai {
