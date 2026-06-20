@@ -43,7 +43,7 @@ Each `data:` event contains a JSON object representing the most recently known c
 
 Example SSE Event:
 ```
-data: {"temp": 24.7, "humidity": 63, "dewPoint": 17.2, "timestamp": "14:32:21", "minTemp": 0.0, "minTempAt": 06:00:00, "maxTemp": 25.0, "maxTempAt": "14:00:00", "mslPressure": 1000.2 }
+data: {"thp": {"temp": 24.7, "humidity": 63, "dewPoint": 17.2, "mslPressure": 1000.2, "timestamp": "2026-06-20T14:32:21Z"}, "precipitation": {"totalPrecipitation": 0.0, "timestamp": "2026-06-20T14:32:00Z"}, "wind": {"meanSpeed": 3.5, "gusts": 5.2, "direction": 270, "timestamp": "2026-06-20T14:32:10Z"}, "minTemp": 18.2, "minTempAt": "2026-06-20T06:00:00Z", "maxTemp": 25.0, "maxTempAt": "2026-06-20T14:00:00Z"}
 ```
 
 ### Daily temperature and precipitation endpoint
