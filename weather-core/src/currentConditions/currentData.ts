@@ -38,23 +38,28 @@ const temperatureExtrema: DailyTemperatureExtrema = {
 };
 
 export function getCurrentObservations(): Readonly<CurrentObservations> {
+
+    const currentThpObservations = currentObservations.thp;
+    const currentPrecipitationObservations = currentObservations.precipitation;
+    const currentWindObservations = currentObservations.wind;
+
     return {
         thp: {
-            temp: currentObservations.thp.temp,
-            humidity: currentObservations.thp.humidity,
-            dewPoint: currentObservations.thp.dewPoint,
-            mslPressure: currentObservations.thp.mslPressure,
-            timestamp: currentObservations.thp.timestamp
+            temp: currentThpObservations.temp,
+            humidity: currentThpObservations.humidity,
+            dewPoint: currentThpObservations.dewPoint,
+            mslPressure: currentThpObservations.mslPressure,
+            timestamp: currentThpObservations.timestamp
         },
         precipitation: {
-            totalPrecipitation: currentObservations.precipitation.totalPrecipitation,
-            timestamp: currentObservations.precipitation.timestamp
+            totalPrecipitation: currentPrecipitationObservations.totalPrecipitation,
+            timestamp: currentPrecipitationObservations.timestamp
         },
         wind: {
-            meanSpeed: currentObservations.wind.meanSpeed,
-            gusts: currentObservations.wind.gusts,
-            direction: currentObservations.wind.direction,
-            timestamp: currentObservations.wind.timestamp
+            meanSpeed: currentWindObservations.meanSpeed,
+            gusts: currentWindObservations.gusts,
+            direction: currentWindObservations.direction,
+            timestamp: currentWindObservations.timestamp
         }
     }
 }
