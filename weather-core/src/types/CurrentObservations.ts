@@ -10,26 +10,26 @@ type CurrentThpObservations = {
 
 type CurrentRainfallObservations = {
     totalPrecipitation: Precipitation;
+    timestamp: NullableDate;
 }
 
 type CurrentWindObservations = {
     meanSpeed: WindSpeed,
     gusts: WindSpeed,
-    direction: WindDirection
+    direction: WindDirection,
+    timestamp: NullableDate
 }
 
 type HighestWindGust = {
     speed: WindSpeed,
-    direction: WindDirection
+    direction: WindDirection,
+    timestamp: NullableDate
 }
 
 type CurrentObservations = {
-    temp: Temperature;
-    humidity: Humidity;
-    dewPoint: Temperature;
-    mslPressure: Pressure;
-    totalPrecipitation: Precipitation;
-    timestamp: NullableDate;
-  };
+    thp: CurrentThpObservations,
+    precipitation: CurrentRainfallObservations,
+    wind: CurrentWindObservations
+}
 
 export default CurrentObservations;

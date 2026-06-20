@@ -18,9 +18,9 @@ class ThpIngestionService extends IngestionService<ThpObservations> {
         const current = getCurrentObservations();
 
         persistObservations(observations.timestamp, 
-            current.temp, 
-            current.humidity, 
-            current.mslPressure);
+            current.thp.temp, 
+            current.thp.humidity, 
+            current.thp.mslPressure);
 
         retrieveCurrentTemperatureExtrema();
     }

@@ -6,6 +6,7 @@ abstract class Alert<TObservations>
     private readonly _channels: NotificationChannel[];
     private _isActive: boolean;
     private _expiryTimer: ReturnType<typeof setTimeout> | null = null;
+    private _expiryAt: number | null = null;
     private readonly _title: string;
     protected readonly _message: string;
     private readonly _cooldownMillis: number;
@@ -40,7 +41,13 @@ abstract class Alert<TObservations>
 
         if (this._isActive)
         {
-            this._logger.trace("Alert skipped because it is active");
+            const remaining = this._expiryAt ? Math.max(0, this._expiryAt - Date.now()) : null;
+            if (remaining !== null) {
+                this._logger.trace("Alert skipped because it is active", { remainingMillis: remaining });
+            } 
+            else {
+                this._logger.trace("Alert skipped because it is active");
+            }
 
             return;
         }
@@ -62,9 +69,11 @@ abstract class Alert<TObservations>
         if (this._expiryTimer) {
             clearTimeout(this._expiryTimer);
         }
+        this._expiryAt = Date.now() + this._cooldownMillis;
         this._expiryTimer = setTimeout(() => {
             this._isActive=false;
             this._expiryTimer=null;
+            this._expiryAt=null;
 
             this._logger.trace("Alert timer expired");
 
@@ -77,6 +86,7 @@ abstract class Alert<TObservations>
         {
             clearTimeout(this._expiryTimer);
             this._expiryTimer=null;
+            this._expiryAt=null;
         }
 
         this._logger.debug("Alert disposed");

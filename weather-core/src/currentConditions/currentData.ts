@@ -11,13 +11,24 @@ import { sanitiseHumidity, sanitiseTemperature } from "./validation";
 const elevation: number = config.elevation;
 
 const currentObservations: CurrentObservations = {
-    temp: null,
-    humidity: null,
-    dewPoint: null,
-    mslPressure: null,
-    totalPrecipitation: null,
-    timestamp: null
-};
+    thp: {
+        temp: null,
+        humidity: null,
+        dewPoint: null,
+        mslPressure: null,
+        timestamp: null
+    },
+    precipitation: {
+        totalPrecipitation: null,
+        timestamp: null
+    },
+    wind: {
+        meanSpeed: null,
+        gusts: null,
+        direction: null,
+        timestamp: null
+    }
+}
 
 const temperatureExtrema: DailyTemperatureExtrema = {
     minTemp: null,
@@ -28,13 +39,24 @@ const temperatureExtrema: DailyTemperatureExtrema = {
 
 export function getCurrentObservations(): Readonly<CurrentObservations> {
     return {
-        temp: currentObservations.temp,
-        humidity: currentObservations.humidity,
-        dewPoint: currentObservations.dewPoint,
-        mslPressure: currentObservations.mslPressure,
-        totalPrecipitation: currentObservations.totalPrecipitation,
-        timestamp: currentObservations.timestamp ? new Date(currentObservations.timestamp) : null
-    };
+        thp: {
+            temp: currentObservations.thp.temp,
+            humidity: currentObservations.thp.humidity,
+            dewPoint: currentObservations.thp.dewPoint,
+            mslPressure: currentObservations.thp.mslPressure,
+            timestamp: currentObservations.thp.timestamp
+        },
+        precipitation: {
+            totalPrecipitation: currentObservations.precipitation.totalPrecipitation,
+            timestamp: currentObservations.precipitation.timestamp
+        },
+        wind: {
+            meanSpeed: currentObservations.wind.meanSpeed,
+            gusts: currentObservations.wind.gusts,
+            direction: currentObservations.wind.direction,
+            timestamp: currentObservations.wind.timestamp
+        }
+    }
 }
 
 export function getTemperatureExtrema(): Readonly<DailyTemperatureExtrema> {
@@ -48,48 +70,59 @@ export function getTemperatureExtrema(): Readonly<DailyTemperatureExtrema> {
 
 export function getSseUpdateData(): SseUpdateData {
     return {
-        temp: getCurrentObservations().temp,
-        humidity: getCurrentObservations().humidity,
-        dewPoint: getCurrentObservations().dewPoint,
-        mslPressure: getCurrentObservations().mslPressure,
-        totalPrecipitation: getCurrentObservations().totalPrecipitation,
-        timestamp: getCurrentObservations().timestamp,
+        thp: {
+            temp: getCurrentObservations().thp.temp,
+            humidity: getCurrentObservations().thp.humidity,
+            dewPoint: getCurrentObservations().thp.dewPoint,
+            mslPressure: getCurrentObservations().thp.mslPressure,
+            timestamp: getCurrentObservations().thp.timestamp
+        },
+        precipitation: {
+            totalPrecipitation: getCurrentObservations().precipitation.totalPrecipitation,
+            timestamp: getCurrentObservations().precipitation.timestamp
+        },
+        wind: {
+            meanSpeed: null,
+            direction: null,
+            gusts: null,
+            timestamp: null
+        },
         minTemp: getTemperatureExtrema().minTemp,
         minTempAt: getTemperatureExtrema().minTempAt,
         maxTemp: getTemperatureExtrema().maxTemp,
         maxTempAt: getTemperatureExtrema().maxTempAt
-    };
+    }
 }
 
 export function updateCurrentThpObservations(observations: ThpObservations) {
-    currentObservations.timestamp = observations.timestamp;
+    currentObservations.thp.timestamp = observations.timestamp;
 
     let temperatureSane: boolean = sanitiseTemperature(observations.temperature);
     let humiditySane: boolean = sanitiseHumidity(observations.humidity);
     let sane: boolean = 
       temperatureSane && humiditySane;
     if (sane) {
-        currentObservations.dewPoint = calculateDewPoint(observations.temperature, observations.humidity);
+        currentObservations.thp.dewPoint = calculateDewPoint(observations.temperature, observations.humidity);
     }
     else {
-        currentObservations.dewPoint = null;
+        currentObservations.thp.dewPoint = null;
     }
 
     if (temperatureSane) {
-        currentObservations.temp = observations.temperature;
+        currentObservations.thp.temp = observations.temperature;
     }
     else {
-        currentObservations.temp = null;
+        currentObservations.thp.temp = null;
     }
 
     if (humiditySane) {
-        currentObservations.humidity = observations.humidity;
+        currentObservations.thp.humidity = observations.humidity;
     }
     else {
-        currentObservations.humidity = null;
+        currentObservations.thp.humidity = null;
     }
   
-    currentObservations.mslPressure = calculateMslp(observations.rawPressure, elevation);
+    currentObservations.thp.mslPressure = calculateMslp(observations.rawPressure, elevation);
 }
 
 export function retrieveCurrentTemperatureExtrema(retrieveFunction: (year: number, month: number, day: number) => DailyTemperatureExtrema = getCurrentTemperatureExtrema) {
@@ -106,7 +139,8 @@ export function retrieveCurrentTemperatureExtrema(retrieveFunction: (year: numbe
 
 export function retrieveCurrentTotalRain() {
     const now = getCurrentTimestamp();
-    currentObservations.totalPrecipitation = getDailyRainTotal(now);
+    currentObservations.precipitation.totalPrecipitation = getDailyRainTotal(now);
+    currentObservations.precipitation.timestamp = getCurrentTimestamp();
 }
 
 export function hydrateCurrentState() {
@@ -122,5 +156,5 @@ export function resetTemperatureExtrema() {
 }
 
 export function resetRain() {
-    currentObservations.totalPrecipitation = null;
+    currentObservations.precipitation.totalPrecipitation = null;
 }

@@ -17,9 +17,8 @@ function App() {
     lowTemp: null,
     humidity: null,
     dewPoint: null,
-    lastUpdateTempAndHumidity: null,
     mslPressure: null,
-    lastUpdateMslPressure: null,
+    lastUpdateThp: null,
     windSpeed: null,
     windDirection: null,
     lastUpdateWind: null,
@@ -41,16 +40,15 @@ function App() {
       const data = JSON.parse(event.data);
 
       setObservations({
-        temperature: `${formatTemperature(data.temp)}`,
-        humidity: `${formatHumidity(data.humidity)}`,
-        dewPoint: `${formatTemperature(data.dewPoint)}`,
+        temperature: `${formatTemperature(data.thp.temp)}`,
+        humidity: `${formatHumidity(data.thp.humidity)}`,
+        dewPoint: `${formatTemperature(data.thp.dewPoint)}`,
         highTemp: `${formatExtremeReading(formatTemperature(data.maxTemp), formatLocalTime12h(data.maxTempAt))}`,
         lowTemp: `${formatExtremeReading(formatTemperature(data.minTemp), formatLocalTime12h(data.minTempAt))}`,
-        lastUpdateTempAndHumidity: `${formatLastUpdate(formatLocalTime12h(data.timestamp))}`,
-        mslPressure: `${formatPressure(data.mslPressure)}`,
-        lastUpdateMslPressure: `${formatLastUpdate(formatLocalTime12h(data.timestamp))}`,
-        rainfall: `${formatPrecipitation(data.totalPrecipitation)}`,
-        lastUpdateRainfall: `${formatLastUpdate(formatLocalTime12h(data.timestamp))}`
+        lastUpdateThp: `${formatLastUpdate(formatLocalTime12h(data.thp.timestamp))}`,
+        mslPressure: `${formatPressure(data.thp.mslPressure)}`,
+        rainfall: `${formatPrecipitation(data.precipitation.totalPrecipitation)}`,
+        lastUpdateRainfall: `${formatLastUpdate(formatLocalTime12h(data.precipitation.timestamp))}`
       });
 
       console.log(JSON.stringify(data));
@@ -143,11 +141,11 @@ function App() {
             <div className="grid">
               <Panel title="Temperature" value={observations.temperature}
                 extras={{ "Max": observations.highTemp, "Min": observations.lowTemp }}
-                updateTime={observations.lastUpdateTempAndHumidity}
+                updateTime={observations.lastUpdateThp}
               />
 
               <Panel title="Humidity" value={observations.humidity}
-                updateTime={observations.lastUpdateTempAndHumidity}
+                updateTime={observations.lastUpdateThp}
                 extras={{ "Dew Point": observations.dewPoint }}
               />
 

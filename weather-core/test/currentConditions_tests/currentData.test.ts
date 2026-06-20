@@ -22,11 +22,11 @@ describe("updateCurrentObservations", () => {
     updateCurrentThpObservations(observations);
 
     // assert
-    expect(getCurrentObservations().temp).toBe(25);
-    expect(getCurrentObservations().humidity).toBe(50);
-    expect(getCurrentObservations().dewPoint).toBeCloseTo(13.9,1);
-    expect(getCurrentObservations().mslPressure).toBe(1000);
-    expect(getCurrentObservations().totalPrecipitation).toBeNull();
+    expect(getCurrentObservations().thp.temp).toBe(25);
+    expect(getCurrentObservations().thp.humidity).toBe(50);
+    expect(getCurrentObservations().thp.dewPoint).toBeCloseTo(13.9,1);
+    expect(getCurrentObservations().thp.mslPressure).toBe(1000);
+    expect(getCurrentObservations().precipitation.totalPrecipitation).toBeNull();
   })
 
   it("temperature valid humidity invalid updates observations", () => {
@@ -43,11 +43,11 @@ describe("updateCurrentObservations", () => {
     updateCurrentThpObservations(observations);
 
     // assert
-    expect(getCurrentObservations().temp).toBe(25);
-    expect(getCurrentObservations().humidity).toBe(null);
-    expect(getCurrentObservations().dewPoint).toBe(null);
-    expect(getCurrentObservations().mslPressure).toBe(1000);
-    expect(getCurrentObservations().totalPrecipitation).toBeNull();
+    expect(getCurrentObservations().thp.temp).toBe(25);
+    expect(getCurrentObservations().thp.humidity).toBe(null);
+    expect(getCurrentObservations().thp.dewPoint).toBe(null);
+    expect(getCurrentObservations().thp.mslPressure).toBe(1000);
+    expect(getCurrentObservations().precipitation.totalPrecipitation).toBeNull();
   })
 
   it("temperature invalid humidity valid updates observations", () => {
@@ -64,11 +64,11 @@ describe("updateCurrentObservations", () => {
     updateCurrentThpObservations(observations);
 
     // assert
-    expect(getCurrentObservations().temp).toBe(null);
-    expect(getCurrentObservations().humidity).toBe(50);
-    expect(getCurrentObservations().dewPoint).toBe(null);
-    expect(getCurrentObservations().mslPressure).toBe(1000);
-    expect(getCurrentObservations().totalPrecipitation).toBeNull();
+    expect(getCurrentObservations().thp.temp).toBe(null);
+    expect(getCurrentObservations().thp.humidity).toBe(50);
+    expect(getCurrentObservations().thp.dewPoint).toBe(null);
+    expect(getCurrentObservations().thp.mslPressure).toBe(1000);
+    expect(getCurrentObservations().precipitation.totalPrecipitation).toBeNull();
   })
 });
 
@@ -90,15 +90,15 @@ describe("getSseUpdateData", () => {
     const data = getSseUpdateData();
 
     // assert
-    expect(data.temp).toBe(27);
-    expect(data.humidity).toBe(50);
+    expect(data.thp.temp).toBe(27);
+    expect(data.thp.humidity).toBe(50);
     expect(data.minTemp).toBe(null);
     expect(data.minTempAt).toBe(null);
     expect(data.maxTemp).toBe(null);
     expect(data.maxTempAt).toBe(null);
-    expect(data.mslPressure).toBe(1000);
-    expect(data.dewPoint).toBeCloseTo(15.7,1);
-    expect(data.totalPrecipitation).toBeNull();
+    expect(data.thp.mslPressure).toBe(1000);
+    expect(data.thp.dewPoint).toBeCloseTo(15.7,1);
+    expect(data.precipitation.totalPrecipitation).toBeNull();
   })
 });
 
